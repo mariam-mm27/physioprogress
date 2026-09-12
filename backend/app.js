@@ -3,6 +3,7 @@ const connectDB = require("./config/db");
 const express = require("express");
 const authRoutes = require("./routes/authRoutes");
 const exercisePlanRoutes = require("./routes/exercisePlanRoutes");
+const sessionLogRoutes = require("./routes/sessionLogRoutes");
 const userRoutes = require("./routes/UserRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 const AppError = require("./utils/AppError");
@@ -15,6 +16,7 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/plans", exercisePlanRoutes);
+app.use("/api", sessionLogRoutes);
 app.use("/api/users", userRoutes);
 
 // 404 Handler

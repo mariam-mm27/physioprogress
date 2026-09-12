@@ -48,17 +48,17 @@ const DeleteExercisePlan= async (req,res)=> {
 }
 
 
+
 const GetPatients = async (req, res) => {
     try {
-        
-        // const therapistId = req.user.id;
-        const therapistId = req.query.therapistId;
+        const therapistId = req.user._id;
 
-        const allPlans = await ExercisePlans.find({},"patientId therapistId");
+        const allPlans = await ExercisePlans.find(
+            { therapistId },
+            "patientId"
+        );
 
-        const patients = allPlans
-            .filter(plan => plan.therapistId.toString() === therapistId)
-            .map(plan => plan.patientId.toString());
+        const patients = allPlans.map(plan => plan.patientId.toString());
 
         const uniquePatients = [...new Set(patients)];
 
@@ -75,8 +75,7 @@ const GetPatients = async (req, res) => {
             message: error.message
         });
     }
-};
-
+}
 
 module.exports={
     UpdateExercisePlan,

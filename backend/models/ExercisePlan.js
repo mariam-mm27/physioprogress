@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 
 const exercisePlanSchema = new mongoose.Schema({
    therapistId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Therapist',  
-    required: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Therapist',  
+        required: true
     },
     patientId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -30,6 +30,17 @@ const exercisePlanSchema = new mongoose.Schema({
     },
     videoUrl:{
         type: String,
+    },
+    targetMuscle:{
+        type: String,
+        required: true
+    },
+    customMuscle:{
+        type: String,
+    },
+    videoSource:{
+        type: String,
+        enum: ["custom","api"],
         required: true
     }
 },

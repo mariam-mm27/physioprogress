@@ -3,11 +3,12 @@
     "chalk": "^4.1.2",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.6.0",
     "mongoose": "^9.10.0"
   },
   "scripts": {
-      "start": "node app.js",
+    "start": "node app.js",
     "dev": "nodemon backend/app.js"
   },
   "devDependencies": {

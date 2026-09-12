@@ -7,7 +7,7 @@ const createSessionLog = catchAsync(async (req, res, next) => {
     const { planId, completed, painLevel, notes, loggedAt } = req.body;
     const patientId = req.user._id; // Correct reference to MongoDB _id
 
-    if (!planId || painLevel === undefined) {
+ if (!planId || painLevel === undefined) {
         return next(new AppError("Please provide planId and painLevel.", 400));
     }
 

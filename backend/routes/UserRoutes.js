@@ -1,3 +1,5 @@
+const { protect } = require("../middlewares/authentication");
+const { isPatient } = require("../middlewares/restrictTo");
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/UserController');
@@ -11,6 +13,13 @@ router
 
 router.get('/deleted', userController.getDeletedUsers);
 router.get('/patients', protect, GetPatients);
+
+router.put(
+  '/assign-therapist',
+  protect,
+  isPatient,
+  userController.assignTherapist
+);
 
 router
   .route('/:id')

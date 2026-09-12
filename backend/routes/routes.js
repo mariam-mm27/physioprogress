@@ -1,5 +1,5 @@
 const { createExercisePlan , getExercisePlans} = require("../controllers/ExercisePlanController");
-const { UpdateExercisePlan, DeleteExercisePlan} = require("../controllers/ExercisePlanUpdate&Delete");
+const { UpdateExercisePlan, DeleteExercisePlan} = require("../controllers/ExercisePlanController");
 const express = require("express");
 const { protect } = require("../middlewares/authentication");
 const router = express.Router();

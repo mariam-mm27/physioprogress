@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/UserController');
-const  {GetPatients } = require("../controllers/ExercisePlanUpdate&Delete");
+const  {GetPatients } = require("../controllers/ExercisePlanController");
 const  {protect}  = require("../middlewares/authentication");
 
 router

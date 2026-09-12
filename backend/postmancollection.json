@@ -1,0 +1,126 @@
+{
+  "info": {
+    "name": "PhysioProgress API",
+    "description": "Complete API collection for PhysioProgress with JWT authentication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "patientId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "logId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Session Logs",
+      "item": [
+        {
+          "name": "Create Session Log",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planId\": \"<exercise_plan_id>\",\n  \"completed\": true,\n  \"painLevel\": 5,\n  \"notes\": \"Good session, less pain today\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["logs"]
+            }
+          }
+        },
+        {
+          "name": "Get All Session Logs (Patient)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/logs/patient/{{patientId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["logs", "patient", "{{patientId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Session Log",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"painLevel\": 3,\n  \"notes\": \"Updated - pain level decreased\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/logs/{{logId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["logs", "{{logId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Session Log",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/logs/{{logId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["logs", "{{logId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

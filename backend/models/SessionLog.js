@@ -23,7 +23,9 @@ const sessionLogSchema = new mongoose.Schema({
         max: 10
     },
     notes: {
-        type: String
+        type: String,
+        trim: true,
+        maxlength: 1000
     },
     loggedAt: {
         type: Date,

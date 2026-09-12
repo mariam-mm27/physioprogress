@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const sessionLogSchema = new mongoose.Schema({
     patientId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Patient',
+        ref: 'User', 
         required: true
     },
     planId: {
@@ -32,7 +32,10 @@ const sessionLogSchema = new mongoose.Schema({
 },
 {
     timestamps: true
-}
-)
+});
+
+sessionLogSchema.index({ patientId: 1 });
+sessionLogSchema.index({ planId: 1 });
+sessionLogSchema.index({ patientId: 1, loggedAt: -1 });
 
 module.exports = mongoose.model('SessionLog', sessionLogSchema);

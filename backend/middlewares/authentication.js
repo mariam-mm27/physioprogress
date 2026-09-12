@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken")
 const User = require("../models/User")
 const AppError = require("../utils/AppError")
 
-const protect = async (req, next) => {
+const protect = async (req, res, next) => {
     if (req.headers.authorization) {
         const token = req.headers.authorization.split(" ")[1]   // Bearer token 
         const decode = jwt.verify(token, process.env.SECRET_KEY)

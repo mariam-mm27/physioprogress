@@ -52,7 +52,55 @@ const getSessionLogs = catchAsync(async (req, res, next) => {
     });
 });
 
+const updateSessionLog = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { completed, painLevel, notes } = req.body;
+
+        const updatedSessionLog = await SessionLogs.findByIdAndUpdate(
+            id,
+            { completed, painLevel, notes },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedSessionLog) {
+            return res.status(404).json({ message: "Session Log not found" });
+        }
+
+        res.status(200).json({
+            message: "Session Log Updated Successfully",
+            sessionLog: updatedSessionLog
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const deleteSessionLog = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deletedSessionLog = await SessionLogs.findByIdAndDelete(id);
+
+        if (!deletedSessionLog) {
+            return res.status(404).json({ message: "Session Log not found" });
+        }
+
+        res.status(200).json({
+            message: "Session Log Deleted Successfully",
+            sessionLog: deletedSessionLog
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
 module.exports = {
     createSessionLog,
-    getSessionLogs
-};
+    getSessionLogs,
+    updateSessionLog,
+    deleteSessionLog
+}
+

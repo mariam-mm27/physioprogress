@@ -45,10 +45,15 @@ exports.getOneUser = catchAsync(async (req, res, next) => {
     data: user
   });
 });
-
 exports.createUser = catchAsync(async (req, res, next) => {
   if (req.body.password) {
     req.body.password = await bcrypt.hash(req.body.password, +process.env.SALT_ROUNDS);
+  }
+
+  if (req.body.role === 'patient') {
+    delete req.body.specialization;
+  } else if (req.body.role === 'therapist') {
+    delete req.body.injuryType;
   }
 
   const user = await User.create(req.body);
@@ -63,13 +68,22 @@ exports.createUser = catchAsync(async (req, res, next) => {
 exports.updateUser = catchAsync(async (req, res, next) => {
   if (req.body.password) delete req.body.password;
 
+  const existingUser = await User.findOne({ _id: req.params.id, isDeleted: false });
+  if (!existingUser) return next(new AppError(404, `No user found with this id ${req.params.id}`));
+
+  const userRole = req.body.role || existingUser.role;
+
+  if (userRole === 'patient') {
+    delete req.body.specialization;
+  } else if (userRole === 'therapist') {
+    delete req.body.injuryType;
+  }
+
   const user = await User.findOneAndUpdate(
     { _id: req.params.id, isDeleted: false },
     { ...req.body },
     { returnDocument: "after", runValidators: true }
   );
-
-  if (!user) return next(new AppError(404, `No user found with this id ${req.params.id}`));
 
   res.status(200).json({
     success: true,
@@ -134,5 +148,37 @@ exports.assignTherapist = catchAsync(async (req, res, next) => {
     success: true,
     message: "Therapist assigned successfully",
     data: patient
+  });
+});
+
+exports.updateMe = catchAsync(async (req, res, next) => {
+  if (req.body.password || req.body.role) {
+    return next(new AppError(400, "This route is not for password or role updates."));
+  }
+
+  const allowedFields = ['fullName', 'injuryType', 'specialization'];
+  const filteredBody = {};
+
+  Object.keys(req.body).forEach((key) => {
+    if (allowedFields.includes(key)) {
+      filteredBody[key] = req.body[key];
+    }
+  });
+
+  if (req.user.role === 'patient') {
+    delete filteredBody.specialization;
+  } else if (req.user.role === 'therapist') {
+    delete filteredBody.injuryType;
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    filteredBody,
+    { returnDocument: "after", runValidators: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: updatedUser
   });
 });

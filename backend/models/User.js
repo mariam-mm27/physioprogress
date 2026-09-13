@@ -20,17 +20,48 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Please provide a password'],
+      required: function() {
+      return !this.googleId; },
       minlength: [6, 'Password must be at least 6 characters long'],
       match: [
         /^(?=.*[!@#$%^&*(),.?":{}|<>])/,
         'Password must contain at least one special character'
       ]
     },
+    googleId: {
+    type: String,
+    unique: true,
+    sparse: true 
+    },
     role: {
       type: String,
       enum: ['therapist', 'patient'],
       required: [true, 'Role must be either therapist or patient']
+    },
+    injuryType: {
+      type: String,
+      trim: true,
+      validate: {
+        validator: function (value) {
+          if (value && this.role !== 'patient') return false;
+          return true;
+        },
+        message: 'injuryType can only be set for patients'
+      }
+    },
+    specialization: {
+      type: [String],
+      validate: {
+        validator: function (value) {
+          if (value && value.length > 0 && this.role !== 'therapist') return false;
+          return true;
+        },
+        message: 'specialization can only be set for therapists'
+      }
+    },
+    profilePicture: {
+      type: String,
+      default: null
     },
     assignedTherapist: {
       type: mongoose.Schema.Types.ObjectId,

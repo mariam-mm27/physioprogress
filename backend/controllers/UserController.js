@@ -97,3 +97,42 @@ exports.DeleteUser = catchAsync(async (req, res, next) => {
 
   res.status(204).send();
 });
+
+exports.assignTherapist = catchAsync(async (req, res, next) => {
+  const { therapistId } = req.body;
+
+  const therapist = await User.findOne({
+    _id: therapistId,
+    role: "therapist",
+    isDeleted: false
+  });
+
+  if (!therapist) {
+    return next(new AppError(404, "Therapist not found"));
+  }
+
+  const patient = await User.findOneAndUpdate(
+    {
+      _id: req.user._id,
+      role: "patient",
+      isDeleted: false
+    },
+    {
+      assignedTherapist: therapistId
+    },
+    {
+      new: true,
+      runValidators: true
+    }
+  );
+
+  if (!patient) {
+    return next(new AppError(404, "Patient not found"));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Therapist assigned successfully",
+    data: patient
+  });
+});

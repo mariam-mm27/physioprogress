@@ -13,6 +13,10 @@ const protect = async (req, res, next) => {
                 _id: decode._id
             });
 
+            if (!user) {
+                return next(new AppError(401, "User no longer exists"));
+            }
+
             req.user = user;
             next();
         } else {
@@ -27,4 +31,4 @@ const protect = async (req, res, next) => {
     }
 };
 
-module.exports = { protect }
+module.exports = { protect };

@@ -5,7 +5,6 @@ const { promisify } = require("util");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
-const { customAlphabet } = require("nanoid");
 const sendEmail = require("../utils/sendEmail");
 const template = require("../utils/emailTemplate");
 
@@ -22,7 +21,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   const hashPassword = await bcrypt.hash(password, +process.env.SALT_ROUNDS);
 
   // Generate OTP
-  const otp = customAlphabet("0123456789", 6)();
+  const otp = crypto.randomInt(0, 1000000).toString().padStart(6, "0");
   const confirmOTP = await bcrypt.hash(otp, +process.env.SALT_ROUNDS);
   const OTPExpired = Date.now() + 10 * 60 * 1000;
 

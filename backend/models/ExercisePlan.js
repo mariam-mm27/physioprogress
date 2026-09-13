@@ -31,6 +31,18 @@ const exercisePlanSchema = new mongoose.Schema({
     videoUrl:{
         type: String,
         required: true
+    },
+    targetMuscle:{
+        type: String,
+        required: true
+    },
+    customMuscle:{
+        type: String,
+    },
+    videoSource:{
+        type: String,
+        enum: ['custom','api'],
+        required: true
     }
 },
 {

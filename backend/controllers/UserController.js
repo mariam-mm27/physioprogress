@@ -182,3 +182,37 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     data: updatedUser
   });
 });
+
+
+exports.uploadProfilePicture = catchAsync(async (req, res, next) => {
+  if (!req.file) {
+    return next(new AppError(400, "Please upload an image file"));
+  }
+
+  const { uploadBufferToCloudinary, deleteFromCloudinary } = require("../middlewares/cloudinary");
+  
+  const uploadResult = await uploadBufferToCloudinary(req.file.buffer, "physioprogress/profiles");
+  
+  const currentUser = await User.findById(req.user._id);
+  
+  if (currentUser.profilePicture && currentUser.profilePicture.publicId) {
+    await deleteFromCloudinary(currentUser.profilePicture.publicId);
+  }
+  
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      profilePicture: {
+        url: uploadResult.url,
+        publicId: uploadResult.publicId
+      }
+    },
+    { returnDocument: "after", runValidators: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Profile picture uploaded successfully",
+    data: updatedUser
+  });
+});

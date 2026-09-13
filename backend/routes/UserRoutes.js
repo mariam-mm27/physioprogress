@@ -3,8 +3,9 @@ const { isPatient } = require("../middlewares/restrictTo");
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/UserController');
-const  {GetPatients } = require("../controllers/ExercisePlanUpdate&Delete");
+const  {GetPatients } = require("../controllers/ExercisePlanController");
 const  {protect}  = require("../middlewares/authentication");
+const restrictTo = require("../middlewares/restrictTo");
 
 router
   .route('/')
@@ -12,7 +13,7 @@ router
   .post(userController.createUser);
 
 router.get('/deleted', userController.getDeletedUsers);
-router.get('/patients', protect, GetPatients);
+router.get('/patients', protect,restrictTo("therapist"),GetPatients);
 
 router.put(
   '/assign-therapist',

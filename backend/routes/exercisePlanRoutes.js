@@ -1,6 +1,6 @@
 const express = require("express");
 const { createExercisePlan, getExercisePlans } = require("../controllers/ExercisePlanController");
-const {UpdateExercisePlan,DeleteExercisePlan} = require("../controllers/ExercisePlanUpdate&Delete");
+const {UpdateExercisePlan,DeleteExercisePlan} = require("../controllers/ExercisePlanController");
 const { protect } = require("../middlewares/authentication");
 const restrictTo = require("../middlewares/restrictTo");
 

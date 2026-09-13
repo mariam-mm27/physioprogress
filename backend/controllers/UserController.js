@@ -26,7 +26,6 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     data: users
   });
 });
-
 exports.getDeletedUsers = catchAsync(async (req, res, next) => {
   const users = await User.find({ isDeleted: true }).select("+isDeleted +deletedAt");
   res.status(200).json({
@@ -35,7 +34,6 @@ exports.getDeletedUsers = catchAsync(async (req, res, next) => {
     data: users
   });
 });
-
 exports.getOneUser = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ isDeleted: false, _id: req.params.id }).populate('assignedTherapist', 'fullName email');
   if (!user) return next(new AppError(404, `No User found with this id ${req.params.id}`));
@@ -99,40 +97,64 @@ exports.DeleteUser = catchAsync(async (req, res, next) => {
 });
 
 exports.assignTherapist = catchAsync(async (req, res, next) => {
-  const { therapistId } = req.body;
-
-  const therapist = await User.findOne({
-    _id: therapistId,
-    role: "therapist",
-    isDeleted: false
-  });
-
-  if (!therapist) {
-    return next(new AppError(404, "Therapist not found"));
-  }
+  const { patientId } = req.params;
+  const therapistId = req.user._id;
 
   const patient = await User.findOneAndUpdate(
     {
-      _id: req.user._id,
+      _id: patientId,
+      isDeleted: false,
       role: "patient",
-      isDeleted: false
+      assignedTherapist: null
     },
-    {
-      assignedTherapist: therapistId
-    },
-    {
-      new: true,
-      runValidators: true
-    }
+    { assignedTherapist: therapistId },
+    { new: true, runValidators: true }
   );
 
   if (!patient) {
-    return next(new AppError(404, "Patient not found"));
+    const existingPatient = await User.findOne({
+      _id: patientId,
+      isDeleted: false,
+      role: "patient"
+    });
+
+    if (!existingPatient) {
+      return next(new AppError(404, `No patient found with this id ${patientId}`));
+    }
+
+    if (existingPatient.assignedTherapist?.toString() === therapistId.toString()) {
+      return next(new AppError(400, "This patient is already assigned to you"));
+    }
+
+    return next(new AppError(400, "This patient already has an assigned therapist"));
   }
 
+  await patient.populate("assignedTherapist", "fullName email");
   res.status(200).json({
     success: true,
     message: "Therapist assigned successfully",
-    data: patient
+    data: patient.toObject({
+      transform: (doc, ret) => {
+        delete ret.password;
+        delete ret.confirmOTP;
+        delete ret.OTPExpired;
+        delete ret.resetToken;
+        return ret;
+      }
+    })
   });
 });
+exports.getUnassignedPatients = catchAsync(async (req, res, next) => {
+  const patients = await User.find({
+    role: "patient",
+    isDeleted: false,
+    assignedTherapist: null
+  }).select("-password -confirmOTP -OTPExpired -resetToken");
+
+  res.status(200).json({
+    success: true,
+    count: patients.length,
+    data: patients
+  });
+});
+

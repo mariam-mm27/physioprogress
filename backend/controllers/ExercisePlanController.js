@@ -62,8 +62,8 @@ const UpdateExercisePlan= catchAsync(async (req,res,next)=> {
             videoUrl
         } = req.body;
         const exercisePlan = await ExercisePlans.findOneAndUpdate({_id:req.params.id, therapistId: req.user._id},
-                                                                  {title,exerciseName,reps,frequencyPerWeek,videoUrl,updatedAt: new Date()},
-                                                                  {returnDocument:"after",runValidators:true})
+        {title,exerciseName,reps,frequencyPerWeek,videoUrl,updatedAt: new Date()},
+        {returnDocument:"after",runValidators:true})
         if (!exercisePlan) {
         return next(
             new AppError(

@@ -4,12 +4,12 @@ const mongoose = require('mongoose');
 const exercisePlanSchema = new mongoose.Schema({
    therapistId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Therapist',  
+    ref: 'User',  
     required: true
     },
     patientId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Patient',  
+        ref: 'User',  
         required: true
     },
     title:{

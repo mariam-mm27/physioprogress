@@ -1,3 +1,5 @@
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
@@ -33,7 +35,9 @@ exports.signup = catchAsync(async (req, res, next) => {
     role,
     password: hashPassword,
     confirmOTP,
-    OTPExpired
+    OTPExpired,
+    injuryType: role === 'patient' ? injuryType : undefined,
+    specialization: role === 'therapist' ? specialization : undefined
   });
 
   // Send OTP to email
@@ -140,8 +144,70 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    return next(new AppError(404, "User not found"));
+  }
+
   res.status(200).json({
     success: true,
-    data: req.user
+    data: user
+  });
+});
+
+
+//google auth
+exports.googleAuth = catchAsync(async (req, res, next) => {
+  const { idToken, role } = req.body;
+
+  if (!idToken) {
+    return next(new AppError(400, "Google ID Token is required"));
+  }
+  let ticket;
+  try {
+    ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+  } catch (err) {
+    return next(new AppError(400, "Invalid or expired Google Token"));
+  }
+
+  const payload = ticket.getPayload();
+  const { email, name, sub: googleId } = payload;
+
+  let user = await User.findOne({ 
+    $or: [{ email }, { googleId }],
+    isDeleted: false 
+  });
+// sign up
+  if (!user) {
+    user = await User.create({
+      fullName: name,
+      email: email,
+      googleId: googleId,
+      role: role || "patient", 
+      isConfirmed: true 
+    });
+  } else if (!user.googleId) {
+    user.googleId = googleId;
+    user.isConfirmed = true;
+    await user.save({ validateBeforeSave: false });
+  }
+
+  const token = await jwtSign(
+    { _id: user._id, role: user.role },
+    process.env.SECRET_KEY,
+    { expiresIn: "7d" }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Logged in successfully with Google",
+    data: {
+      accessToken: token,
+      user
+    }
   });
 });

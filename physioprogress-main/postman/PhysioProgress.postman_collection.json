@@ -1,0 +1,287 @@
+{
+  "info": {
+    "name": "PhysioProgress API",
+    "description": "Postman collection for the PhysioProgress backend. Run Login first to save the JWT access token into the active environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "jwtToken", "value": "" },
+    { "key": "patientId", "value": "" },
+    { "key": "therapistId", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "planId", "value": "" },
+    { "key": "sessionLogId", "value": "" },
+    { "key": "resetToken", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{jwtToken}}", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data._id) {",
+                  "    pm.environment.set('userId', response.data._id);",
+                  "    if (response.data.role === 'patient') pm.environment.set('patientId', response.data._id);",
+                  "    if (response.data.role === 'therapist') pm.environment.set('therapistId', response.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Test Patient\",\n  \"email\": \"patient@example.com\",\n  \"password\": \"Password!123\",\n  \"role\": \"patient\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "Confirm Email",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"patient@example.com\",\n  \"confirmOTP\": \"{{confirmOTP}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/confirm-email"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.accessToken) {",
+                  "    pm.environment.set('jwtToken', response.data.accessToken);",
+                  "    console.log('JWT saved to jwtToken');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"patient@example.com\",\n  \"password\": \"Password!123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me"
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"patient@example.com\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/forget-password"
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"NewPassword!123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/reset-password/{{resetToken}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Exercise Plans",
+      "item": [
+        {
+          "name": "Create Exercise Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.exercisePlan && response.exercisePlan._id) pm.environment.set('planId', response.exercisePlan._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Knee Strengthening\",\n  \"exerciseName\": \"Straight Leg Raise\",\n  \"reps\": 10,\n  \"frequencyPerWeek\": 3,\n  \"videoUrl\": \"https://example.com/straight-leg-raise\"\n}"
+            },
+            "url": "{{baseUrl}}/plans/{{patientId}}"
+          }
+        },
+        {
+          "name": "Get Patient Exercise Plans",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/plans/{{patientId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Active Users",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/users"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Test Therapist\",\n  \"email\": \"therapist@example.com\",\n  \"password\": \"Password!123\",\n  \"role\": \"therapist\"\n}"
+            },
+            "url": "{{baseUrl}}/users"
+          }
+        },
+        {
+          "name": "Get Deleted Users",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/users/deleted"
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/users/{{userId}}"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Updated Test User\"\n}"
+            },
+            "url": "{{baseUrl}}/users/{{userId}}"
+          }
+        },
+        {
+          "name": "Soft Delete User",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/{{userId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Session Logs",
+      "item": [
+        {
+          "name": "Create Session Log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.sessionLog && response.sessionLog._id) pm.environment.set('sessionLogId', response.sessionLog._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planId\": \"{{planId}}\",\n  \"completed\": true,\n  \"painLevel\": 4,\n  \"notes\": \"Completed all repetitions.\"\n}"
+            },
+            "url": "{{baseUrl}}/logs"
+          }
+        },
+        {
+          "name": "Get Patient Session Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/logs/patient/{{patientId}}"
+          }
+        },
+        {
+          "name": "Update Session Log",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"painLevel\": 3,\n  \"notes\": \"Pain improved after stretching.\"\n}"
+            },
+            "url": "{{baseUrl}}/logs/{{sessionLogId}}"
+          }
+        },
+        {
+          "name": "Delete Session Log",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/logs/{{sessionLogId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

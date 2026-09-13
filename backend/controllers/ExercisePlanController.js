@@ -5,52 +5,73 @@ const { ReturnDocument } = require("mongodb");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
 
-const createExercisePlan = catchAsync(async (req, res, next) => {
-    const { title, exerciseName, reps, frequencyPerWeek, videoUrl, targetMuscle, customMuscle, videoSource } = req.body;
-    const therapistId = req.user.id;
-    const patientId = req.params.patientId;
+const createExercisePlan = async (req, res) => {
+    try{
+        const{title, exerciseName, reps, frequencyPerWeek, videoUrl} = req.body;
+        const therapistId = req.user.id; 
+        const patientId = req.params.patientId;
 
-    const newExercisePlan = await ExercisePlans.create({
-        therapistId,
-        patientId,
-        title,
-        exerciseName,
-        reps,
-        frequencyPerWeek,
-        videoUrl,
-        targetMuscle,
-        customMuscle,
-        videoSource
-    });
+        const newExercisePlan = await ExercisePlans.create({
+            therapistId,
+            patientId,
+            title,
+            exerciseName,
+            reps,
+            frequencyPerWeek,
+            videoUrl
+        });
+        res.status(201).json({
+            message: "Exercise Plan Created Successfully",
+            exercisePlan: newExercisePlan
+        });
 
-    res.status(201).json({
-        message: "Exercise Plan Created Successfully",
-        exercisePlan: newExercisePlan
-    });
-});
-
-
-const getExercisePlans = catchAsync(async (req, res, next) => {
-    const therapistId = req.user.id;
-    const patientId = req.params.patientId;
-
-    const filter= {
-        patientId: patientId,
-        therapistId: therapistId
-    };
-    if(req.query.muscle){
-        filter.targetMuscle = req.query.muscle;
+    }catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
     }
-    if(req.query.plan){
-        filter.title = req.query.plan;
-    }
-    const exercisePlans = await ExercisePlans.find(filter);
+}
 
-    res.status(200).json({
-        message: "Exercise Plans Retrieved Successfully",
-        exercisePlans: exercisePlans
-    });
-});
+const getExercisePlans = async (req, res) => {
+    try{
+        const therapistId = req.user.id;
+        const patientId = req.params.patientId;
+
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        const sort = req.query.sort || "-createdAt";
+
+        const exercisePlans = await ExercisePlans.find(
+            {
+                 patientId:patientId,
+                  therapistId:therapistId 
+            }
+        )
+        .sort(sort)
+        .skip(skip)
+        .limit(limit);
+
+        const totalPlans = await ExercisePlans.countDocuments({
+            patientId: patientId,
+            therapistId: therapistId
+        });
+
+        res.status(200).json({
+            message: "Exercise Plans Retrieved Successfully",
+            exercisePlans: exercisePlans,
+            pagination: {
+            currentPage: page,
+            limit: limit,
+            totalPlans: totalPlans,
+            totalPages: Math.ceil(totalPlans / limit)
+        }
+        });
+
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+}
 
 
 const UpdateExercisePlan= catchAsync(async (req,res,next)=> {
@@ -59,14 +80,11 @@ const UpdateExercisePlan= catchAsync(async (req,res,next)=> {
             exerciseName,
             reps,
             frequencyPerWeek,
-            videoUrl,
-            targetMuscle,
-            customMuscle,
-            videoSource
+            videoUrl
         } = req.body;
         const exercisePlan = await ExercisePlans.findOneAndUpdate({_id:req.params.id, therapistId: req.user._id},
-        {title,exerciseName,reps,frequencyPerWeek,videoUrl,targetMuscle,customMuscle,videoSource,updatedAt: new Date()},
-        {returnDocument:"after",runValidators:true})
+                                                                  {title,exerciseName,reps,frequencyPerWeek,videoUrl,updatedAt: new Date()},
+                                                                  {returnDocument:"after",runValidators:true})
         if (!exercisePlan) {
         return next(
             new AppError(
@@ -105,6 +123,7 @@ const GetPatients = catchAsync(async (req, res, next) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const sort = req.query.sort || "-createdAt";
 
     const patients = await User.find({
         role: "patient",
@@ -112,6 +131,7 @@ const GetPatients = catchAsync(async (req, res, next) => {
         isDeleted: false
     })
     .select("fullName email")
+    .sort(sort)
     .skip(skip)
     .limit(limit);
 

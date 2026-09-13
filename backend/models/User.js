@@ -60,8 +60,14 @@ const UserSchema = new mongoose.Schema(
       }
     },
     profilePicture: {
-      type: String,
-      default: null
+      url: {
+        type: String,
+        default: null
+      },
+      publicId: {
+        type: String,
+        default: null
+      }
     },
     assignedTherapist: {
       type: mongoose.Schema.Types.ObjectId,

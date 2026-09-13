@@ -40,13 +40,26 @@ const createSessionLog = catchAsync(async (req, res, next) => {
 
 const getSessionLogs = catchAsync(async (req, res, next) => {
     const { patientId } = req.params;
+    const { startDate, endDate } = req.query;
     const currentUser = req.user;
     
     if (currentUser.role !== 'therapist' && currentUser._id.toString() !== patientId) {
         return next(new AppError(403, "You do not have permission to access these session logs."));
     }
+    const filter = { patientId };
 
-    const sessionLogs = await SessionLogs.find({ patientId }).sort({ loggedAt: -1 });
+    if (startDate){
+        filter.loggedAt={
+            $gte:new Date (`${startDate}T00:00:00.000Z`)
+        };
+    }
+    if (endDate){
+        filter.loggedAt= {
+            ...filter.loggedAt,
+            $lte:new Date (`${endDate}T23:59:59.999Z`)
+        }
+    }
+    const sessionLogs = await SessionLogs.find(filter).sort({ loggedAt: -1 });
 
     res.status(200).json({
         status: "success",

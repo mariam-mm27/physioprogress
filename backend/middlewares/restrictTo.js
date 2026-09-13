@@ -2,7 +2,7 @@ const AppError = require("../utils/AppError");
 
 const restrictTo = (...roles) => (req, res, next) => {
     const { role } = req.user;
-
+    
     if (roles.includes(role)) {
     return next();
     }

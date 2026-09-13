@@ -1,34 +1,31 @@
 const jwt = require("jsonwebtoken");
+const catchAsync = require("../utils/catchAsync");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
 
-const protect = async (req, res, next) => {
-    try {
-        if (req.headers.authorization) {
-            const token = req.headers.authorization.split(" ")[1];
-            const decode = jwt.verify(token, process.env.SECRET_KEY);
+const protect = catchAsync(async (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-            const user = await User.findOne({
-                isDeleted: false,
-                _id: decode._id
-            });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next(new AppError(401, "You are unauthorized please login first !"));
+  }
 
-            if (!user) {
-                return next(new AppError(401, "User no longer exists"));
-            }
+  const token = authHeader.split(" ")[1];
 
-            req.user = user;
-            next();
-        } else {
-            return next(
-                new AppError(401, "You are unauthorized please login first !")
-            );
-        }
-    } catch (error) {
-        return next(
-            new AppError(401, "Invalid token or session expired")
-        );
-    }
-};
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.SECRET_KEY);
+  } catch (err) {
+    return next(new AppError(401, "Invalid or expired token, please login again !"));
+  }
+
+  const user = await User.findOne({ isDeleted: false, _id: decoded._id });
+  if (!user) {
+    return next(new AppError(401, "The user belonging to this token no longer exists"));
+  }
+
+  req.user = user;
+  next();
+});
 
 module.exports = { protect };

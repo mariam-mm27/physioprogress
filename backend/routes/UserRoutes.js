@@ -14,10 +14,19 @@ router
 router.get('/deleted', userController.getDeletedUsers);
 router.get('/patients', protect, GetPatients);
 
-router.put(
-  '/assign-therapist',
+router.get(
+  '/unassigned-patients',
   protect,
-  isPatient,
+  restrictTo('therapist'),
+  userController.getUnassignedPatients
+);
+
+router.put(
+  '/assign-therapist/:patientId',
+  protect,
+  restrictTo('therapist'),
+  validateObjectIdParam('patientId'),
+  runValidation,
   userController.assignTherapist
 );
 

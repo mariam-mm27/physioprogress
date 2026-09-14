@@ -1,0 +1,913 @@
+{
+  "info": {
+    "_postman_id": "fe78cfe6-7669-4a98-9374-6711f25dfa32",
+    "name": "PhysioProgress",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58100006",
+    "_collection_link": "https://go.postman.co/collection/58100006-fe78cfe6-7669-4a98-9374-6711f25dfa32?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"rahmahamad330@gmail.com\",\r\n  \"password\": \"123456\",\r\n  \"fullName\": \"Rahma\",\r\n  \"role\": \"patient\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/auth/register",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Email",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"rahmahamad330@gmail.com\",\r\n  \"confirmOTP\": \"397758\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/auth/confirm-email",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "confirm-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "if (response && response.data && response.data.accessToken) {\r",
+                  "    pm.collectionVariables.set(\"jwtToken\", response.data.accessToken);\r",
+                  "\r",
+                  "    console.log(\r",
+                  "        \"Token saved successfully:\",\r",
+                  "        response.data.accessToken\r",
+                  "    );\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"rahmambrok0@gmail.com\",\r\n    \"password\": \"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/auth/login",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Me",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURl}}/api/auth/me",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forget Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"rahmambrok0@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/auth/forget-password",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forget-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"password\": \"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/auth/reset-password/707d3556b069bf6609826a00b0a7e48a69f48eeeb615ecfaaf332ceba34b44a1",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password",
+                "707d3556b069bf6609826a00b0a7e48a69f48eeeb615ecfaaf332ceba34b44a1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Google Auth",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/auth/google",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "google"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURl}}/api/users/patients",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "patients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get One user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURl}}/api/users/6aa5d1a7ca965ded9963c2e3",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6aa5d1a7ca965ded9963c2e3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deleted Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURl}}/api/users/deleted",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "deleted"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Patients",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURl}}/api/users/patients",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "patients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"Rahma Hamad Ibrahim \"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/users/6aa5d1a7ca965ded9963c2e3",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6aa5d1a7ca965ded9963c2e3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"Rahma\",\r\n  \"email\": \"rahmahamad300@gmail.com\",\r\n  \"password\": \"123456\",\r\n  \"role\": \"patient\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/users",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Therapist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"therapistId\": \"6aa5d1a7ca965ded9963c2e3\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/users/assign-therapist",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "assign-therapist"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseURl}}/api/users/6aa5def3b6e2faca60e9b8b4",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6aa5def3b6e2faca60e9b8b4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"Rahma 2 Updated\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/users/profile",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Profile Picture",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "profilePicture",
+                  "type": "file",
+                  "uuid": "91d19cd4-699d-483e-9b4a-227715f9393f",
+                  "src": "/C:/Users/Admin/Downloads/программирование.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/users/upload-picture",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "upload-picture"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Exercise Plans",
+      "item": [
+        {
+          "name": "Create Exercise Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "if (response && response.exercisePlan && response.exercisePlan._id) {\r",
+                  "    pm.collectionVariables.set(\r",
+                  "        \"planId\",\r",
+                  "        response.exercisePlan._id\r",
+                  "    );\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Knee Rehabilitation\",\r\n  \"exerciseName\": \"Squats\",\r\n  \"reps\": 15,\r\n  \"frequencyPerWeek\": 4,\r\n  \"videoUrl\": \"https://example.com/squats\",\r\n  \"targetMuscle\": \"Quadriceps\",\r\n  \"customMuscle\": \"\",\r\n  \"videoSource\": \"custom\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/plans/{{patientid}}",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{patientid}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Exercise Plans",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/plans/{{patientid}}",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{patientid}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Exercise Plan",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Updated Knee Rehabilitation\",\r\n  \"exerciseName\": \"Squats\",\r\n  \"reps\": 15,\r\n  \"frequencyPerWeek\": 4,\r\n  \"videoUrl\": \"https://example.com/squats\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/plans/{{planid}}",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{planid}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Exercise Plan",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseURl}}/api/plans/{{planid}}",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{planid}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Session Logs",
+      "item": [
+        {
+          "name": "Create Session Log",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"planId\": \"6aa71f1c8f6f80e2665f3c97\",\r\n    \"completed\": true,\r\n    \"painLevel\": 5,\r\n    \"notes\": \"Leg raises completed successfully\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/logs",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "logs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Session Logs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURl}}/api/logs/patient/{{patientid}}?startDate=2026-09-13&endDate=2026-09-13",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "logs",
+                "patient",
+                "{{patientid}}"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-09-13"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-09-13"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Session Log",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"painLevel\": 5,\r\n  \"notes\": \"Pain improved after exercise\",\r\n  \"completed\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURl}}/api/logs/6aa720358f6f80e2665f3c98",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "logs",
+                "6aa720358f6f80e2665f3c98"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Session Log",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseURl}}/api/logs/6aa720358f6f80e2665f3c98",
+              "host": [
+                "{{baseURl}}"
+              ],
+              "path": [
+                "api",
+                "logs",
+                "6aa720358f6f80e2665f3c98"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwtToken",
+      "secret": true
+    },
+    {
+      "key": "baseURl",
+      "value": ""
+    },
+    {
+      "key": "patientid",
+      "value": ""
+    },
+    {
+      "key": "planid",
+      "value": ""
+    },
+    {
+      "key": "planId",
+      "value": ""
+    }
+  ]
+}

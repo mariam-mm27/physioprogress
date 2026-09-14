@@ -6,6 +6,7 @@ const authRoutes = require("./routes/authRoutes");
 const exercisePlanRoutes = require("./routes/exercisePlanRoutes");
 const sessionLogRoutes = require("./routes/sessionLogRoutes");
 const userRoutes = require("./routes/UserRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 const AppError = require("./utils/AppError");
 const ExpressMongoSanitize = require("express-mongo-sanitize");
@@ -51,6 +52,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/plans", exercisePlanRoutes);
 app.use("/api", sessionLogRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api", analyticsRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {

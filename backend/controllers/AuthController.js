@@ -14,8 +14,7 @@ const template = require("../utils/emailTemplate");
 const jwtSign = promisify(jwt.sign);
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const { email, password, fullName, role } = req.body;
-
+const { email, password, fullName, role, injuryType, specialization } = req.body;
   // Check if email already exists
   const findUser = await User.findOne({ email, isDeleted: false });
   if (findUser) return next(new AppError(400, "This email is already used"));

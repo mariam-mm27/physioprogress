@@ -20,8 +20,9 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: function() {
-      return !this.googleId; },
+      required: function () {
+        return !this.googleId;
+      },
       minlength: [6, 'Password must be at least 6 characters long'],
       match: [
         /^(?=.*[!@#$%^&*(),.?":{}|<>])/,
@@ -29,9 +30,9 @@ const UserSchema = new mongoose.Schema(
       ]
     },
     googleId: {
-    type: String,
-    unique: true,
-    sparse: true 
+      type: String,
+      unique: true,
+      sparse: true
     },
     role: {
       type: String,
@@ -94,12 +95,23 @@ const UserSchema = new mongoose.Schema(
     deletedAt: {
       type: Date,
       default: null
-    }
+    },
+    therapistCode: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
+    patientCode: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
   },
   {
     timestamps: true,
     versionKey: false
   }
+
 );
 
 const User = mongoose.model('User', UserSchema);

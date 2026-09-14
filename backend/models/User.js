@@ -60,6 +60,18 @@ const UserSchema = new mongoose.Schema(
         message: 'specialization can only be set for therapists'
       }
     },
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Bio cannot exceed 500 characters'],
+      validate: {
+        validator: function (value) {
+          if (value && this.role !== 'therapist') return false;
+          return true;
+        },
+        message: 'bio can only be set for therapists'
+      }
+    },
     profilePicture: {
       url: {
         type: String,

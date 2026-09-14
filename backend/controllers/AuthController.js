@@ -14,7 +14,7 @@ const template = require("../utils/emailTemplate");
 const jwtSign = promisify(jwt.sign);
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const { email, password, fullName, role, injuryType, specialization, therapistCode } = req.body;
+  const { email, password, fullName, role, injuryType, specialization, bio, therapistCode } = req.body;
   // Check if email already exists
   const findUser = await User.findOne({ email, isDeleted: false });
   if (findUser) return next(new AppError(400, "This email is already used"));
@@ -54,7 +54,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     patientCode: role === "patient" ? code : undefined,
     assignedTherapist: role === "patient" ? assignedTherapist : null,
     injuryType: role === 'patient' ? injuryType : undefined,
-    specialization: role === 'therapist' ? specialization : undefined
+    specialization: role === 'therapist' ? specialization : undefined,
+    bio: role === 'therapist' ? bio : undefined
   });
 
   // Send OTP to email

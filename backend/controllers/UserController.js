@@ -75,6 +75,7 @@ exports.updateUser = catchAsync(async (req, res, next) => {
 
   if (userRole === 'patient') {
     delete req.body.specialization;
+    delete req.body.bio;
   } else if (userRole === 'therapist') {
     delete req.body.injuryType;
   }
@@ -156,7 +157,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     return next(new AppError(400, "This route is not for password or role updates."));
   }
 
-  const allowedFields = ['fullName', 'injuryType', 'specialization'];
+  const allowedFields = ['fullName', 'injuryType', 'specialization', 'bio', 'profilePicture'];
   const filteredBody = {};
 
   Object.keys(req.body).forEach((key) => {
@@ -167,6 +168,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
   if (req.user.role === 'patient') {
     delete filteredBody.specialization;
+    delete filteredBody.bio;
   } else if (req.user.role === 'therapist') {
     delete filteredBody.injuryType;
   }
@@ -225,8 +227,8 @@ exports.assignPatient = catchAsync(async (req, res, next) => {
   if (req.user.role !== 'therapist') {
     return next(new AppError(403, "Only therapists can assign patients"));
   }
-  const patient = await User.findOneAndUpdate({
-    patientcode,
+  const patient = await User.findOne({
+    patientCode,
     role: "patient",
     isDeleted: false
   });
@@ -247,14 +249,26 @@ exports.assignPatient = catchAsync(async (req, res, next) => {
 })
 
 exports.getUnassignedPatients = catchAsync(async (req, res, next) => {
-  const patients = await User.find({
+  const page = Math.max(Number(req.query.page) || 1, 1);
+  const limit = Math.max(Number(req.query.limit) || 10, 1);
+  const skip = (page - 1) * limit;
+
+  const filter = await User.find({
     role: "patient",
     assignedTherapist: null,
     isDeleted: false
   })
+  const [patients, totalResults] = await Promise.all([
+    User.find(filter).skip(skip).limit(limit),
+    User.countDocuments(filter)
+  ]);
+
   res.status(200).json({
     success: true,
     results: patients.length,
+    totalResults,
+    totalPages: Math.ceil(totalResults / limit),
+    currentPage: page,
     data: patients
   });
 })

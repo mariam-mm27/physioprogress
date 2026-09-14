@@ -182,3 +182,79 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     data: updatedUser
   });
 });
+
+
+exports.uploadProfilePicture = catchAsync(async (req, res, next) => {
+  if (!req.file) {
+    return next(new AppError(400, "Please upload an image file"));
+  }
+
+  const { uploadBufferToCloudinary, deleteFromCloudinary } = require("../middlewares/cloudinary");
+
+  const uploadResult = await uploadBufferToCloudinary(req.file.buffer, "physioprogress/profiles");
+
+  const currentUser = await User.findById(req.user._id);
+
+  if (currentUser.profilePicture && currentUser.profilePicture.publicId) {
+    await deleteFromCloudinary(currentUser.profilePicture.publicId);
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      profilePicture: {
+        url: uploadResult.url,
+        publicId: uploadResult.publicId
+      }
+    },
+    { returnDocument: "after", runValidators: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Profile picture uploaded successfully",
+    data: updatedUser
+  });
+});
+
+exports.assignPatient = catchAsync(async (req, res, next) => {
+  const { patientCode } = req.body;
+  if (!patientCode) {
+    return next(new AppError(400, "Patient code is required"));
+  }
+  if (req.user.role !== 'therapist') {
+    return next(new AppError(403, "Only therapists can assign patients"));
+  }
+  const patient = await User.findOneAndUpdate({
+    patientcode,
+    role: "patient",
+    isDeleted: false
+  });
+  if (!patient) {
+    return next(new AppError(404, "Patient not found"));
+  }
+  if (patient.assignedTherapist) {
+    return next(new AppError(400, "Patient is already assigned to a therapist"));
+  }
+  patient.assignedTherapist = req.user._id;
+  await patient.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Patient assigned successfully",
+    data: patient
+  });
+})
+
+exports.getUnassignedPatients = catchAsync(async (req, res, next) => {
+  const patients = await User.find({
+    role: "patient",
+    assignedTherapist: null,
+    isDeleted: false
+  })
+  res.status(200).json({
+    success: true,
+    results: patients.length,
+    data: patients
+  });
+})

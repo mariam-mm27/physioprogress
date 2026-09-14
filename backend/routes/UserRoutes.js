@@ -3,7 +3,7 @@ const { isPatient } = require("../middlewares/restrictTo");
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/UserController');
-const  {GetPatients } = require("../controllers/ExercisePlanController");
+const { GetPatients } = require("../controllers/ExercisePlanController");
 const restrictTo = require("../middlewares/restrictTo");
 const upload = require("../middlewares/multer");
 
@@ -13,7 +13,7 @@ router
   .post(userController.createUser);
 
 router.get('/deleted', userController.getDeletedUsers);
-router.get('/patients', protect,restrictTo("therapist"),GetPatients);
+router.get('/patients', protect, restrictTo("therapist"), GetPatients);
 
 router.put(
   '/assign-therapist',
@@ -25,28 +25,10 @@ router.put(
 router.put('/profile', protect, userController.updateMe);
 
 router.post(
-  "/upload",
+  "/upload-picture",
   protect,
   upload.single("profilePicture"),
-  async (req, res, next) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          message: "No file uploaded"
-        });
-      }
-
-      res.status(200).json({
-        success: true,
-        message: "Image uploaded successfully",
-        filePath: req.file.path,
-        fileName: req.file.filename
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  userController.uploadProfilePicture
 );
 
 router
@@ -54,4 +36,19 @@ router
   .get(userController.getOneUser)
   .patch(userController.updateUser)
   .delete(userController.softDeleteUser);
+
+router.put(
+  '/assign-patient',
+  protect,
+  restrictTo("therapist"),
+  userController.assignPatient
+);
+
+router.get(
+  '/unassigned-patients',
+  protect,
+  restrictTo("therapist"),
+  userController.getUnassignedPatients
+);
+
 module.exports = router;

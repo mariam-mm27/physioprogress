@@ -14,8 +14,7 @@ const template = require("../utils/emailTemplate");
 const jwtSign = promisify(jwt.sign);
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const { email, password, fullName, role } = req.body;
-
+  const { email, password, fullName, role, injuryType, specialization, therapistCode } = req.body;
   // Check if email already exists
   const findUser = await User.findOne({ email, isDeleted: false });
   if (findUser) return next(new AppError(400, "This email is already used"));
@@ -28,6 +27,21 @@ exports.signup = catchAsync(async (req, res, next) => {
   const confirmOTP = await bcrypt.hash(otp, +process.env.SALT_ROUNDS);
   const OTPExpired = Date.now() + 10 * 60 * 1000;
 
+  let assignedTherapist = null;
+  let code;
+  if (role === 'therapist') {
+    code = `THR-${customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6)()}`;
+  }
+  if (role === 'patient') {
+    code = `PAT-${customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6)()}`;
+    if (therapistCode) {
+      const therapist = await User.findOne({ therapistCode, role: 'therapist', isDeleted: false });
+      if (!therapist) {
+        return next(new AppError(400, "Invalid therapist code"));
+      }
+      assignedTherapist = therapist._id;
+    }
+  }
   // Save user in database
   const user = await User.create({
     email,
@@ -36,6 +50,9 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: hashPassword,
     confirmOTP,
     OTPExpired,
+    therapistCode: role === "therapist" ? code : undefined,
+    patientCode: role === "patient" ? code : undefined,
+    assignedTherapist: role === "patient" ? assignedTherapist : null,
     injuryType: role === 'patient' ? injuryType : undefined,
     specialization: role === 'therapist' ? specialization : undefined
   });
@@ -177,18 +194,18 @@ exports.googleAuth = catchAsync(async (req, res, next) => {
   const payload = ticket.getPayload();
   const { email, name, sub: googleId } = payload;
 
-  let user = await User.findOne({ 
+  let user = await User.findOne({
     $or: [{ email }, { googleId }],
-    isDeleted: false 
+    isDeleted: false
   });
-// sign up
+  // sign up
   if (!user) {
     user = await User.create({
       fullName: name,
       email: email,
       googleId: googleId,
-      role: role || "patient", 
-      isConfirmed: true 
+      role: role || "patient",
+      isConfirmed: true
     });
   } else if (!user.googleId) {
     user.googleId = googleId;

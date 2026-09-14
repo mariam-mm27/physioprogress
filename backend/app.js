@@ -6,23 +6,29 @@ const authRoutes = require("./routes/authRoutes");
 const exercisePlanRoutes = require("./routes/exercisePlanRoutes");
 const sessionLogRoutes = require("./routes/sessionLogRoutes");
 const userRoutes = require("./routes/UserRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 const AppError = require("./utils/AppError");
 const ExpressMongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const cors = require("cors");
 const expressLimit = require("express-rate-limit");
-const hpp = require("express-hpp");
+// const hpp = require("express-hpp");
+// const hpp = require("hpp");
 
 const app = express();
 
 // Logging middleware
 app.use(morgan("dev"));
 
+// Body parser middleware (must be before sanitize)
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
 // Security middlewares
 app.use(helmet());
-app.use(ExpressMongoSanitize());
-app.use(hpp());
+// app.use(ExpressMongoSanitize());
+// app.use(hpp());
 
 // CORS - configurable from env or default
 app.use(cors({
@@ -32,15 +38,11 @@ app.use(cors({
 
 // Rate limiting
 const limiter = expressLimit.rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  limit: 50, // 50 requests per window
+  windowMs: 10 * 60 * 1000,
+  limit: 50,
   message: "Too many requests from this IP, please try again later."
 });
 app.use(limiter);
-
-// Request size limits
-app.use(express.json({ limit: "10mb" })); // 10mb
-app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Static files
 app.use(express.static("public"));
@@ -50,6 +52,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/plans", exercisePlanRoutes);
 app.use("/api", sessionLogRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api", analyticsRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {

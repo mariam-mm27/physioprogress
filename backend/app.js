@@ -12,7 +12,8 @@ const ExpressMongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const cors = require("cors");
 const expressLimit = require("express-rate-limit");
-const hpp = require("express-hpp");
+// const hpp = require("express-hpp");
+// const hpp = require("hpp");
 
 const app = express();
 
@@ -25,8 +26,8 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Security middlewares
 app.use(helmet());
-app.use(ExpressMongoSanitize());
-app.use(hpp());
+// app.use(ExpressMongoSanitize());
+// app.use(hpp());
 
 // CORS - configurable from env or default
 app.use(cors({

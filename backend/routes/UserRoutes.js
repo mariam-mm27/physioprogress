@@ -3,7 +3,7 @@ const { isPatient } = require("../middlewares/restrictTo");
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/UserController');
-const  {GetPatients } = require("../controllers/ExercisePlanController");
+const { GetPatients } = require("../controllers/ExercisePlanController");
 const restrictTo = require("../middlewares/restrictTo");
 const upload = require("../middlewares/multer");
 
@@ -13,7 +13,7 @@ router
   .post(userController.createUser);
 
 router.get('/deleted', userController.getDeletedUsers);
-router.get('/patients', protect,restrictTo("therapist"),GetPatients);
+router.get('/patients', protect, restrictTo("therapist"), GetPatients);
 
 router.put(
   '/assign-therapist',
@@ -36,4 +36,19 @@ router
   .get(userController.getOneUser)
   .patch(userController.updateUser)
   .delete(userController.softDeleteUser);
+
+router.put(
+  '/assign-patient',
+  protect,
+  restrictTo("therapist"),
+  userController.assignPatient
+);
+
+router.get(
+  '/unassigned-patients',
+  protect,
+  restrictTo("therapist"),
+  userController.getUnassignedPatients
+);
+
 module.exports = router;

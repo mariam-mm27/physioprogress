@@ -47,17 +47,24 @@ const getSessionLogs = catchAsync(async (req, res, next) => {
         return next(new AppError(403, "You do not have permission to access these session logs."));
     }
     const filter = { patientId };
+    const datafilter= {}
 
     if (startDate){
-        filter.loggedAt={
-            $gte:new Date (`${startDate}T00:00:00.000Z`)
-        };
+        const start =new Date (`${startDate}T00:00:00.000Z`)
+        if (isNaN(start.getTime())) {
+        return next(new AppError(400, "Invalid startDate format. Use YYYY-MM-DD"))
+        }
+        datafilter.$gte =start;
     }
     if (endDate){
-        filter.loggedAt= {
-            ...filter.loggedAt,
-            $lte:new Date (`${endDate}T23:59:59.999Z`)
+        const end =new Date (`${endDate}T23:59:59.999Z`)
+        if (isNaN(end.getTime())){
+            return next(new AppError(400,"Invalid endDate format. Use YYYY-MM-DD"))
         }
+        datafilter.$lte = end; 
+    }
+    if (Object.keys(datafilter).length > 0 ){
+        filter.loggedAt = datafilter;
     }
     const sessionLogs = await SessionLogs.find(filter).sort({ loggedAt: -1 });
 

@@ -17,7 +17,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"email\": \"rahmahamad330@gmail.com\",\r\n  \"password\": \"123456\",\r\n  \"fullName\": \"Rahma\",\r\n  \"role\": \"patient\"\r\n}",
+              "raw": "{\r\n  \"email\": \"email@gmail.com\",\r\n  \"password\": \"123456\",\r\n  \"fullName\": \"Rahma\",\r\n  \"role\": \"patient\",\r\n  \"injuryType\" : \"Knee Injury\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -25,9 +25,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/auth/register",
+              "raw": "{{baseUrl}}/api/auth/register",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -45,7 +45,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"email\": \"rahmahamad330@gmail.com\",\r\n  \"confirmOTP\": \"397758\"\r\n}",
+              "raw": "{\r\n  \"email\": \"email@gmail.com\",\r\n  \"confirmOTP\": \"397758\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -53,9 +53,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/auth/confirm-email",
+              "raw": "{{baseUrl}}/api/auth/confirm-email",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -73,15 +73,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "const response = pm.response.json();\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    const response = pm.response.json();\r",
+                  "    const token = response.token || (response.data && response.data.accessToken) || (response.data && response.data.token);\r",
                   "\r",
-                  "if (response && response.data && response.data.accessToken) {\r",
-                  "    pm.collectionVariables.set(\"jwtToken\", response.data.accessToken);\r",
-                  "\r",
-                  "    console.log(\r",
-                  "        \"Token saved successfully:\",\r",
-                  "        response.data.accessToken\r",
-                  "    );\r",
+                  "    if (token) {\r",
+                  "        pm.collectionVariables.set(\"jwtToken\", token);\r",
+                  "        console.log(\"Token saved successfully!\");\r",
+                  "    }\r",
                   "}"
                 ],
                 "type": "text/javascript",
@@ -106,7 +105,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"rahmambrok0@gmail.com\",\r\n    \"password\": \"12345678\"\r\n}",
+              "raw": "{\r\n    \"email\": \"email@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -114,9 +113,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/auth/login",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -143,9 +142,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURl}}/api/auth/me",
+              "raw": "{{baseUrl}}/api/auth/me",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -163,7 +162,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"email\": \"rahmambrok0@gmail.com\"\r\n}",
+              "raw": "{\r\n  \"email\": \"email@gmail.com\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -171,9 +170,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/auth/forget-password",
+              "raw": "{{baseUrl}}/api/auth/forget-password",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -209,15 +208,15 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/auth/reset-password/707d3556b069bf6609826a00b0a7e48a69f48eeeb615ecfaaf332ceba34b44a1",
+              "raw": "{{baseUrl}}/api/auth/reset-password/{{resetToken}}",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "auth",
                 "reset-password",
-                "707d3556b069bf6609826a00b0a7e48a69f48eeeb615ecfaaf332ceba34b44a1"
+                "{{resetToken}}"
               ]
             }
           },
@@ -242,9 +241,9 @@
               "raw": ""
             },
             "url": {
-              "raw": "{{baseURl}}/api/auth/google",
+              "raw": "{{baseUrl}}/api/auth/google",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -266,9 +265,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURl}}/api/users/patients",
+              "raw": "{{baseUrl}}/api/users/patients",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -285,9 +284,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURl}}/api/users/6aa5d1a7ca965ded9963c2e3",
+              "raw": "{{baseUrl}}/api/users/6aa5d1a7ca965ded9963c2e3",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -304,9 +303,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURl}}/api/users/deleted",
+              "raw": "{{baseUrl}}/api/users/deleted",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -319,6 +318,24 @@
         },
         {
           "name": "Get Patients",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {\r",
+                  "    pm.collectionVariables.set(\"patientid\", response.data[0]._id);\r",
+                  "    console.log(\"Saved patientid from Get Patients:\", response.data[0]._id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -333,9 +350,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURl}}/api/users/patients",
+              "raw": "{{baseUrl}}/api/users/patients",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -361,9 +378,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/users/6aa5d1a7ca965ded9963c2e3",
+              "raw": "{{baseUrl}}/api/users/6aa5d1a7ca965ded9963c2e3",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -399,9 +416,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/users",
+              "raw": "{{baseUrl}}/api/users",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -436,9 +453,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/users/assign-therapist",
+              "raw": "{{baseUrl}}/api/users/assign-therapist",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -455,9 +472,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseURl}}/api/users/6aa5def3b6e2faca60e9b8b4",
+              "raw": "{{baseUrl}}/api/users/6aa5def3b6e2faca60e9b8b4",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -493,9 +510,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/users/profile",
+              "raw": "{{baseUrl}}/api/users/profile",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -533,9 +550,9 @@
               ]
             },
             "url": {
-              "raw": "{{baseURl}}/api/users/upload-picture",
+              "raw": "{{baseUrl}}/api/users/upload-picture",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -558,13 +575,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "const response = pm.response.json();\r",
+                  "if (pm.response.code === 201 || pm.response.code === 200) {\r",
+                  "    const response = pm.response.json();\r",
+                  "    const planId = (response.exercisePlan && response.exercisePlan._id) || (response.data && response.data._id) || response._id;\r",
                   "\r",
-                  "if (response && response.exercisePlan && response.exercisePlan._id) {\r",
-                  "    pm.collectionVariables.set(\r",
-                  "        \"planId\",\r",
-                  "        response.exercisePlan._id\r",
-                  "    );\r",
+                  "    if (planId) {\r",
+                  "        pm.collectionVariables.set(\"planid\", planId);\r",
+                  "        console.log(\"Saved planid:\", planId);\r",
+                  "    }\r",
                   "}"
                 ],
                 "type": "text/javascript",
@@ -596,9 +614,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/plans/{{patientid}}",
+              "raw": "{{baseUrl}}/api/plans/{{patientid}}",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -632,9 +650,9 @@
               "raw": ""
             },
             "url": {
-              "raw": "{{baseURl}}/api/plans/{{patientid}}",
+              "raw": "{{baseUrl}}/api/plans/{{patientid}}",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -670,9 +688,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/plans/{{planid}}",
+              "raw": "{{baseUrl}}/api/plans/{{planid}}",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -699,9 +717,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseURl}}/api/plans/{{planid}}",
+              "raw": "{{baseUrl}}/api/plans/{{planid}}",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -719,6 +737,27 @@
       "item": [
         {
           "name": "Create Session Log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {\r",
+                  "    const response = pm.response.json();\r",
+                  "    const logId = (response.log && response.log._id) || (response.data && response.data._id) || response._id;\r",
+                  "\r",
+                  "    if (logId) {\r",
+                  "        pm.collectionVariables.set(\"logid\", logId);\r",
+                  "        console.log(\"Saved logid:\", logId);\r",
+                  "    }\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -734,7 +773,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"planId\": \"6aa71f1c8f6f80e2665f3c97\",\r\n    \"completed\": true,\r\n    \"painLevel\": 5,\r\n    \"notes\": \"Leg raises completed successfully\"\r\n}",
+              "raw": "{\r\n    \"planId\": \"{{planid}}\",\r\n    \"completed\": true,\r\n    \"painLevel\": 5,\r\n    \"notes\": \"Leg raises completed successfully\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -742,9 +781,9 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/logs",
+              "raw": "{{baseUrl}}/api/logs",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -770,9 +809,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURl}}/api/logs/patient/{{patientid}}?startDate=2026-09-13&endDate=2026-09-13",
+              "raw": "{{baseUrl}}/api/logs/patient/{{patientid}}?startDate=2026-09-13&endDate=2026-09-13",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -819,14 +858,14 @@
               }
             },
             "url": {
-              "raw": "{{baseURl}}/api/logs/6aa720358f6f80e2665f3c98",
+              "raw": "{{baseUrl}}/api/logs/{{logid}}",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "logs",
-                "6aa720358f6f80e2665f3c98"
+                "{{logid}}"
               ]
             }
           },
@@ -848,14 +887,14 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseURl}}/api/logs/6aa720358f6f80e2665f3c98",
+              "raw": "{{baseUrl}}/api/logs/{{logid}}",
               "host": [
-                "{{baseURl}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "logs",
-                "6aa720358f6f80e2665f3c98"
+                "{{logid}}"
               ]
             }
           },
@@ -894,20 +933,20 @@
       "secret": true
     },
     {
-      "key": "baseURl",
-      "value": ""
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
     },
     {
       "key": "patientid",
-      "value": ""
+      "value": "6aa5e5b0b6e2faca60e9b8b6"
     },
     {
       "key": "planid",
-      "value": ""
+      "value": "6aa7ffa6759bb5dfb5d6a56d"
     },
     {
-      "key": "planId",
-      "value": ""
+      "key": "logid",
+      "value": "6aa801c3759bb5dfb5d6a56e"
     }
   ]
 }

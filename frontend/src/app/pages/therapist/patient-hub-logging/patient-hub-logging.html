@@ -1,1 +1,195 @@
-<p>patient-hub-logging works!</p>
+<section class="page">
+  <header class="page-header mb-4 ">
+    <h1 class="font-heading fs-4 fw-semibold pt-4">Patient Hub &amp; Session Logging</h1>
+    <p class="text-secondary mb-0">
+      Monitor a patient's exercise session logs, review pain divergence, and check protocol adherence.
+    </p>
+  </header>
+
+  <!--Filter-->
+  <div class="filter-station mb-4">
+    <div class="row g-3 align-items-end">
+      <div class="col-12 col-lg-4">
+        <label class="filter-label"><i class="bi bi-people me-1"></i>Assigned Cohort Filter</label>
+        <div class="field-wrap">
+          <select class="filter-field" [ngModel]="selectedPatientId()" (ngModelChange)="selectedPatientId.set($event)">
+            @if (patients().length === 0) {
+              <option value="" disabled>No assigned patients</option>
+            }
+            @for (patient of patients(); track patient._id) {
+              <option [value]="patient._id">{{ patient.fullName }}</option>
+            }
+          </select>
+          <i class="bi bi-chevron-down field-chevron"></i>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <label class="filter-label"><i class="bi bi-calendar-range me-1"></i>Temporal Telemetry Window</label>
+        <div class="d-flex align-items-center gap-2">
+          <div class="field-wrap flex-fill">
+            <input type="date" class="filter-field" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)" />
+          </div>
+          <span class="filter-sep">&rarr;</span>
+          <div class="field-wrap flex-fill">
+            <input type="date" class="filter-field" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)" />
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-3">
+        <label class="filter-label">Presets</label>
+        <div class="preset-group">
+          <button type="button" class="preset-btn" [class.preset-btn--active]="activePreset() === 'today'" (click)="setPreset(0)">Today</button>
+          <button type="button" class="preset-btn" [class.preset-btn--active]="activePreset() === '7days'" (click)="setPreset(7)">7 Days</button>
+          <button type="button" class="preset-btn" [class.preset-btn--active]="activePreset() === '30days'" (click)="setPreset(30)">30 Days</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="seg-wrap">
+      <button type="button" class="seg-btn" [class.seg-btn--active]="activeTab() === 'all'" (click)="selectTab('all')">
+        <span>All Logs</span><span class="seg-count">{{ allLogs().length }}</span>
+      </button>
+      <button type="button" class="seg-btn seg-btn--alert" [class.seg-btn--active]="activeTab() === 'highPain'" (click)="selectTab('highPain')">
+        <span class="dot-danger"></span><span>High Pain Alerts (&gt; 6)</span><span class="seg-count">{{ highPainCount() }}</span>
+      </button>
+    </div>
+
+    <div class="d-flex justify-content-end mt-3">
+      <button type="button" class="btn btn-apply" [disabled]="!canApply()" (click)="applyFilters()">
+        <i class="bi bi-search me-1"></i> Apply Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  @if (hasSearched()) {
+    @if (errorMessage()) {
+      <div class="alert alert-danger">{{ errorMessage() }}</div>
+    }
+
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="card stat-card h-100">
+          <div class="card-body">
+            <div class="text-uppercase small text-secondary mb-1">Session Volume</div>
+            <div class="fw-semibold mb-2">Logs in Selected Range</div>
+            @if (loadingLogs()) {
+              <div class="placeholder-glow"><span class="placeholder col-6"></span></div>
+            } @else {
+              <div class="display-6 fw-bold">{{ allLogs().length }}</div>
+              @if (analytics()) {
+                <small class="text-secondary">Avg pain: {{ analytics()!.averagePainLevel | number: '1.1-1' }} / 10</small>
+              }
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="card stat-card h-100">
+          <div class="card-body">
+            <div class="text-uppercase small text-secondary mb-1">Anomaly Detector</div>
+            <div class="fw-semibold mb-2">High Pain Logs (Pain &gt; 6)</div>
+            @if (loadingLogs()) {
+              <div class="placeholder-glow"><span class="placeholder col-6"></span></div>
+            } @else {
+              <div class="display-6 fw-bold text-danger">{{ highPainCount() }}</div>
+              <small class="text-secondary">out of {{ allLogs().length }} logs in range</small>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="card stat-card h-100">
+          <div class="card-body">
+            <div class="text-uppercase small text-secondary mb-1">Compliance Index</div>
+            <div class="fw-semibold mb-2">
+              {{ analytics()?.period === 'monthly' ? 'Monthly' : 'Weekly' }} Adherence
+            </div>
+            @if (loadingAnalytics()) {
+              <div class="placeholder-glow"><span class="placeholder col-6"></span></div>
+            } @else if (analytics()) {
+              <div class="display-6 fw-bold text-success">{{ analytics()!.adherenceRate | number: '1.0-1' }}%</div>
+              <div class="progress mt-2" style="height: 6px;">
+                <div
+                  class="progress-bar bg-success"
+                  [style.width.%]="analytics()!.adherenceRate"
+                ></div>
+              </div>
+              <small class="text-secondary d-block mt-1">
+                {{ analytics()!.completedSessions }} / {{ analytics()!.expectedSessions | number: '1.0-1' }} expected sessions
+              </small>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
+      <h2 class="h5 mb-0"><i class="bi bi-journal-text me-2"></i>Session Logs</h2>
+      <span class="text-secondary small">Showing {{ pagedLogs().length }} of {{ filteredLogs().length }} records</span>
+    </div>
+
+    @if (loadingLogs()) {
+      <div class="text-secondary py-4"><i class="bi bi-arrow-repeat me-2"></i>Loading session logs&hellip;</div>
+    } @else if (pagedLogs().length === 0) {
+      <div class="text-secondary py-4">No session logs match the current filters.</div>
+    } @else {
+      <div class="row g-3">
+        @for (log of pagedLogs(); track log._id) {
+          <div class="col-12 col-lg-6">
+            <div class="card log-card h-100" [class.log-card--alert]="log.painLevel > 6">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="badge" [class.bg-success]="log.completed" [class.bg-secondary]="!log.completed">
+                    {{ log.completed ? 'Completed' : 'Incomplete' }}
+                  </span>
+                  <div class="small text-secondary">{{ log.loggedAt | date: 'medium' }}</div>
+                </div>
+
+                <div class="small text-secondary text-uppercase mb-1">Pain Reported</div>
+                <span
+                  class="badge mb-3"
+                  [class.bg-success]="log.painLevel <= 3"
+                  [class.bg-warning]="log.painLevel > 3 && log.painLevel <= 6"
+                  [class.bg-danger]="log.painLevel > 6"
+                >
+                  {{ log.painLevel }} / 10
+                </span>
+
+                @if (log.notes) {
+                  <div class="patient-note small fst-italic text-secondary">
+                    <i class="bi bi-chat-left-text me-1"></i>&ldquo;{{ log.notes }}&rdquo;
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          [disabled]="currentPage() <= 1"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          Previous
+        </button>
+        <span class="text-secondary small">Page {{ currentPage() }} of {{ totalPages() }}</span>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          [disabled]="currentPage() >= totalPages()"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          Next
+        </button>
+      </div>
+    }
+  }
+</section>

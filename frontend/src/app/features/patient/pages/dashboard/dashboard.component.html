@@ -1,0 +1,977 @@
+<div class="d-flex bg-dark text-white min-vh-100"
+  style="background-color: #0b0f19 !important; font-family: system-ui, -apple-system, sans-serif;">
+
+  <!-- ==================== 1. SIDEBAR ==================== -->
+  <aside class="d-flex flex-column flex-shrink-0 p-3 bg-dark border-end border-secondary-subtle"
+    style="width: 260px; min-height: 100vh; background-color: #0d121f !important; border-color: rgba(255,255,255,0.06) !important;">
+
+    <!-- Logo Header -->
+    <a href="/" class="d-flex align-items-center gap-2 mb-3 text-white text-decoration-none px-2">
+      <div class="rounded-3 p-2 text-white d-flex align-items-center justify-content-center shadow-sm"
+        style="background-color: #7c3aed;">
+        <span class="material-symbols-outlined fs-5">pulse_alert</span>
+      </div>
+
+      <div class="d-flex flex-column">
+        <span class="fw-bold fs-6 tracking-wide">PhysioProgress</span>
+        <span class="text-success font-monospace"
+          style="font-size: 9px; letter-spacing: 0.5px;">● RECOVERY ENGINE</span>
+      </div>
+    </a>
+
+    <!-- Patient Portal Pill -->
+    <div class="px-2 mb-4">
+      <span class="badge rounded-pill font-monospace"
+        style="background-color: rgba(124, 58, 237, 0.2); color: #a78bfa; font-size: 10px;">
+        ● PATIENT PORTAL
+      </span>
+    </div>
+
+    <!-- Navigation Links -->
+    <ul class="nav nav-pills flex-column mb-auto gap-2">
+
+      <li class="nav-item">
+        <a routerLink="/patient/dashboard"
+          routerLinkActive="active"
+          class="nav-link text-white d-flex align-items-center gap-3 px-3 py-2.5 rounded-3 fw-medium shadow-sm"
+          style="background-color: #6d28d9 !important;">
+          <span class="material-symbols-outlined fs-5">grid_view</span>
+          <span style="font-size: 14px;">Patient Dashboard</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a routerLink="/patient/analytics"
+          routerLinkActive="active"
+          class="nav-link text-secondary d-flex align-items-center gap-3 px-3 py-2 rounded-3 hover-link">
+          <span class="material-symbols-outlined fs-5">show_chart</span>
+          <span style="font-size: 13px;">Session Logs &amp; Recovery Analytics</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a routerLink="/patient/settings"
+          routerLinkActive="active"
+          class="nav-link text-secondary d-flex align-items-center gap-3 px-3 py-2 rounded-3 hover-link">
+          <span class="material-symbols-outlined fs-5">person_outline</span>
+          <span style="font-size: 13px;">Profile Settings</span>
+        </a>
+      </li>
+
+    </ul>
+
+    <!-- Bottom Profile Info -->
+    <div class="border-top border-secondary-subtle pt-3 mt-auto"
+      style="border-color: rgba(255,255,255,0.08) !important;">
+
+      <div class="d-flex align-items-center justify-content-between px-2">
+
+        <div class="d-flex align-items-center gap-2">
+
+          <div class="rounded-circle text-white fw-bold d-flex align-items-center justify-content-center"
+            style="width: 34px; height: 34px; background-color: #6d28d9; font-size: 12px;">
+            MV
+          </div>
+
+          <div class="d-flex flex-column text-truncate">
+            <span class="text-white small fw-bold text-truncate" style="font-size: 13px;">
+              Marcus Vance
+            </span>
+
+            <span class="text-secondary font-monospace" style="font-size: 10px;">
+              PAT-8821
+            </span>
+          </div>
+
+        </div>
+
+        <span class="material-symbols-outlined text-secondary fs-6">
+          verified
+        </span>
+
+      </div>
+    </div>
+
+  </aside>
+
+
+  <!-- ==================== 2. MAIN CONTENT AREA ==================== -->
+  <div class="d-flex flex-column flex-grow-1 overflow-x-hidden">
+
+    <!-- Top Header Navigation Bar -->
+    <header class="navbar navbar-expand bg-dark px-4 py-2.5 border-bottom border-secondary-subtle sticky-top"
+      style="background-color: #0d121f !important; border-color: rgba(255,255,255,0.06) !important;">
+
+      <div class="container-fluid p-0 d-flex justify-content-between align-items-center">
+
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-white fw-bold small">PhysioProgress</span>
+          <span class="text-secondary font-monospace small" style="font-size: 11px;">
+            Patient Portal Environment
+          </span>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+
+          <div class="px-2.5 py-1 rounded bg-dark border border-secondary-subtle font-monospace text-secondary"
+            style="font-size: 11px; background-color: #121829 !important;">
+            ID:
+            <span class="text-white fw-bold">PAT-8821</span>
+          </div>
+
+          <button
+            type="button"
+            (click)="showNotifications()"
+            class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center text-white border-secondary-subtle"
+            style="width: 32px; height: 32px;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+              notifications
+            </span>
+          </button>
+
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-info text-dark d-flex align-items-center justify-content-center fw-bold"
+              style="width: 30px; height: 30px; font-size: 11px; background-color: #38bdf8 !important;">
+              MV
+            </div>
+
+            <span class="text-white small fw-medium">
+              Marcus Vance
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+    </header>
+
+
+    <!-- ==================== MAIN DASHBOARD BODY ==================== -->
+    <main class="p-4 flex-grow-1">
+
+      <!-- ==================== HERO & CLINICIAN ROW ==================== -->
+      <section class="row g-3 mb-4 align-items-stretch">
+
+        <!-- Welcome Hero Box -->
+        <div class="col-12 col-lg-8">
+
+          <div class="p-4 rounded-3 h-100 d-flex flex-column justify-between position-relative overflow-hidden border border-secondary-subtle"
+            style="background-color: #111726; border-color: rgba(255,255,255,0.08) !important;">
+
+            <div>
+
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+
+                <span class="badge rounded-pill font-monospace"
+                  style="background-color: rgba(124, 58, 237, 0.25); color: #c4b5fd; font-size: 10px;">
+                  ● REHAB PHASE II: STABILIZATION
+                </span>
+
+                <span class="badge rounded-pill bg-dark text-secondary font-monospace border border-secondary-subtle"
+                  style="font-size: 10px;">
+                  PATIENT ID: PAT-8821
+                </span>
+
+              </div>
+
+              <h1 class="h2 font-bold text-white mb-2">
+                Welcome back, Marcus!
+              </h1>
+
+              <p class="text-secondary small leading-relaxed mb-0" style="max-width: 580px;">
+                Track your rehabilitation progress, complete assigned exercise plans,
+                and submit real-time recovery telemetry to your care team.
+              </p>
+
+            </div>
+
+
+            <!-- Diagnosis Telemetry Bar -->
+            <div class="mt-4 pt-3 rounded-3 p-3 d-flex flex-wrap align-items-center justify-content-between gap-3 border border-secondary-subtle"
+              style="background-color: #0b0f19; border-color: rgba(255,255,255,0.06) !important;">
+
+              <div class="d-flex align-items-center gap-2.5">
+
+                <div class="rounded-2 p-1.5 text-white d-flex align-items-center justify-content-center"
+                  style="background-color: #6d28d9;">
+                  <span class="material-symbols-outlined fs-6">
+                    medical_information
+                  </span>
+                </div>
+
+                <div class="d-flex flex-column">
+
+                  <span class="text-secondary font-monospace text-uppercase"
+                    style="font-size: 9px;">
+                    CLINICAL DIAGNOSIS
+                  </span>
+
+                  <span class="text-white fw-bold small">
+                    ACL Reconstruction (Right Knee)
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="d-flex align-items-center gap-4">
+
+                <div class="d-flex flex-column">
+                  <span class="text-secondary font-monospace" style="font-size: 9px;">
+                    CHRONOLOGY
+                  </span>
+
+                  <span class="text-white font-monospace fw-bold small">
+                    Post-Op Wk 6 / Day 42
+                  </span>
+                </div>
+
+                <div class="d-flex flex-column">
+
+                  <span class="text-info font-monospace"
+                    style="font-size: 9px; color: #38bdf8 !important;">
+                    TARGET PROTOCOL
+                  </span>
+
+                  <span class="text-info font-monospace fw-bold small"
+                    style="color: #38bdf8 !important;">
+                    VMO &amp; Flexion Stability
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- Assigned Therapist -->
+        <div class="col-12 col-lg-4">
+
+          <div class="p-4 rounded-3 h-100 d-flex flex-column justify-between border border-secondary-subtle"
+            style="background-color: #111726; border-color: rgba(255,255,255,0.08) !important;">
+
+            <div>
+
+              <div class="d-flex align-items-center justify-content-between mb-3">
+
+                <span class="text-secondary font-monospace text-uppercase"
+                  style="font-size: 10px;">
+                  ASSIGNED THERAPIST
+                </span>
+
+                <span class="badge rounded-pill bg-success-subtle text-success font-monospace"
+                  style="font-size: 9px;">
+                  ● Active Link Established
+                </span>
+
+              </div>
+
+
+              <div class="d-flex align-items-center gap-3">
+
+                <img
+                  class="rounded-3 object-fit-cover border border-secondary-subtle"
+                  style="width: 52px; height: 52px;"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGnhXaLSfz1pnH4KjD-3skqLLL5fxpOrHiZLKOuguyeGu4BHV0b-OP5UhZFoO2fkEXV9hT6hnAImrERENdyCWxsvNDANEbrzAplYDEWypTRlGlMkEiJcJbQw01iskig5tf4OykZjYw-geoS-P2Ghjt87yGbZ8RzjJiobTL-Iybc6TfBCofkPdman5Th_4gjk_aNHfLA3mGuqtoKF9buaTE3LOmVeccJOOTxKZEDCfYDs4Zuwxfwt2rpA"
+                  alt="Assigned therapist"
+                >
+
+                <div class="d-flex flex-column text-truncate">
+
+                  <h2 class="h6 text-white fw-bold mb-0 text-truncate">
+                    Dr. Elena Vance, DPT
+                  </h2>
+
+                  <p class="text-secondary small mb-0" style="font-size: 11px;">
+                    Sports Rehabilitation &amp; Orthopedic Post-Op
+                  </p>
+
+                  <p class="text-secondary opacity-75 small text-truncate mb-0"
+                    style="font-size: 10px;">
+                    Active telemetry connection
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="mt-3 p-2.5 rounded-3 d-flex align-items-center justify-content-between border border-secondary-subtle"
+              style="background-color: #0b0f19; border-color: rgba(255,255,255,0.06) !important;">
+
+              <div class="d-flex flex-column">
+
+                <span class="text-secondary font-monospace" style="font-size: 9px;">
+                  NEXT CLINICAL REVIEW
+                </span>
+
+                <span class="text-white fw-semibold small" style="font-size: 12px;">
+                  Thursday, 10:30 AM (In-Clinic)
+                </span>
+
+              </div>
+
+              <span class="material-symbols-outlined text-secondary fs-6">
+                calendar_month
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ==================== SUMMARY METRICS ==================== -->
+      <section class="row g-3 mb-4">
+
+        <!-- Adherence -->
+        <div class="col-12 col-md-4">
+
+          <div class="p-3 rounded-3 border border-secondary-subtle"
+            style="background-color: #111726; border-color: rgba(255,255,255,0.08) !important;">
+
+            <div class="d-flex align-items-start justify-content-between">
+
+              <div>
+
+                <span class="text-secondary font-monospace text-uppercase"
+                  style="font-size: 10px;">
+                  PROTOCOL ADHERENCE
+                </span>
+
+                <div class="d-flex align-items-baseline gap-2 mt-1">
+                  <span class="h3 fw-bold text-white mb-0">
+                    92%
+                  </span>
+
+                  <span class="text-success small fw-semibold font-monospace"
+                    style="font-size: 11px;">
+                    +4% vs target
+                  </span>
+                </div>
+
+              </div>
+
+              <div class="rounded-circle p-2 d-flex align-items-center justify-content-center"
+                style="width: 38px; height: 38px; background-color: rgba(124, 58, 237, 0.2); color: #c4b5fd;">
+                <span class="material-symbols-outlined fs-6">
+                  check_circle
+                </span>
+              </div>
+
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary-subtle"
+              style="border-color: rgba(255,255,255,0.06) !important;">
+
+              <span class="text-secondary small" style="font-size: 11px;">
+                Optimal recovery pace
+              </span>
+
+              <span class="text-white font-monospace small fw-bold"
+                style="font-size: 11px;">
+                11/12 Completed
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- Pain -->
+        <div class="col-12 col-md-4">
+
+          <div class="p-3 rounded-3 border border-secondary-subtle"
+            style="background-color: #111726; border-color: rgba(255,255,255,0.08) !important;">
+
+            <div class="d-flex align-items-start justify-content-between">
+
+              <div>
+
+                <span class="text-secondary font-monospace text-uppercase"
+                  style="font-size: 10px;">
+                  PAIN TREND (VAS SCALE)
+                </span>
+
+                <div class="d-flex align-items-baseline gap-1 mt-1">
+
+                  <span class="h3 fw-bold text-white mb-0">
+                    2.1
+                  </span>
+
+                  <span class="text-secondary font-monospace" style="font-size: 12px;">
+                    / 10
+                  </span>
+
+                  <span class="text-success small fw-semibold ms-2 font-monospace"
+                    style="font-size: 11px;">
+                    ↓ -58% from Wk 1
+                  </span>
+
+                </div>
+
+              </div>
+
+              <div class="rounded-circle p-2 text-info d-flex align-items-center justify-content-center"
+                style="width: 38px; height: 38px; background-color: rgba(56, 189, 248, 0.15); color: #38bdf8 !important;">
+                <span class="material-symbols-outlined fs-6">
+                  shield
+                </span>
+              </div>
+
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary-subtle"
+              style="border-color: rgba(255,255,255,0.06) !important;">
+
+              <span class="text-success small" style="font-size: 11px;">
+                Mild Status (Safe Threshold)
+              </span>
+
+              <span class="text-secondary font-monospace" style="font-size: 10px;">
+                LAST 6 WEEKS
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- Active Plans -->
+        <div class="col-12 col-md-4">
+
+          <div class="p-3 rounded-3 border border-secondary-subtle"
+            style="background-color: #111726; border-color: rgba(255,255,255,0.08) !important;">
+
+            <div class="d-flex align-items-start justify-content-between">
+
+              <div>
+
+                <span class="text-secondary font-monospace text-uppercase"
+                  style="font-size: 10px;">
+                  ACTIVE PRESCRIPTIONS
+                </span>
+
+                <div class="d-flex align-items-baseline gap-2 mt-1">
+
+                  <span class="h3 fw-bold text-white mb-0">
+                    {{ exercisePlans.length || 3 }}
+                  </span>
+
+                  <span class="text-secondary small">
+                    Active Protocols
+                  </span>
+
+                </div>
+
+              </div>
+
+              <div class="rounded-circle p-2 d-flex align-items-center justify-content-center"
+                style="width: 38px; height: 38px; background-color: rgba(56, 189, 248, 0.15); color: #38bdf8 !important;">
+                <span class="material-symbols-outlined fs-6">
+                  sync_alt
+                </span>
+              </div>
+
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary-subtle"
+              style="border-color: rgba(255,255,255,0.06) !important;">
+
+              <span class="text-secondary small" style="font-size: 11px;">
+                100% scheduled sessions this week
+              </span>
+
+              <span class="text-secondary font-monospace" style="font-size: 10px;">
+                /api/plans
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ==================== EXERCISES + LOG SESSION ==================== -->
+      <section class="row g-4">
+
+        <!-- ==================== ASSIGNED EXERCISES ==================== -->
+        <div class="col-12 col-lg-7">
+
+          <div class="d-flex align-items-center justify-content-between mb-3">
+
+            <div>
+
+              <div class="d-flex align-items-center gap-2">
+
+                <h3 class="h5 fw-bold text-white mb-0">
+                  Assigned Exercise Plans
+                </h3>
+
+                <span class="badge font-monospace"
+                  style="background-color: rgba(124, 58, 237, 0.2); color: #c4b5fd; font-size: 9px;">
+                  WEEK 6
+                </span>
+
+              </div>
+
+              <p class="text-secondary small mb-0 mt-0.5" style="font-size: 12px;">
+                Prescribed by Dr. Elena Vance for Week 6 Rehabilitation
+              </p>
+
+            </div>
+
+            <div class="text-secondary font-monospace" style="font-size: 10px;">
+              ⚡ SYNCED VIA PATIENT API
+            </div>
+
+          </div>
+
+
+          <!-- Loading -->
+          <div *ngIf="isLoading"
+            class="p-4 rounded-3 text-center border border-secondary-subtle my-3"
+            style="background-color: #111726;">
+
+            <div class="spinner-border spinner-border-sm mb-2"
+              role="status"
+              style="color: #a78bfa;">
+            </div>
+
+            <p class="text-secondary small mb-0">
+              Loading exercise plans...
+            </p>
+
+          </div>
+
+
+          <!-- Error -->
+          <div *ngIf="!isLoading && errorMessage"
+            class="alert alert-danger my-3">
+            {{ errorMessage }}
+          </div>
+
+
+          <!-- Empty -->
+          <div *ngIf="!isLoading && !errorMessage && exercisePlans.length === 0"
+            class="p-4 rounded-3 text-center border border-secondary-subtle my-3"
+            style="background-color: #111726;">
+
+            <span class="material-symbols-outlined text-secondary fs-2">
+              fitness_center
+            </span>
+
+            <p class="text-secondary small mb-0 mt-2">
+              No exercise plans assigned yet.
+            </p>
+
+          </div>
+
+
+          <!-- Dynamic Exercise Cards -->
+          <div *ngIf="!isLoading && exercisePlans.length > 0"
+            class="d-flex flex-column gap-3">
+
+            <article *ngFor="let plan of exercisePlans"
+              class="p-3 rounded-3 border border-secondary-subtle"
+              style="background-color: #111726; border-color: rgba(255,255,255,0.08) !important;">
+
+              <div class="row g-3 align-items-center">
+
+                <!-- Video -->
+                <div class="col-12 col-sm-4">
+
+                  <div class="position-relative rounded-3 overflow-hidden d-flex align-items-center justify-content-center"
+                    style="height: 105px; background-color: #0b0f19;">
+
+                    <img
+                      *ngIf="plan.videoUrl"
+                      [src]="plan.videoUrl"
+                      [alt]="plan.exerciseName"
+                      class="w-100 h-100 object-fit-cover opacity-75"
+                    >
+
+                    <div *ngIf="!plan.videoUrl"
+                      class="text-secondary">
+                      <span class="material-symbols-outlined fs-2">
+                        fitness_center
+                      </span>
+                    </div>
+
+
+                    <!-- Play Button -->
+                    <button
+                      type="button"
+                      (click)="openVideo(plan.videoUrl)"
+                      [disabled]="!plan.videoUrl"
+                      class="btn btn-sm rounded-circle position-absolute top-50 start-50 translate-middle shadow d-flex align-items-center justify-content-center"
+                      style="width: 36px; height: 36px; background-color: #7c3aed; color: white; border: none;"
+                    >
+                      <span class="material-symbols-outlined fs-6">
+                        play_arrow
+                      </span>
+                    </button>
+
+
+                    <span
+                      class="position-absolute bottom-0 end-0 bg-dark text-white font-monospace px-1.5 py-0.5 m-1 rounded"
+                      style="font-size: 9px; background-color: rgba(0,0,0,0.8) !important;">
+                      VIDEO
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <!-- Exercise Info -->
+                <div class="col-12 col-sm-8">
+
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+
+                    <span class="badge font-monospace"
+                      style="background-color: rgba(124, 58, 237, 0.2); color: #c4b5fd; font-size: 10px;">
+                      {{ plan.customMuscle || plan.targetMuscle || 'Target Muscle' }}
+                    </span>
+
+                    <span class="text-secondary font-monospace"
+                      style="font-size: 10px;">
+                      Exercise Plan
+                    </span>
+
+                  </div>
+
+
+                  <h4 class="h6 text-white fw-bold mb-1">
+                    {{ plan.exerciseName }}
+                  </h4>
+
+
+                  <p class="text-secondary small mb-2"
+                    style="font-size: 11px; line-height: 1.4;">
+                    {{ plan.title }}
+                  </p>
+
+
+                  <div
+                    class="d-flex align-items-center justify-content-between pt-2 border-top border-secondary-subtle font-monospace"
+                    style="border-color: rgba(255,255,255,0.06) !important; font-size: 11px;">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                      <div>
+                        <span class="fw-bold text-white">3</span>
+                        <span class="text-secondary"> Sets</span>
+                      </div>
+
+                      <div>
+                        <span class="fw-bold text-white">
+                          {{ plan.reps }}
+                        </span>
+                        <span class="text-secondary"> Reps</span>
+                      </div>
+
+                      <div>
+                        <span class="fw-bold text-white">
+                          {{ plan.frequencyPerWeek }}x
+                        </span>
+                        <span class="text-secondary"> / week</span>
+                      </div>
+
+                    </div>
+
+
+                    <!-- Preview Video -->
+                    <button
+                      type="button"
+                      (click)="openVideo(plan.videoUrl)"
+                      [disabled]="!plan.videoUrl"
+                      class="btn btn-link text-decoration-none d-flex align-items-center gap-1 p-0"
+                      style="color: #a78bfa;"
+                    >
+                      <span>Preview Video</span>
+
+                      <span class="material-symbols-outlined"
+                        style="font-size: 12px;">
+                        open_in_new
+                      </span>
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </article>
+
+          </div>
+
+        </div>
+
+
+        <!-- ==================== LOG COMPLETED SESSION ==================== -->
+        <div class="col-12 col-lg-5">
+
+          <div class="p-4 rounded-3 border border-secondary-subtle"
+            style="background-color: #111726; border-color: rgba(255,255,255,0.08) !important;">
+
+            <div class="d-flex align-items-start justify-content-between mb-2">
+
+              <div class="d-flex align-items-center gap-2">
+
+                <span class="material-symbols-outlined"
+                  style="color: #c4b5fd;">
+                  check_box
+                </span>
+
+                <h3 class="h5 fw-bold text-white mb-0">
+                  Log Completed Session
+                </h3>
+
+              </div>
+
+              <span class="badge font-monospace"
+                style="background-color: rgba(124, 58, 237, 0.2); color: #c4b5fd; font-size: 9px;">
+                POST /api/logs
+              </span>
+
+            </div>
+
+
+            <p class="text-secondary small mb-4"
+              style="font-size: 11px;">
+              Submit your completed exercise session and recovery feedback.
+            </p>
+
+
+            <form>
+
+              <!-- Plan Dropdown -->
+              <div class="mb-3">
+
+                <div class="d-flex justify-content-between align-items-center mb-1">
+
+                  <label
+                    class="form-label font-monospace text-secondary text-uppercase mb-0"
+                    style="font-size: 10px;">
+                    SELECT ASSIGNED PLAN
+                  </label>
+
+                  <span class="text-secondary font-monospace"
+                    style="font-size: 9px;">
+                    REQUIRED
+                  </span>
+
+                </div>
+
+
+                <select
+                  class="form-select bg-dark text-white border-secondary-subtle text-truncate"
+                  [(ngModel)]="selectedPlanId"
+                  name="planId"
+                  style="background-color: #0b0f19 !important; border-color: rgba(255,255,255,0.1) !important; font-size: 13px;"
+                >
+
+                  <option value="" disabled>
+                    Select an exercise plan
+                  </option>
+
+                  <option
+                    *ngFor="let plan of exercisePlans"
+                    [value]="plan._id"
+                  >
+                    {{ plan.exerciseName }}
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <!-- Pain Level -->
+              <div class="mb-3">
+
+                <div class="d-flex justify-content-between align-items-center mb-1">
+
+                  <label
+                    class="form-label font-monospace text-secondary text-uppercase mb-0"
+                    style="font-size: 10px;">
+                    POST-SESSION PAIN LEVEL (VAS)
+                  </label>
+
+                  <span class="text-white font-monospace fw-bold"
+                    style="font-size: 13px;">
+                    {{ painLevel }} / 10
+                  </span>
+
+                </div>
+
+
+                <div
+                  class="p-2 rounded-2 mb-2 d-flex align-items-center gap-2 border"
+                  [ngClass]="{
+                    'border-success-subtle': painLevel <= 3,
+                    'border-warning-subtle': painLevel >= 4 && painLevel <= 6,
+                    'border-danger-subtle': painLevel >= 7
+                  }"
+                  [style.background-color]="
+                    painLevel <= 3
+                      ? 'rgba(34, 197, 94, 0.1)'
+                      : painLevel <= 6
+                        ? 'rgba(234, 179, 8, 0.1)'
+                        : 'rgba(239, 68, 68, 0.1)'
+                  "
+                >
+
+                  <span class="material-symbols-outlined fs-6"
+                    [ngClass]="{
+                      'text-success': painLevel <= 3,
+                      'text-warning': painLevel >= 4 && painLevel <= 6,
+                      'text-danger': painLevel >= 7
+                    }">
+                    {{ painLevel <= 3 ? 'sentiment_satisfied' : painLevel <= 6 ? 'sentiment_neutral' : 'warning' }}
+                  </span>
+
+                  <span class="font-monospace"
+                    [ngClass]="{
+                      'text-success': painLevel <= 3,
+                      'text-warning': painLevel >= 4 && painLevel <= 6,
+                      'text-danger': painLevel >= 7
+                    }"
+                    style="font-size: 11px;">
+
+                    {{
+                      painLevel <= 3
+                        ? 'Mild Discomfort'
+                        : painLevel <= 6
+                          ? 'Moderate Discomfort'
+                          : 'High Pain Level'
+                    }}
+
+                  </span>
+
+                </div>
+
+
+                <input
+                  type="range"
+                  class="form-range"
+                  min="1"
+                  max="10"
+                  [(ngModel)]="painLevel"
+                  name="painLevel"
+                  id="painRange"
+                >
+
+
+                <div class="d-flex justify-content-between text-secondary font-monospace mt-1"
+                  style="font-size: 9px;">
+                  <span>1-3 Mild</span>
+                  <span>4-6 Moderate</span>
+                  <span>7-10 Severe</span>
+                </div>
+
+              </div>
+
+
+              <!-- Notes -->
+              <div class="mb-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-1">
+
+                  <label
+                    class="form-label font-monospace text-secondary text-uppercase mb-0"
+                    style="font-size: 10px;">
+                    SESSION NOTES (OPTIONAL)
+                  </label>
+
+                  <span class="text-secondary font-monospace"
+                    style="font-size: 9px;">
+                    TELEMETRY NOTE
+                  </span>
+
+                </div>
+
+
+                <textarea
+                  class="form-control bg-dark text-white border-secondary-subtle"
+                  rows="3"
+                  [(ngModel)]="notes"
+                  name="notes"
+                  placeholder="Describe any sensations, tightness, or feedback..."
+                  style="background-color: #0b0f19 !important; border-color: rgba(255,255,255,0.1) !important; font-size: 12px;"
+                ></textarea>
+
+              </div>
+
+
+              <!-- Submit -->
+              <button
+                type="button"
+                (click)="submitSession()"
+                [disabled]="isSubmitting || !selectedPlanId"
+                class="btn w-100 fw-semibold text-white d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 shadow"
+                style="background-color: #6d28d9; border: none; font-size: 14px;"
+              >
+
+                <span class="material-symbols-outlined fs-6">
+                  {{ isSubmitting ? 'sync' : 'check_circle' }}
+                </span>
+
+                <span>
+                  {{ isSubmitting ? 'Submitting...' : 'Submit Completed Session' }}
+                </span>
+
+              </button>
+
+
+              <!-- Success -->
+              <div
+                *ngIf="successMessage"
+                class="alert alert-success mt-3 mb-0 py-2"
+              >
+                {{ successMessage }}
+              </div>
+
+
+              <!-- Error -->
+              <div
+                *ngIf="errorMessage"
+                class="alert alert-danger mt-3 mb-0 py-2"
+              >
+                {{ errorMessage }}
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+</div>

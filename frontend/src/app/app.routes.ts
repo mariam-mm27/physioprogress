@@ -1,8 +1,11 @@
 import { Routes } from '@angular/router';
+import { therapistRoutes } from './pages/therapist/therapist.routes';
+import { patientRoutes } from './pages/patient/patient.routes';
 
 export const routes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
     loadComponent: () => import('./features/landing/landing.component').then(m => m.LandingComponent)
   },
   {
@@ -29,6 +32,8 @@ export const routes: Routes = [
     path: 'contact',
     loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent)
   },
+  ...therapistRoutes,
+  ...patientRoutes,
   {
     path: '**',
     redirectTo: ''

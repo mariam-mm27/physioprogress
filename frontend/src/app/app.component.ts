@@ -8,7 +8,7 @@ import { RouterOutlet } from '@angular/router';
   template: `
       <router-outlet></router-outlet>
   `,
-  styleUrl: './app.component.css'
+  styles: []
 })
 export class AppComponent {
   title = 'physioprogress-frontend';

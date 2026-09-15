@@ -1,0 +1,150 @@
+.callout-section {
+  padding: 4rem 1.5rem;
+  background-color: #09090b;
+}
+
+.callout-card {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #121215;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 1rem;
+  padding: 4rem 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.callout-content {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  background-color: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.badge-icon {
+  color: #a855f7;
+  font-size: 1rem;
+}
+
+.badge-text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #a855f7;
+}
+
+.callout-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f4f4f5;
+  margin: 0;
+}
+
+.callout-subtitle {
+  font-size: 1rem;
+  color: #a1a1a6;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.btn-callout {
+  background-color: #7c3aed;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: fit-content;
+  margin: 0 auto;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-callout:hover {
+  background-color: #6d28d9;
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-callout .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+.callout-subtext {
+  font-size: 0.85rem;
+  color: #a1a1a6;
+  display: block;
+  margin-top: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .callout-section {
+    padding: 2rem 1rem;
+  }
+
+  .callout-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .callout-title {
+    font-size: 1.875rem;
+  }
+
+  .callout-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .btn-callout {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .callout-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .callout-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .callout-title {
+    font-size: 1.5rem;
+  }
+
+  .callout-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .btn-callout {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+  }
+
+  .callout-subtext {
+    font-size: 0.75rem;
+  }
+}

@@ -21,7 +21,7 @@ src/
 │   ├── app.component.ts   # Root component
 │   └── app.routes.ts      # Route configuration
 │
-├── styles.scss            # Global styles & utilities
+├── styles.css             # Global styles & utilities
 ├── main.ts                # Bootstrap
 └── index.html             # Main template
 ```

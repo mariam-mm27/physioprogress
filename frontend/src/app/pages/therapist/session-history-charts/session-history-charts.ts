@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
+  standalone: true,
   imports: [],
   selector: 'app-session-history-charts',
   styleUrl: './session-history-charts.css',

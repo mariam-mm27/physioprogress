@@ -8,6 +8,7 @@ interface navItem {
 }
 
 @Component({
+  standalone: true,
   imports: [RouterLink, RouterLinkActive],
   selector: 'app-patient-sidebar',
   styleUrl: './patient-sidebar.css',

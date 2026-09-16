@@ -1,21 +1,88 @@
+// const cloudinary = require("../config/cloudinary");
+// const AppError = require("../utils/AppError");
+
+// const uploadBufferToCloudinary = async (buffer, folder = "physioprogress/profiles") => {
+//   return new Promise((resolve, reject) => {
+//     const uploadStream = cloudinary.uploader.upload_stream(
+//       {
+//         folder: folder,
+//         resource_type: "auto",
+//         allowed_formats: ["jpg", "jpeg", "png", "gif", "webp"]
+//       },
+//       (error, result) => {
+//         if (error) {
+//           reject(new AppError(500, `Cloudinary upload failed: ${error.message}`));
+//         } else {
+//           resolve({
+//             url: result.secure_url,
+//             publicId: result.public_id,
+//             width: result.width,
+//             height: result.height,
+//             size: result.bytes,
+//             format: result.format
+//           });
+//         }
+//       }
+//     );
+//     uploadStream.end(buffer);
+//   });
+// };
+
+// const deleteFromCloudinary = async (publicId) => {
+//   try {
+//     const result = await cloudinary.uploader.destroy(publicId);
+//     if (result.result === "ok") {
+//       return true;
+//     }
+//     return false;
+//   } catch (error) {
+//     throw new AppError(500, `Failed to delete image from Cloudinary: ${error.message}`);
+//   }
+// };
+
+// module.exports = {
+//   uploadBufferToCloudinary,
+//   deleteFromCloudinary
+// };
+
+
 const cloudinary = require("../config/cloudinary");
 const AppError = require("../utils/AppError");
 
-const uploadBufferToCloudinary = async (buffer, folder = "physioprogress/profiles") => {
+const uploadBufferToCloudinary = async (
+  buffer,
+  folder = "physioprogress/profiles"
+) => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: folder,
         resource_type: "auto",
-        allowed_formats: ["jpg", "jpeg", "png", "gif", "webp"]
+        allowed_formats: [
+          "jpg",
+          "jpeg",
+          "png",
+          "gif",
+          "webp",
+          "mp4",
+          "mov",
+          "avi",
+          "mkv"
+        ]
       },
       (error, result) => {
         if (error) {
-          reject(new AppError(500, `Cloudinary upload failed: ${error.message}`));
+          reject(
+            new AppError(
+              `Cloudinary upload failed: ${error.message}`,
+              500
+            )
+          );
         } else {
           resolve({
             url: result.secure_url,
             publicId: result.public_id,
+            duration: result.duration || null,
             width: result.width,
             height: result.height,
             size: result.bytes,
@@ -24,19 +91,26 @@ const uploadBufferToCloudinary = async (buffer, folder = "physioprogress/profile
         }
       }
     );
+
     uploadStream.end(buffer);
   });
 };
 
-const deleteFromCloudinary = async (publicId) => {
+const deleteFromCloudinary = async (
+  publicId,
+  resourceType = "image"
+) => {
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
-    if (result.result === "ok") {
-      return true;
-    }
-    return false;
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType
+    });
+
+    return result.result === "ok";
   } catch (error) {
-    throw new AppError(500, `Failed to delete image from Cloudinary: ${error.message}`);
+    throw new AppError(
+      `Failed to delete media from Cloudinary: ${error.message}`,
+      500
+    );
   }
 };
 

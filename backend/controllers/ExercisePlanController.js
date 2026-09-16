@@ -5,11 +5,70 @@ const { ReturnDocument } = require("mongodb");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
 
+// const createExercisePlan = async (req, res) => {
+//     try{
+//         const{title, exerciseName, reps, frequencyPerWeek, videoUrl,targetMuscle,
+//             videoSource} = req.body;
+//         const therapistId = req.user.id; 
+//         const patientId = req.params.patientId;
+
+//         const newExercisePlan = await ExercisePlans.create({
+//             therapistId,
+//             patientId,
+//             title,
+//             exerciseName,
+//             reps,
+//             frequencyPerWeek,
+//             videoUrl,
+//             targetMuscle,
+//             videoSource
+//         });
+//         res.status(201).json({
+//             message: "Exercise Plan Created Successfully",
+//             exercisePlan: newExercisePlan
+//         });
+
+//     }catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: error.message });
+//     }
+// }
+
+
+
+
+const { uploadBufferToCloudinary } = require("../middlewares/cloudinary");
+
 const createExercisePlan = async (req, res) => {
-    try{
-        const{title, exerciseName, reps, frequencyPerWeek, videoUrl} = req.body;
-        const therapistId = req.user.id; 
+    try {
+        const {
+            title,
+            exerciseName,
+            reps,
+            frequencyPerWeek,
+            targetMuscle,
+            videoSource
+        } = req.body;
+
+        const therapistId = req.user.id;
         const patientId = req.params.patientId;
+
+        let finalVideoUrl = req.body.videoUrl;
+
+        if (req.file) {
+            const uploadResult = await uploadBufferToCloudinary(
+                req.file.buffer,
+                "physioprogress/exercises"
+            );
+
+            finalVideoUrl = uploadResult.url;
+        }
+
+        if (!finalVideoUrl) {
+            return res.status(400).json({
+                message: "Video file or videoUrl is required"
+            });
+        }
 
         const newExercisePlan = await ExercisePlans.create({
             therapistId,
@@ -18,22 +77,69 @@ const createExercisePlan = async (req, res) => {
             exerciseName,
             reps,
             frequencyPerWeek,
-            videoUrl
+            videoUrl: finalVideoUrl,
+            targetMuscle,
+            videoSource: req.file ? "custom" : (videoSource || "external")
         });
+
         res.status(201).json({
             message: "Exercise Plan Created Successfully",
             exercisePlan: newExercisePlan
         });
 
-    }catch (error) {
+    } catch (error) {
         console.error(error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            message: error.message
+        });
     }
-}
+};
+
+// const getExercisePlans = async (req, res) => {
+//     try{
+//         const therapistId = req.user.id;
+//         const patientId = req.params.patientId;
+
+//         const page = Number(req.query.page) || 1;
+//         const limit = Number(req.query.limit) || 10;
+//         const skip = (page - 1) * limit;
+//         const sort = req.query.sort || "-createdAt";
+
+//         const exercisePlans = await ExercisePlans.find(
+//             {
+//                  patientId:patientId,
+//                   therapistId:therapistId 
+//             }
+//         )
+//         .sort(sort)
+//         .skip(skip)
+//         .limit(limit);
+
+//         const totalPlans = await ExercisePlans.countDocuments({
+//             patientId: patientId,
+//             therapistId: therapistId
+//         });
+
+//         res.status(200).json({
+//             message: "Exercise Plans Retrieved Successfully",
+//             exercisePlans: exercisePlans,
+//             pagination: {
+//             currentPage: page,
+//             limit: limit,
+//             totalPlans: totalPlans,
+//             totalPages: Math.ceil(totalPlans / limit)
+//         }
+//         });
+
+//     }catch(error){
+//         console.error(error);
+//         res.status(500).json({ message: error.message });
+//     }
+// }
+
 
 const getExercisePlans = async (req, res) => {
-    try{
-        const therapistId = req.user.id;
+    try {
         const patientId = req.params.patientId;
 
         const page = Number(req.query.page) || 1;
@@ -41,37 +147,38 @@ const getExercisePlans = async (req, res) => {
         const skip = (page - 1) * limit;
         const sort = req.query.sort || "-createdAt";
 
-        const exercisePlans = await ExercisePlans.find(
-            {
-                 patientId:patientId,
-                  therapistId:therapistId 
-            }
-        )
-        .sort(sort)
-        .skip(skip)
-        .limit(limit);
+        let filter = {
+            patientId: patientId
+        };
 
-        const totalPlans = await ExercisePlans.countDocuments({
-            patientId: patientId,
-            therapistId: therapistId
-        });
+        if (req.user.role === "therapist") {
+            filter.therapistId = req.user._id;
+        }
+
+        const exercisePlans = await ExercisePlans.find(filter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit);
+
+        const totalPlans = await ExercisePlans.countDocuments(filter);
 
         res.status(200).json({
             message: "Exercise Plans Retrieved Successfully",
             exercisePlans: exercisePlans,
             pagination: {
-            currentPage: page,
-            limit: limit,
-            totalPlans: totalPlans,
-            totalPages: Math.ceil(totalPlans / limit)
-        }
+                currentPage: page,
+                limit: limit,
+                totalPlans: totalPlans,
+                totalPages: Math.ceil(totalPlans / limit)
+            }
         });
 
-    }catch(error){
+    } catch (error) {
         console.error(error);
         res.status(500).json({ message: error.message });
     }
 }
+
 
 
 const UpdateExercisePlan= catchAsync(async (req,res,next)=> {

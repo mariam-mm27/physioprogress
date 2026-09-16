@@ -53,18 +53,19 @@ export class PatientHubLogging implements OnInit {
 
   /** Days covered by the selected startDate→endDate window. */
   selectedRangeInDays = computed(() => {
-  const start = new Date(`${this.startDate()}T00:00:00`);
-  const end = new Date(`${this.endDate()}T00:00:00`);
-  return Math.max(Math.round((end.getTime() - start.getTime()) / 86_400_000), 0);
-});
+    const start = new Date(`${this.startDate()}T00:00:00`);
+    const end = new Date(`${this.endDate()}T00:00:00`);
+    return Math.max(Math.round((end.getTime() - start.getTime()) / 86_400_000), 0);
+  });
 
   /** Which preset matches the current window: 0→Today, 1–7→7 Days, >7→30 Days. */
   activePreset = computed<'today' | '7days' | '30days'>(() => {
-  const days = this.selectedRangeInDays();
-  if (days <= 0) return 'today';
-  if (days <= 7) return '7days';
-  return '30days';
-});
+    const days = this.selectedRangeInDays();
+    if (days <= 0) return 'today';
+    if (days <= 7) return '7days';
+    return '30days';
+  });
+
   ngOnInit(): void {
     this.sessionLogService.getAssignedPatients().subscribe({
       next: (res) => {

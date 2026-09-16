@@ -1,0 +1,320 @@
+<div class="auth-root bg-dark-primary min-vh-100 d-flex flex-column justify-content-between">
+  <app-navbar></app-navbar>
+
+  <main class="auth-main-wrapper flex-grow-1">
+    <app-page-section sectionId="auth-section" customClass="auth-page-section">
+      <div class="auth-wrapper">
+
+        <div class="auth-header">
+          <div class="badge-pill">
+            <span class="material-symbols-outlined badge-icon">verified_user</span>
+            <span class="badge-text">{{ currentIntent === 'register' ? 'Join PhysioProgress' : 'Welcome Back' }}</span>
+          </div>
+          <h1 class="auth-title">
+            <span *ngIf="currentIntent === 'register'">
+              Create Your <span class="text-gradient">Account</span>
+            </span>
+            <span *ngIf="currentIntent === 'login'">
+              Sign In to <span class="text-gradient">PhysioProgress</span>
+            </span>
+          </h1>
+          <p class="auth-subtitle">
+            {{ currentIntent === 'register' 
+              ? 'Join clinicians and patients achieving faster, data-driven recovery outcomes.' 
+              : 'Access your telemetry dashboards, active rehabilitation protocols, and analytics.' }}
+          </p>
+        </div>
+
+        <div class="auth-controls">
+          <div class="role-toggle">
+            <button
+              type="button"
+              class="role-btn"
+              [class.active]="currentRole === 'patient'"
+              (click)="switchRole('patient')">
+              <span class="material-symbols-outlined">person</span>
+              <span>I'm a Patient</span>
+            </button>
+            <button
+              type="button"
+              class="role-btn"
+              [class.active]="currentRole === 'therapist'"
+              (click)="switchRole('therapist')">
+              <span class="material-symbols-outlined">medical_services</span>
+              <span>I'm a Therapist</span>
+            </button>
+          </div>
+
+          <div class="intent-toggle">
+            <button
+              type="button"
+              class="intent-btn"
+              [class.active]="currentIntent === 'register'"
+              (click)="switchIntent('register')">
+              Create Account
+            </button>
+            <button
+              type="button"
+              class="intent-btn"
+              [class.active]="currentIntent === 'login'"
+              (click)="switchIntent('login')">
+              Sign In
+            </button>
+          </div>
+        </div>
+
+        <div class="error-banner" *ngIf="error">
+          <div class="d-flex align-items-center gap-2 flex-grow-1">
+            <span class="material-symbols-outlined">error_outline</span>
+            <span>{{ error }}</span>
+          </div>
+          <button
+            type="button"
+            class="btn-verify-now"
+            *ngIf="unconfirmedEmail"
+            (click)="goToVerifyEmail()">
+            Verify Email
+          </button>
+        </div>
+
+        <div class="success-banner" *ngIf="successMessage">
+          <span class="material-symbols-outlined">check_circle</span>
+          <span>{{ successMessage }}</span>
+        </div>
+
+        <form [formGroup]="authForm" (ngSubmit)="onSubmit()" class="auth-form-card" novalidate>
+
+          <div class="form-field" *ngIf="currentIntent === 'register'">
+            <label class="form-label">Full Name</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined input-icon">badge</span>
+              <input
+                type="text"
+                formControlName="fullName"
+                class="form-input"
+                [class.field-error]="isFieldInvalid('fullName')"
+                placeholder="e.g. Dr. Jane Doe or Alex Smith"
+                autocomplete="name">
+            </div>
+            <span class="form-error-text" *ngIf="isFieldInvalid('fullName')">
+              {{ getFieldError('fullName') }}
+            </span>
+          </div>
+
+          <!-- Email -->
+          <div class="form-field">
+            <label class="form-label">Email Address</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined input-icon">mail</span>
+              <input
+                type="email"
+                formControlName="email"
+                class="form-input"
+                [class.field-error]="isFieldInvalid('email')"
+                placeholder="name&#64;example.com"
+                autocomplete="email">
+            </div>
+            <span class="form-error-text" *ngIf="isFieldInvalid('email')">
+              {{ getFieldError('email') }}
+            </span>
+          </div>
+
+          <!-- Password -->
+          <div class="form-field">
+            <div class="form-label-row">
+              <label class="form-label">Password</label>
+              <a
+                *ngIf="currentIntent === 'login'"
+                routerLink="/auth/forgot-password"
+                class="forgot-password-link">
+                Forgot password?
+              </a>
+            </div>
+            <div class="input-container">
+              <span class="material-symbols-outlined input-icon">lock</span>
+              <input
+                type="password"
+                formControlName="password"
+                class="form-input"
+                [class.field-error]="isFieldInvalid('password')"
+                placeholder="••••••••••••"
+                [autocomplete]="currentIntent === 'login' ? 'current-password' : 'new-password'">
+            </div>
+            <p class="form-hint" *ngIf="currentIntent === 'register'">
+              Minimum 6 characters with at least one special character (!&#64;#$%^&*)
+            </p>
+            <span class="form-error-text" *ngIf="isFieldInvalid('password')">
+              {{ getFieldError('password') }}
+            </span>
+          </div>
+
+          <ng-container *ngIf="currentRole === 'patient' && currentIntent === 'register'">
+            <div class="form-field">
+              <label class="form-label">Rehabilitation Focus / Condition</label>
+              <div class="input-container">
+                <span class="material-symbols-outlined input-icon">healing</span>
+                <select
+                  formControlName="injuryType"
+                  class="form-input form-select"
+                  [class.field-error]="isFieldInvalid('injuryType')">
+                  <option value="" disabled selected>Select your condition or injury</option>
+                  <option *ngFor="let injury of injuryTypes" [value]="injury">
+                    {{ injury }}
+                  </option>
+                </select>
+              </div>
+              <span class="form-error-text" *ngIf="isFieldInvalid('injuryType')">
+                {{ getFieldError('injuryType') }}
+              </span>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">Assigned Therapist Code (Optional)</label>
+              <div class="input-container">
+                <span class="material-symbols-outlined input-icon">link</span>
+                <input
+                  type="text"
+                  formControlName="therapistCode"
+                  class="form-input"
+                  placeholder="e.g. THR-ABC123">
+              </div>
+              <p class="form-hint">Enter your therapist's referral code to instantly synchronize your protocols.</p>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="currentRole === 'therapist' && currentIntent === 'register'">
+            <div class="form-field">
+              <label class="form-label">Clinical Specializations</label>
+              <div class="specialization-chips">
+                <button
+                  type="button"
+                  *ngFor="let spec of specializations"
+                  class="chip"
+                  [class.chip-selected]="selectedSpecializations.has(spec)"
+                  (click)="toggleSpecialization(spec)">
+                  <span class="material-symbols-outlined chip-icon" *ngIf="selectedSpecializations.has(spec)">check</span>
+                  {{ spec }}
+                </button>
+              </div>
+              <p class="form-error-text" *ngIf="currentIntent === 'register' && currentRole === 'therapist' && selectedSpecializations.size === 0 && authForm.touched">
+                Please select at least one clinical specialization.
+              </p>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">Professional Summary (Optional)</label>
+              <textarea
+                formControlName="bio"
+                class="form-input form-textarea"
+                rows="3"
+                placeholder="Share your clinical background, certifications, and rehabilitation approach..."></textarea>
+              <p class="form-hint">Max 500 characters</p>
+            </div>
+          </ng-container>
+
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="loading || googleLoading">
+            <span *ngIf="!loading" class="btn-content">
+              <span>{{ currentIntent === 'login' ? 'Sign In to Account' : 'Create Account' }}</span>
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </span>
+            <span *ngIf="loading" class="btn-content">
+              <span class="material-symbols-outlined loading-spinner">progress_activity</span>
+              <span>Processing authentication...</span>
+            </span>
+          </button>
+
+          <div class="form-toggle">
+            <span class="toggle-text">
+              {{ currentIntent === 'login' ? "Don't have an account yet?" : 'Already have a PhysioProgress account?' }}
+              <button
+                type="button"
+                class="toggle-link"
+                (click)="switchIntent(currentIntent === 'login' ? 'register' : 'login')">
+                {{ currentIntent === 'login' ? 'Create Account' : 'Sign in here' }}
+              </button>
+            </span>
+          </div>
+
+          <div class="form-divider">
+            <span>or continue with</span>
+          </div>
+
+          <div class="google-auth-container">
+            <div #googleBtnHost id="googleBtnHost" class="google-btn-host"></div>
+
+            <button
+              type="button"
+              class="btn-google"
+              *ngIf="!googleLoaded"
+              (click)="triggerGoogleAuth()"
+              [disabled]="loading || googleLoading">
+              <span *ngIf="!googleLoading" class="google-btn-inner">
+                <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"></path>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"></path>
+                </svg>
+                <span>{{ currentIntent === 'login' ? 'Sign in with Google' : 'Sign up with Google' }}</span>
+              </span>
+              <span *ngIf="googleLoading" class="google-btn-inner">
+                <span class="material-symbols-outlined loading-spinner">progress_activity</span>
+                <span>Authenticating with Google...</span>
+              </span>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </app-page-section>
+  </main>
+
+  <app-footer></app-footer>
+
+  <div class="modal-overlay" *ngIf="showTherapistCodeModal" (click)="closeTherapistCodeModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="badge-pill mb-0">
+            <span class="material-symbols-outlined badge-icon">medical_services</span>
+            <span class="badge-text">Therapist Profile</span>
+          </div>
+          <h2 class="modal-title">Welcome, Clinician!</h2>
+        </div>
+        <button
+          type="button"
+          class="modal-close"
+          (click)="closeTherapistCodeModal()"
+          aria-label="Close modal">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-text">Your therapist account has been successfully created. Here is your unique referral code:</p>
+
+        <div class="code-box">
+          <code class="therapist-code">{{ therapistCode }}</code>
+          <button type="button" class="btn-copy" (click)="copyTherapistCode()">
+            <span class="material-symbols-outlined">content_copy</span>
+            <span>Copy</span>
+          </button>
+        </div>
+
+        <p class="modal-hint">Share this code with your patients so their rehabilitation telemetry and compliance data sync automatically to your dashboard.</p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-primary w-100" (click)="closeTherapistCodeModal()">
+          <span>Proceed to Verification</span>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

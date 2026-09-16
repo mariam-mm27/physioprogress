@@ -8,7 +8,7 @@ import { ProfileSettings } from './profile-settings/profile-settings';
 
 export const therapistRoutes: Routes = [
   {
-    path: '',
+    path: 'therapist',
     component: TherapistLayout,
     children: [
       { path: '', redirectTo: 'therapist-dashboard', pathMatch: 'full' },

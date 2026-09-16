@@ -1,20 +1,22 @@
-import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-export const authGuard: CanActivateFn = (route, _state) => {
-  const auth = inject(AuthService);
+export const authGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
   const router = inject(Router);
-  const required = route.data?.['role'] as 'therapist' | 'patient' | undefined;
+  const requiredRole = route.data?.['role'] as 'therapist' | 'patient' | undefined;
 
-  if (!auth.isAuthenticated()) {
-    auth.logout();
-    router.navigate(['/login']);
+  if (!authService.isAuthenticated()) {
+    authService.logout();
+    router.navigate(['/auth/login'], {
+      queryParams: { returnUrl: state.url }
+    });
     return false;
   }
 
-  const role = auth.role;
-  if (required && role !== required) {
+  const role = authService.role;
+  if (requiredRole && role !== requiredRole) {
     router.navigate(role === 'patient' ? ['/patient'] : ['/therapist-dashboard']);
     return false;
   }

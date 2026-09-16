@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  standalone: true,
-  imports: [],
-  selector: 'app-therapist-topbar',
-  styleUrl: './therapist-topbar.css',
-  templateUrl: './therapist-topbar.html',
+    imports: [],
+    selector: 'app-therapist-topbar',
+    styleUrl: './therapist-topbar.css',
+    templateUrl: './therapist-topbar.html'
 })
 export class TherapistTopbar {
   clinicNode = 'PT-NEURO-04';

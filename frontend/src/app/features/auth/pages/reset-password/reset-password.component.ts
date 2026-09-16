@@ -8,17 +8,16 @@ import { PageSectionComponent } from '../../../../shared/components/page-section
 import { AuthService } from '../../../../services/auth.service';
 
 @Component({
-  selector: 'app-reset-password',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule,
-    NavbarComponent,
-    FooterComponent,
-    PageSectionComponent
-  ],
-  template: `
+    selector: 'app-reset-password',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        RouterModule,
+        NavbarComponent,
+        FooterComponent,
+        PageSectionComponent
+    ],
+    template: `
     <div class="reset-root bg-dark-primary min-vh-100 d-flex flex-column justify-content-between">
       <app-navbar></app-navbar>
 
@@ -122,7 +121,7 @@ import { AuthService } from '../../../../services/auth.service';
       <app-footer></app-footer>
     </div>
   `,
-  styles: [`
+    styles: [`
     :host {
       display: block;
       background-color: #09090b;

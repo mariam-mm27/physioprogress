@@ -1,1 +1,159 @@
-<p>therapist-dashboard works!</p>
+<div class="dashboard-page">
+  <!-- Top Welcome Header -->
+  <header class="dashboard-header">
+    <div class="header-left">
+      <div class="badge-pill">
+        <span class="material-symbols-outlined badge-icon">medical_services</span>
+        <span class="badge-text">Clinical Command Center</span>
+      </div>
+      <h1 class="header-title">Welcome back, <span class="text-gradient">{{ therapistName }}</span></h1>
+      <p class="header-subtitle">Monitor patient progress, assign tailored rehabilitation protocols, and review real-time kinematic metrics.</p>
+    </div>
+
+    <div class="header-right">
+      <button class="btn-refresh" (click)="refreshUserData()" [disabled]="loadingUser" title="Refresh profile">
+        <span class="material-symbols-outlined" [class.spin]="loadingUser">sync</span>
+        <span>Sync Data</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Therapist Referral Code Showcase Card -->
+  <section class="code-showcase-section">
+    <div class="code-card">
+      <div class="code-card-glow"></div>
+      <div class="code-card-content">
+        <div class="code-info">
+          <div class="code-badge">
+            <span class="material-symbols-outlined">key</span>
+            <span>Your Clinical Practice Code</span>
+          </div>
+          <h2 class="code-title">Patient Onboarding Referral Code</h2>
+          <p class="code-description">
+            Share this unique identification code with your patients during account creation. Entering this code automatically links their home recovery sessions, range of motion analytics, and telemetry directly into your clinical portal.
+          </p>
+          
+          <div class="specialization-tags" *ngIf="specializations.length">
+            <span class="spec-tag" *ngFor="let spec of specializations">
+              <span class="material-symbols-outlined spec-icon">check_circle</span>
+              {{ spec }}
+            </span>
+          </div>
+        </div>
+
+        <div class="code-action-box">
+          <span class="code-label">Active Therapist Code</span>
+          <div class="code-display-wrap">
+            <span class="code-value">{{ therapistCode }}</span>
+            <button
+              type="button"
+              class="btn-copy-code"
+              [class.copied]="copied"
+              (click)="copyCode()"
+              aria-label="Copy therapist code">
+              <span class="material-symbols-outlined">{{ copied ? 'check' : 'content_copy' }}</span>
+              <span>{{ copied ? 'Copied!' : 'Copy Code' }}</span>
+            </button>
+          </div>
+          <div class="code-status-row">
+            <span class="status-indicator"></span>
+            <span class="status-text">Active &amp; Ready for Patient Enrollment</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Stats Grid -->
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon-wrap purple">
+        <span class="material-symbols-outlined">group</span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-num">18</span>
+        <span class="stat-label">Enrolled Patients</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrap blue">
+        <span class="material-symbols-outlined">assignment</span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-num">34</span>
+        <span class="stat-label">Active Exercise Plans</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrap green">
+        <span class="material-symbols-outlined">insights</span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-num">94.2%</span>
+        <span class="stat-label">Protocol Adherence</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrap amber">
+        <span class="material-symbols-outlined">speed</span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-num">142</span>
+        <span class="stat-label">Telemetry Sessions Logged</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Navigation Shortcuts -->
+  <section class="shortcuts-section">
+    <h3 class="section-heading">Clinical Modules</h3>
+    <div class="shortcuts-grid">
+      <a routerLink="/therapist/patient-plan-builder" class="shortcut-card">
+        <div class="shortcut-icon">
+          <span class="material-symbols-outlined">note_add</span>
+        </div>
+        <div class="shortcut-content">
+          <h4>Plan Builder</h4>
+          <p>Design personalized exercise regimens with targeted rep/set counts and angle thresholds.</p>
+        </div>
+        <span class="material-symbols-outlined arrow">arrow_forward</span>
+      </a>
+
+      <a routerLink="/therapist/patient-hub-logging" class="shortcut-card">
+        <div class="shortcut-icon">
+          <span class="material-symbols-outlined">clinical_notes</span>
+        </div>
+        <div class="shortcut-content">
+          <h4>Patient Hub &amp; Logging</h4>
+          <p>Review comprehensive session summaries, clinician notes, and compliance logs.</p>
+        </div>
+        <span class="material-symbols-outlined arrow">arrow_forward</span>
+      </a>
+
+      <a routerLink="/therapist/session-history-charts" class="shortcut-card">
+        <div class="shortcut-icon">
+          <span class="material-symbols-outlined">monitoring</span>
+        </div>
+        <div class="shortcut-content">
+          <h4>Session History &amp; Charts</h4>
+          <p>Visualize longitudinal kinematic telemetry, range of motion trends, and recovery velocity.</p>
+        </div>
+        <span class="material-symbols-outlined arrow">arrow_forward</span>
+      </a>
+
+      <a routerLink="/therapist/profile-settings" class="shortcut-card">
+        <div class="shortcut-icon">
+          <span class="material-symbols-outlined">settings_account_box</span>
+        </div>
+        <div class="shortcut-content">
+          <h4>Profile &amp; Settings</h4>
+          <p>Manage clinical bio, specializations, credentials, and practice information.</p>
+        </div>
+        <span class="material-symbols-outlined arrow">arrow_forward</span>
+      </a>
+    </div>
+  </section>
+</div>

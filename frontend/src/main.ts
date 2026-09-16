@@ -1,36 +1,16 @@
-// import { bootstrapApplication } from '@angular/platform-browser';
-// import { provideRouter } from '@angular/router';
-// import { provideAnimations } from '@angular/platform-browser/animations';
-// import { provideHttpClient } from '@angular/common/http';
-// import { AppComponent } from './app/app.component';
-// import { routes } from './app/app.routes';
-
-// bootstrapApplication(AppComponent, {
-//   providers: [
-//     provideAnimations(),
-//     provideHttpClient(),
-//     provideRouter(routes)
-//   ]
-// }).catch((err: unknown) => console.error(err));
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
-import { AuthInterceptor } from './app/core/interceptors/auth.interceptor'; // استدعاء AuthInterceptor بالـ A الكبيرة
+import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideAnimations(),
+    provideRouter(routes),
     provideHttpClient(
-      withInterceptorsFromDi()
-    ),
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    },
-    provideRouter(routes)
+      withInterceptors([authInterceptor])
+    )
   ]
 }).catch((err: unknown) => console.error(err));

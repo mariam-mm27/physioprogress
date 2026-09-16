@@ -167,19 +167,6 @@
                 {{ getFieldError('injuryType') }}
               </span>
             </div>
-
-            <div class="form-field">
-              <label class="form-label">Assigned Therapist Code (Optional)</label>
-              <div class="input-container">
-                <span class="material-symbols-outlined input-icon">link</span>
-                <input
-                  type="text"
-                  formControlName="therapistCode"
-                  class="form-input"
-                  placeholder="e.g. THR-ABC123">
-              </div>
-              <p class="form-hint">Enter your therapist's referral code to instantly synchronize your protocols.</p>
-            </div>
           </ng-container>
 
           <ng-container *ngIf="currentRole === 'therapist' && currentIntent === 'register'">
@@ -274,47 +261,5 @@
   </main>
 
   <app-footer></app-footer>
-
-  <div class="modal-overlay" *ngIf="showTherapistCodeModal" (click)="closeTherapistCodeModal()">
-    <div class="modal-card" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <div class="badge-pill mb-0">
-            <span class="material-symbols-outlined badge-icon">medical_services</span>
-            <span class="badge-text">Therapist Profile</span>
-          </div>
-          <h2 class="modal-title">Welcome, Clinician!</h2>
-        </div>
-        <button
-          type="button"
-          class="modal-close"
-          (click)="closeTherapistCodeModal()"
-          aria-label="Close modal">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <p class="modal-text">Your therapist account has been successfully created. Here is your unique referral code:</p>
-
-        <div class="code-box">
-          <code class="therapist-code">{{ therapistCode }}</code>
-          <button type="button" class="btn-copy" (click)="copyTherapistCode()">
-            <span class="material-symbols-outlined">content_copy</span>
-            <span>Copy</span>
-          </button>
-        </div>
-
-        <p class="modal-hint">Share this code with your patients so their rehabilitation telemetry and compliance data sync automatically to your dashboard.</p>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn-primary w-100" (click)="closeTherapistCodeModal()">
-          <span>Proceed to Verification</span>
-          <span class="material-symbols-outlined">arrow_forward</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
 </div>
+

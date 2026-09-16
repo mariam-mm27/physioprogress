@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 import { PatientService } from '../../../core/services/patient.service';
 import { AuthService } from '../../../services/auth.service';
+
 import {
   ExercisePlan,
   SessionLogPayload
@@ -32,33 +33,9 @@ export class PatientDashboard implements OnInit {
   completedSessions = 0;
   scheduledSessions = 0;
 
-
   painLevel: number = 3;
 
-  get painStatus() {
-    if (this.painLevel <= 3) {
-      return {
-        text: 'Mild Discomfort (Safe for progression)',
-        icon: 'bi-emoji-smile',
-        class: 'pain-mild'
-      };
-    } else if (this.painLevel <= 6) {
-      return {
-        text: 'Moderate Pain (Maintain steady control)',
-        icon: 'bi-emoji-neutral',
-        class: 'pain-moderate'
-      };
-    } else {
-      return {
-        text: 'Severe Threshold (Caution: notify Dr. Vance)',
-        icon: 'bi-emoji-frown',
-        class: 'pain-severe'
-      };
-    }
-  }
-
   selectedPlanId = '';
-
   sessionNotes = '';
 
   isSubmitting = false;
@@ -69,17 +46,26 @@ export class PatientDashboard implements OnInit {
 
   patientId = '';
 
+  // Dashboard patient information
+  patientName = '';
+  patientCode = '';
+  condition = '';
+
   constructor(
     private patientService: PatientService,
     private sanitizer: DomSanitizer,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const user = this.authService.getUser();
+
     if (user) {
       this.patientData = user;
-      this.patientId = user._id || user.id || '';
+
+      this.patientId = String(user._id || '');
+
+      this.setPatientDisplayData(user);
     }
 
     if (this.patientId) {
@@ -88,86 +74,194 @@ export class PatientDashboard implements OnInit {
       this.loadSessionLogs();
     } else {
       const token = this.authService.getToken();
+
       if (token) {
         this.authService.getMe(token).subscribe({
           next: (res) => {
-            const userData: any = res.data?.user || res.data;
+            const userData: any =
+              res.data?.user || res.data;
+
             if (userData) {
               this.patientData = userData;
-              this.patientId = userData._id || userData.id || '';
-              localStorage.setItem('user', JSON.stringify(userData));
+
+              this.patientId = String(
+                userData._id ||
+                userData.id ||
+                ''
+              );
+
+              this.setPatientDisplayData(userData);
+
+              localStorage.setItem(
+                'user',
+                JSON.stringify(userData)
+              );
+
               this.loadPatientProfile();
               this.loadExercisePlans();
               this.loadSessionLogs();
             }
+          },
+
+          error: (error) => {
+            console.error(
+              'Error loading current user:',
+              error
+            );
           }
         });
       }
     }
   }
 
+  private setPatientDisplayData(user: any): void {
+    if (!user) return;
+
+    this.patientName =
+      user.fullName ||
+      user.name ||
+      '';
+
+    this.patientCode =
+      user.patientCode ||
+      user.code ||
+      user.patientId ||
+      user._id ||
+      user.id ||
+      '';
+
+    this.condition =
+      user.injuryType ||
+      user.condition ||
+      '';
+  }
+
+  get painStatus() {
+    if (this.painLevel <= 3) {
+      return {
+        text: 'Mild Discomfort (Safe for progression)',
+        icon: 'bi-emoji-smile',
+        class: 'pain-mild'
+      };
+    }
+
+    if (this.painLevel <= 6) {
+      return {
+        text: 'Moderate Pain (Maintain steady control)',
+        icon: 'bi-emoji-neutral',
+        class: 'pain-moderate'
+      };
+    }
+
+    return {
+      text: 'Severe Threshold (Caution: notify Dr. Vance)',
+      icon: 'bi-emoji-frown',
+      class: 'pain-severe'
+    };
+  }
+
   loadPatientProfile(): void {
     if (!this.patientId) return;
-    this.patientService.getPatientProfile(this.patientId).subscribe({
-      next: (response) => {
-        this.patientData = { ...this.patientData, ...response.data };
-      },
-      error: (error) => {
-        console.error('Error loading patient profile:', error);
-      }
-    });
+
+    this.patientService
+      .getPatientProfile(this.patientId)
+      .subscribe({
+        next: (response) => {
+          this.patientData = {
+            ...this.patientData,
+            ...response.data
+          };
+
+          this.setPatientDisplayData(
+            this.patientData
+          );
+        },
+
+        error: (error) => {
+          console.error(
+            'Error loading patient profile:',
+            error
+          );
+        }
+      });
   }
 
   loadExercisePlans(): void {
     if (!this.patientId) return;
-    this.patientService.getPatientPlans(this.patientId).subscribe({
-      next: (response) => {
-        this.exercisePlans = response.exercisePlans;
-        this.isLoading = false;
 
-        if (this.exercisePlans.length > 0) {
-          const firstPlan = this.exercisePlans[0];
-          this.selectedPlanId = firstPlan._id;
+    this.patientService
+      .getPatientPlans(this.patientId)
+      .subscribe({
+        next: (response) => {
+          this.exercisePlans =
+            response.exercisePlans;
+
+          this.isLoading = false;
+
+          if (this.exercisePlans.length > 0) {
+            const firstPlan =
+              this.exercisePlans[0];
+
+            this.selectedPlanId =
+              firstPlan._id;
+          }
+
+          this.calculateDashboardStats();
+        },
+
+        error: (error) => {
+          console.error(error);
+
+          this.errorMessage =
+            'Failed to load exercise plans.';
+
+          this.isLoading = false;
         }
-
-        this.calculateDashboardStats();
-      },
-      error: (error) => {
-        console.error(error);
-        this.errorMessage = 'Failed to load exercise plans.';
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   loadSessionLogs(): void {
     if (!this.patientId) return;
-    this.patientService.getPatientSessionLogs(this.patientId).subscribe({
-      next: (response) => {
-        this.sessionLogs = response.data;
-        this.calculateDashboardStats();
-      },
-      error: (error) => {
-        console.error('Error loading session logs:', error);
-      }
-    });
+
+    this.patientService
+      .getPatientSessionLogs(this.patientId)
+      .subscribe({
+        next: (response) => {
+          this.sessionLogs =
+            response.data;
+
+          this.calculateDashboardStats();
+        },
+
+        error: (error) => {
+          console.error(
+            'Error loading session logs:',
+            error
+          );
+        }
+      });
   }
 
   calculateDashboardStats(): void {
-    this.completedSessions = this.sessionLogs.filter(
-      log => log.completed
-    ).length;
+    this.completedSessions =
+      this.sessionLogs.filter(
+        log => log.completed
+      ).length;
 
-    this.scheduledSessions = this.exercisePlans.reduce(
-      (total, plan) => total + plan.frequencyPerWeek,
-      0
-    );
+    this.scheduledSessions =
+      this.exercisePlans.reduce(
+        (total, plan) =>
+          total + plan.frequencyPerWeek,
+        0
+      );
 
     if (this.scheduledSessions > 0) {
       this.adherence = Math.min(
         100,
         Math.round(
-          (this.completedSessions / this.scheduledSessions) * 100
+          (this.completedSessions /
+            this.scheduledSessions) *
+          100
         )
       );
     } else {
@@ -175,13 +269,18 @@ export class PatientDashboard implements OnInit {
     }
 
     if (this.sessionLogs.length > 0) {
-      const totalPain = this.sessionLogs.reduce(
-        (total, log) => total + log.painLevel,
-        0
-      );
+      const totalPain =
+        this.sessionLogs.reduce(
+          (total, log) =>
+            total + log.painLevel,
+          0
+        );
 
       this.averagePain = Number(
-        (totalPain / this.sessionLogs.length).toFixed(1)
+        (
+          totalPain /
+          this.sessionLogs.length
+        ).toFixed(1)
       );
     } else {
       this.averagePain = 0;
@@ -202,52 +301,61 @@ export class PatientDashboard implements OnInit {
       notes: this.sessionNotes
     };
 
-    this.patientService.logSession(payload).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.submitSuccess = true;
-        this.sessionNotes = '';
+    this.patientService
+      .logSession(payload)
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.submitSuccess = true;
+          this.sessionNotes = '';
 
-        this.loadSessionLogs();
+          this.loadSessionLogs();
 
-        setTimeout(() => {
-          this.submitSuccess = false;
-        }, 3500);
-      },
-      error: (err) => {
-        console.error('Error logging session:', err);
-        this.isSubmitting = false;
-        this.submitError = 'Failed to transmit session telemetry.';
-      }
-    });
+          setTimeout(() => {
+            this.submitSuccess = false;
+          }, 3500);
+        },
+
+        error: (err) => {
+          console.error(
+            'Error logging session:',
+            err
+          );
+
+          this.isSubmitting = false;
+
+          this.submitError =
+            'Failed to transmit session telemetry.';
+        }
+      });
   }
 
   openVideoModal(url: string): void {
-  this.activeVideoUrl =
-    this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    this.activeVideoUrl =
+      this.sanitizer
+        .bypassSecurityTrustResourceUrl(url);
   }
-  
-  // getVideoThumbnail(videoUrl: string): string {
-  // return videoUrl.replace(
-  //   '/video/upload/',
-  //   '/video/upload/so_0/'
-  // ).replace(/\.(mp4|mov|avi|mkv)$/i, '.jpg');
-  // }
-
 
   getVideoThumbnail(videoUrl: string): string {
-  if (!videoUrl) {
+    if (!videoUrl) {
+      return 'assets/images/default-thumbnail.jpg';
+    }
+
+    if (videoUrl.includes('cloudinary.com')) {
+      return videoUrl
+        .replace(
+          '/video/upload/',
+          '/video/upload/so_0/'
+        )
+        .replace(
+          /\.(mp4|mov|avi|mkv)$/i,
+          '.jpg'
+        );
+    }
+
     return 'assets/images/default-thumbnail.jpg';
   }
 
-  if (videoUrl.includes('cloudinary.com')) {
-    return videoUrl
-      .replace('/video/upload/', '/video/upload/so_0/')
-      .replace(/\.(mp4|mov|avi|mkv)$/i, '.jpg');
-  }
-
-  return 'assets/images/default-thumbnail.jpg';
-  }
   closeVideoModal(): void {
     this.activeVideoUrl = null;
   }

@@ -28,11 +28,10 @@
       routerLink="/patient/patient-dashboard"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
-      class="nav-link-custom">
-
+      class="nav-link-custom"
+    >
       <i class="bi bi-grid-fill"></i>
       <span>Patient Dashboard</span>
-
     </a>
 
 
@@ -40,11 +39,10 @@
       routerLink="/patient/session-logs"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
-      class="nav-link-custom">
-
+      class="nav-link-custom"
+    >
       <i class="bi bi-graph-up"></i>
       <span>Session Logs & Recovery Analytics</span>
-
     </a>
 
 
@@ -52,11 +50,10 @@
       routerLink="/patient/profile-settings"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
-      class="nav-link-custom">
-
+      class="nav-link-custom"
+    >
       <i class="bi bi-person-gear"></i>
       <span>Profile Settings</span>
-
     </a>
 
   </nav>
@@ -93,6 +90,25 @@
       <i class="bi bi-shield-check verified-icon"></i>
 
     </div>
+
+  </div>
+
+
+  <div class="mt-auto px-3 py-3">
+
+    <nav class="nav flex-column gap-1" role="navigation">
+
+      <button
+        (click)="logout()"
+        type="button"
+        style="background: transparent; border: none; text-align: left; width: 100%; cursor: pointer;"
+        class="nav-link-custom d-flex align-items-center gap-2 px-2 py-2 rounded text-danger"
+      >
+        <i class="bi bi-box-arrow-left" aria-hidden="true"></i>
+        <span>Logout</span>
+      </button>
+
+    </nav>
 
   </div>
 

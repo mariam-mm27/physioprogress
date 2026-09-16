@@ -1,4 +1,3 @@
-
 <div class="dashboard-container">
 
   <div class="top-row">
@@ -14,7 +13,8 @@
       </h1>
 
       <p class="sub-text">
-        Track your rehabilitation progress, complete assigned exercise plans, and submit real-time recovery information to your care team.
+        Track your rehabilitation progress, complete assigned exercise plans, and submit real-time recovery information
+        to your care team.
       </p>
 
       <div class="clinical-box">
@@ -75,9 +75,9 @@
 
           <strong>
             {{
-              patientData?.assignedTherapist
-                ? 'Active Care Link'
-                : 'Awaiting Assignment'
+            patientData?.assignedTherapist
+            ? 'Active Care Link'
+            : 'Awaiting Assignment'
             }}
           </strong>
         </div>
@@ -101,9 +101,7 @@
       </div>
 
       <div class="kpi-progress">
-        <div
-          class="progress-fill"
-          [style.width.%]="adherence">
+        <div class="progress-fill" [style.width.%]="adherence">
         </div>
       </div>
 
@@ -130,9 +128,7 @@
       </div>
 
       <div class="pain-progress">
-        <div
-          class="pain-fill"
-          [style.width.%]="averagePain * 10">
+        <div class="pain-fill" [style.width.%]="averagePain * 10">
         </div>
       </div>
 
@@ -192,18 +188,14 @@
       </div>
 
 
-      <div
-        *ngIf="!isLoading && errorMessage"
-        class="alert alert-danger">
+      <div *ngIf="!isLoading && errorMessage" class="alert alert-danger">
 
         {{ errorMessage }}
 
       </div>
 
 
-      <div
-        *ngIf="!isLoading && !errorMessage && exercisePlans.length === 0"
-        class="empty-card">
+      <div *ngIf="!isLoading && !errorMessage && exercisePlans.length === 0" class="empty-card">
 
         <i class="bi bi-clipboard-x"></i>
 
@@ -216,35 +208,22 @@
       </div>
 
 
-      <div
-        class="exercise-cards-list"
-        *ngIf="!isLoading && !errorMessage">
+      <div class="exercise-cards-list" *ngIf="!isLoading && !errorMessage">
 
-        <div
-          class="exercise-card"
-          *ngFor="let plan of exercisePlans">
+        <div class="exercise-card" *ngFor="let plan of exercisePlans">
 
-          <div
-            class="video-thumb"
-            [class.no-video]="!plan.videoUrl"
+          <div class="video-thumb" [class.no-video]="!plan.videoUrl"
             (click)="plan.videoUrl && openVideoModal(plan.videoUrl)">
 
-            <img
-              *ngIf="plan.videoUrl"
-              [src]="getVideoThumbnail(plan.videoUrl)"
-              alt="Exercise video thumbnail">
+            <img *ngIf="plan.videoUrl" [src]="getVideoThumbnail(plan.videoUrl)" alt="Exercise video thumbnail">
 
-            <div
-              *ngIf="plan.videoUrl"
-              class="play-circle">
+            <div *ngIf="plan.videoUrl" class="play-circle">
 
               <i class="bi bi-play-fill"></i>
 
             </div>
 
-            <span
-              *ngIf="plan.videoUrl"
-              class="dur-tag">
+            <span *ngIf="plan.videoUrl" class="dur-tag">
 
               VIDEO
 
@@ -285,11 +264,7 @@
                 <small>Sessions / Week</small>
               </div>
 
-              <button
-                *ngIf="plan.videoUrl"
-                type="button"
-                class="btn-preview"
-                (click)="openVideoModal(plan.videoUrl)">
+              <button *ngIf="plan.videoUrl" type="button" class="btn-preview" (click)="openVideoModal(plan.videoUrl)">
 
                 Preview Video
 
@@ -341,19 +316,13 @@
               <span class="req">REQUIRED</span>
             </label>
 
-            <select
-              [(ngModel)]="selectedPlanId"
-              name="plan"
-              class="custom-select"
-              required>
+            <select [(ngModel)]="selectedPlanId" name="plan" class="custom-select" required>
 
               <option value="" disabled>
                 Select Plan
               </option>
 
-              <option
-                *ngFor="let plan of exercisePlans"
-                [value]="plan._id">
+              <option *ngFor="let plan of exercisePlans" [value]="plan._id">
 
                 {{ plan.exerciseName }}
 
@@ -379,23 +348,12 @@
             </div>
 
 
-            <input
-              type="range"
-              min="1"
-              max="10"
-              step="1"
-              [(ngModel)]="painLevel"
-              name="painLevel"
-              class="custom-range">
+            <input type="range" min="1" max="10" step="1" [(ngModel)]="painLevel" name="painLevel" class="custom-range">
 
 
-            <div
-              class="pain-status"
-              [ngClass]="painStatus.class">
+            <div class="pain-status" [ngClass]="painStatus.class">
 
-              <i
-                class="bi"
-                [ngClass]="painStatus.icon">
+              <i class="bi" [ngClass]="painStatus.icon">
               </i>
 
               <span>
@@ -432,40 +390,28 @@
 
             </div>
 
-            <textarea
-              [(ngModel)]="sessionNotes"
-              name="notes"
-              rows="3"
-              class="custom-textarea"
+            <textarea [(ngModel)]="sessionNotes" name="notes" rows="3" class="custom-textarea"
               placeholder="Describe any sensations, tightness, or feedback...">
             </textarea>
 
           </div>
 
 
-          <button
-            type="submit"
-            class="btn-submit"
-            [disabled]="isSubmitting || !selectedPlanId">
+          <button type="submit" class="btn-submit" [disabled]="isSubmitting || !selectedPlanId">
 
-            <i
-              class="bi"
-              [class.bi-play-fill]="!isSubmitting"
-              [class.bi-arrow-repeat]="isSubmitting">
+            <i class="bi" [class.bi-play-fill]="!isSubmitting" [class.bi-arrow-repeat]="isSubmitting">
             </i>
 
             {{
-              isSubmitting
-                ? 'Submitting Session...'
-                : 'Submit Completed Session'
+            isSubmitting
+            ? 'Submitting Session...'
+            : 'Submit Completed Session'
             }}
 
           </button>
 
 
-          <div
-            *ngIf="submitSuccess"
-            class="success-message">
+          <div *ngIf="submitSuccess" class="success-message">
 
             <i class="bi bi-check-circle"></i>
 
@@ -474,10 +420,8 @@
             </span>
 
           </div>
-          
-          <div
-            *ngIf="submitError"
-            class="error-message">
+
+          <div *ngIf="submitError" class="error-message">
 
             <i class="bi bi-exclamation-circle"></i>
 
@@ -498,28 +442,17 @@
 </div>
 
 
-<div
-  class="video-modal"
-  *ngIf="activeVideoUrl"
-  (click)="closeVideoModal()">
+<div class="video-modal" *ngIf="activeVideoUrl" (click)="closeVideoModal()">
 
-  <div
-    class="video-container"
-    (click)="$event.stopPropagation()">
+  <div class="video-container" (click)="$event.stopPropagation()">
 
-    <button
-      type="button"
-      class="close-video"
-      (click)="closeVideoModal()">
+    <button type="button" class="close-video" (click)="closeVideoModal()">
 
       <i class="bi bi-x-lg"></i>
 
     </button>
 
-    <iframe
-      [src]="activeVideoUrl"
-      class="video-frame"
-      allowfullscreen>
+    <iframe [src]="activeVideoUrl" class="video-frame" allowfullscreen>
     </iframe>
 
   </div>

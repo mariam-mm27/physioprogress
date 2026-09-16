@@ -86,6 +86,21 @@ p {
   color: #a1a1aa;
 }
 
+.font-mono {
+  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+}
+.font-heading {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+.label-caps {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6875rem; /* 11px */
+  line-height: 1rem;    /* 14px */
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -498,6 +513,191 @@ textarea.form-control {
 
 .list-unstyled li {
   margin-bottom: 0.5rem;
+}
+
+/* Flex */
+.flex-grow-1 {
+  flex-grow: 1;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+/* Margins */
+.mt-auto {
+  margin-top: auto;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+/* Padding */
+.p-2 {
+  padding: 0.5rem;
+}
+
+.p-3 {
+  padding: 1rem;
+}
+
+.p-4 {
+  padding: 1.5rem;
+}
+
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.px-3 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.py-3 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.py-4 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+/* Line Height */
+.lh-1 {
+  line-height: 1;
+}
+
+/* Typography Utilities */
+small, .small {
+  font-size: 0.8125rem;
+}
+
+.fst-italic {
+  font-style: italic;
+}
+
+.display-6 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+/* Text Colors */
+.text-muted {
+  color: #71717a !important;
+}
+
+.text-secondary {
+  color: #a1a1aa !important;
+}
+
+.text-danger {
+  color: #ff6b6b !important;
+}
+
+.text-success {
+  color: #4ade80 !important;
+}
+
+.text-white {
+  color: #ffffff !important;
+}
+
+.text-end {
+  text-align: end;
+}
+
+/* Background Colors */
+.bg-primary {
+  background-color: #7c3aed !important;
+}
+
+.bg-secondary {
+  background-color: #52525b !important;
+}
+
+.bg-success {
+  background-color: #22c55e !important;
+}
+
+.bg-danger {
+  background-color: #ef4444 !important;
+}
+
+/* Rounded */
+.rounded-circle {
+  border-radius: 50%;
+}
+
+/* Justify */
+.justify-content-end {
+  justify-content: flex-end;
+}
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.375rem;
+  color: #fff;
+}
+
+/* Nav Reset */
+.nav {
+  display: flex;
+  padding-left: 0;
+  margin-bottom: 0;
+  list-style: none;
+}
+
+/* Progress Bar */
+.progress {
+  display: flex;
+  height: 0.5rem;
+  overflow: hidden;
+  background-color: #27272a;
+  border-radius: 0.25rem;
+}
+
+.progress-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
+  transition: width 0.6s ease;
 }
 
 /* Navbar-specific list reset */

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { therapistRoutes } from './pages/therapist/therapist.routes';
 import { patientRoutes } from './pages/patient/patient.routes';
+import { guestGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -10,6 +11,7 @@ export const routes: Routes = [
   },
   {
     path: 'auth',
+    canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/auth.component').then(m => m.AuthComponent)
   },
   {
@@ -18,10 +20,12 @@ export const routes: Routes = [
   },
   {
     path: 'auth/forgot-password',
+    canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
   },
   {
     path: 'auth/reset-password/:token',
+    canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/pages/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
   },
   {

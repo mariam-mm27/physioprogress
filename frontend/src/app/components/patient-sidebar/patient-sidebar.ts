@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 interface navItem {
   path: string;
@@ -8,17 +9,22 @@ interface navItem {
 }
 
 @Component({
-  standalone: true,
-  imports: [RouterLink, RouterLinkActive],
-  selector: 'app-patient-sidebar',
-  styleUrl: './patient-sidebar.css',
-  templateUrl: './patient-sidebar.html',
+    imports: [RouterLink, RouterLinkActive],
+    selector: 'app-patient-sidebar',
+    styleUrl: './patient-sidebar.css',
+    templateUrl: './patient-sidebar.html'
 })
 export class PatientSidebar {
-navItems: navItem[] = [
+  constructor(private authService: AuthService, private router: Router) {}
+
+  navItems: navItem[] = [
     { path: 'patient-dashboard', label: 'Patient Dashboard', icon: 'bi-grid-1x2' },
     { path: 'session-logs', label: 'Session Logs & Recovery Analytics', icon: 'bi-bar-chart-line' },
     { path: 'profile-settings', label: 'Profile Settings', icon: 'bi-sliders' },
-    {path: 'landing', label: 'Logout', icon: 'bi bi-box-arrow-left' },
   ];
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/']);
+  }
 }

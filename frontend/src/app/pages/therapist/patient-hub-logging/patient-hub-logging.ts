@@ -12,6 +12,7 @@ const HIGH_PAIN_THRESHOLD = 6;
 type LogTab = 'all' | 'highPain';
 
 @Component({
+  standalone: true,
   imports: [CommonModule, FormsModule],
   selector: 'app-patient-hub-logging',
   styleUrl: './patient-hub-logging.css',

@@ -1,4 +1,16 @@
+:host {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--dark-bg, #09090b);
+}
+
 .main-content {
   margin-left: 18rem;
   padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: calc(100% - 18rem);
 }

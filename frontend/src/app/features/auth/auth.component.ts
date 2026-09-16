@@ -6,11 +6,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { PageSectionComponent } from '../../shared/components/page-section/page-section.component';
-import { AuthService, AuthResponse } from '../../services/auth.service';
+import { AuthService, AuthResponse, UserRole } from '../../services/auth.service';
 
 declare const google: any;
 
-type UserRole = 'patient' | 'therapist';
 type AuthIntent = 'login' | 'register';
 
 @Component({
@@ -39,8 +38,6 @@ export class AuthComponent implements OnInit, AfterViewInit {
   error: string | null = null;
   successMessage: string | null = null;
   unconfirmedEmail: string | null = null;
-  showTherapistCodeModal = false;
-  therapistCode = '';
 
   private readonly googleClientId = '650360803188-onocvgape22fnq80irtos38lqvf55p4f.apps.googleusercontent.com';
 
@@ -73,6 +70,12 @@ export class AuthComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
+    // If user is already authenticated, redirect them to their respective portal immediately
+    if (this.authService.isAuthenticated()) {
+      this.navigateAfterAuth(this.authService.role || 'patient');
+      return;
+    }
+
     this.initializeForm();
     this.handleQueryParams();
   }
@@ -89,6 +92,9 @@ export class AuthComponent implements OnInit, AfterViewInit {
       } else if (mode === 'register') {
         this.currentIntent = 'register';
       }
+      if (params['role'] === 'therapist' || params['role'] === 'patient') {
+        this.currentRole = params['role'];
+      }
       this.updateFormValidators();
       setTimeout(() => this.renderGoogleButton(), 100);
     });
@@ -99,44 +105,66 @@ export class AuthComponent implements OnInit, AfterViewInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6), this.passwordValidator()]],
       fullName: [''],
-      injuryType: [''],
-      therapistCode: [''],
-      bio: ['', Validators.maxLength(500)]
+      injuryType: [this.injuryTypes[0]],
+      bio: ['']
     });
+
+    this.updateFormValidators();
   }
 
   private passwordValidator() {
-    return (control: any) => {
-      if (!control.value) return null;
-      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(control.value);
-      return hasSpecialChar ? null : { noSpecialChar: true };
+    return (control: { value: string }) => {
+      const value = control.value || '';
+      if (!value) return null;
+      const hasUpper = /[A-Z]/.test(value);
+      const hasLower = /[a-z]/.test(value);
+      const hasNumber = /[0-9]/.test(value);
+      const hasSpecial = /[^A-Za-z0-9]/.test(value);
+
+      const isValid = value.length >= 6 && hasUpper && hasLower && (hasNumber || hasSpecial);
+      return isValid ? null : { weakPassword: true };
     };
   }
 
   updateFormValidators(): void {
     const fullNameControl = this.authForm.get('fullName');
-    const injuryControl = this.authForm.get('injuryType');
-    const bioControl = this.authForm.get('bio');
-    const passwordControl = this.authForm.get('password');
+    const injuryTypeControl = this.authForm.get('injuryType');
 
     if (this.currentIntent === 'register') {
-      fullNameControl?.setValidators([Validators.required]);
-      passwordControl?.setValidators([Validators.required, Validators.minLength(6), this.passwordValidator()]);
+      fullNameControl?.setValidators([Validators.required, Validators.minLength(2)]);
+      if (this.currentRole === 'patient') {
+        injuryTypeControl?.setValidators([Validators.required]);
+      } else {
+        injuryTypeControl?.clearValidators();
+      }
     } else {
       fullNameControl?.clearValidators();
-      passwordControl?.setValidators([Validators.required]);
-    }
-
-    if (this.currentRole === 'patient' && this.currentIntent === 'register') {
-      injuryControl?.setValidators([Validators.required]);
-    } else {
-      injuryControl?.clearValidators();
+      injuryTypeControl?.clearValidators();
     }
 
     fullNameControl?.updateValueAndValidity();
-    passwordControl?.updateValueAndValidity();
-    injuryControl?.updateValueAndValidity();
-    bioControl?.updateValueAndValidity();
+    injuryTypeControl?.updateValueAndValidity();
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const control = this.authForm.get(fieldName);
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+
+  getFieldError(fieldName: string): string {
+    const control = this.authForm.get(fieldName);
+    if (!control || !control.errors) return '';
+
+    if (control.errors['required']) return 'This field is required';
+    if (control.errors['email']) return 'Please enter a valid email address';
+    if (control.errors['minlength']) {
+      const min = control.errors['minlength'].requiredLength;
+      return `Must be at least ${min} characters`;
+    }
+    if (control.errors['weakPassword']) {
+      return 'Password must contain at least one uppercase letter, one lowercase letter, and one number or symbol';
+    }
+    return 'Invalid field value';
   }
 
   switchRole(role: UserRole): void {
@@ -144,10 +172,8 @@ export class AuthComponent implements OnInit, AfterViewInit {
     this.currentRole = role;
     this.error = null;
     this.successMessage = null;
-    this.unconfirmedEmail = null;
-    this.selectedSpecializations.clear();
-    this.resetFormState();
-    setTimeout(() => this.renderGoogleButton(), 50);
+    this.updateFormValidators();
+    setTimeout(() => this.renderGoogleButton(), 100);
   }
 
   switchIntent(intent: AuthIntent): void {
@@ -155,23 +181,8 @@ export class AuthComponent implements OnInit, AfterViewInit {
     this.currentIntent = intent;
     this.error = null;
     this.successMessage = null;
-    this.unconfirmedEmail = null;
-    this.resetFormState();
-    setTimeout(() => this.renderGoogleButton(), 50);
-  }
-
-  private resetFormState(): void {
-    this.authForm.reset({
-      email: '',
-      password: '',
-      fullName: '',
-      injuryType: '',
-      therapistCode: '',
-      bio: ''
-    });
-    this.authForm.markAsPristine();
-    this.authForm.markAsUntouched();
     this.updateFormValidators();
+    setTimeout(() => this.renderGoogleButton(), 100);
   }
 
   toggleSpecialization(spec: string): void {
@@ -182,28 +193,13 @@ export class AuthComponent implements OnInit, AfterViewInit {
     }
   }
 
-  isFieldInvalid(fieldName: string): boolean {
-    const control = this.authForm.get(fieldName);
-    return !!(control && control.invalid && (control.dirty || control.touched));
-  }
-
-  getFieldError(fieldName: string): string {
-    const control = this.authForm.get(fieldName);
-    if (!control?.errors || !(control.dirty || control.touched)) return '';
-
-    if (control.errors['required']) return 'This field is required';
-    if (control.errors['email']) return 'Enter a valid email address';
-    if (control.errors['minlength']) return `Minimum ${control.errors['minlength'].requiredLength} characters`;
-    if (control.errors['noSpecialChar']) return 'Password must contain at least one special character (!@#$%^&*)';
-    if (control.errors['maxlength']) return `Maximum ${control.errors['maxlength'].requiredLength} characters`;
-
-    return 'Invalid input';
+  isSpecializationSelected(spec: string): boolean {
+    return this.selectedSpecializations.has(spec);
   }
 
   onSubmit(): void {
     this.error = null;
     this.successMessage = null;
-    this.unconfirmedEmail = null;
 
     if (this.authForm.invalid) {
       this.authForm.markAllAsTouched();
@@ -230,23 +226,34 @@ export class AuthComponent implements OnInit, AfterViewInit {
   private handleLogin(): void {
     const { email, password } = this.authForm.value;
     const cleanEmail = email.trim().toLowerCase();
+    console.log('[AUTH] handleLogin called for:', cleanEmail, 'role:', this.currentRole);
 
     this.authService.login(cleanEmail, password, this.currentRole).subscribe({
       next: (response: AuthResponse) => {
         this.loading = false;
+        console.log('[AUTH] Login response received:', JSON.stringify(response));
         if (response.data?.accessToken) {
-          localStorage.setItem('token', response.data.accessToken);
-          localStorage.setItem('role', this.currentRole);
-          this.navigateAfterAuth();
+          const userRole = this.authService.role;
+          console.log('[AUTH] Session set by service. Token in localStorage:', !!localStorage.getItem('token'), 'Role:', localStorage.getItem('role'));
+          this.successMessage = 'Login successful! Redirecting to your dashboard...';
+          setTimeout(() => {
+            this.ngZone.run(() => {
+              console.log('[AUTH] About to navigateAfterAuth with role:', userRole);
+              this.navigateAfterAuth(userRole);
+            });
+          }, 600);
         } else {
           this.error = 'Authentication succeeded but no session token was received.';
         }
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;
-        const errMsg = err.error?.message || (err.status === 0 ? 'Cannot connect to backend server on http://localhost:8000. Please ensure the backend is running.' : 'Login failed. Please check your credentials and try again.');
+        console.error('[AUTH] Login error:', err.status, err.message, err.error);
+        const errMsg = err.error?.message || (err.status === 0
+          ? 'Cannot connect to backend server on http://localhost:8000. Please ensure the backend is running.'
+          : 'Login failed. Please check your credentials and try again.');
         this.error = errMsg;
-        if (errMsg.toLowerCase().includes('confirm')) {
+        if (errMsg.toLowerCase().includes('confirm') || errMsg.toLowerCase().includes('verify')) {
           this.unconfirmedEmail = cleanEmail;
         }
       }
@@ -254,7 +261,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
   }
 
   private handleRegister(): void {
-    const { fullName, email, password, injuryType, therapistCode, bio } = this.authForm.value;
+    const { fullName, email, password, injuryType, bio } = this.authForm.value;
     const cleanEmail = email.trim().toLowerCase();
 
     const payload: any = {
@@ -266,9 +273,6 @@ export class AuthComponent implements OnInit, AfterViewInit {
 
     if (this.currentRole === 'patient') {
       payload.injuryType = injuryType;
-      if (therapistCode?.trim()) {
-        payload.therapistCode = therapistCode.trim();
-      }
     } else if (this.currentRole === 'therapist') {
       payload.specialization = Array.from(this.selectedSpecializations);
       if (bio?.trim()) {
@@ -277,20 +281,12 @@ export class AuthComponent implements OnInit, AfterViewInit {
     }
 
     this.authService.register(payload).subscribe({
-      next: (response: AuthResponse) => {
+      next: () => {
         this.loading = false;
-        const code = (response.data as any)?.therapistCode;
-        if (this.currentRole === 'therapist' && code) {
-          this.therapistCode = code;
-          this.showTherapistCodeModal = true;
-        } else {
-          this.successMessage = 'Registration successful! Please check your email for a verification code.';
-          setTimeout(() => {
-            this.router.navigate(['/auth/confirm-email'], {
-              queryParams: { email: cleanEmail }
-            });
-          }, 1200);
-        }
+        // Redirect immediately to email confirmation - no modal, no delay
+        this.router.navigate(['/auth/confirm-email'], {
+          queryParams: { email: cleanEmail, role: this.currentRole }
+        });
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;
@@ -309,34 +305,40 @@ export class AuthComponent implements OnInit, AfterViewInit {
   goToVerifyEmail(): void {
     if (this.unconfirmedEmail) {
       this.router.navigate(['/auth/confirm-email'], {
-        queryParams: { email: this.unconfirmedEmail }
+        queryParams: { email: this.unconfirmedEmail, role: this.currentRole }
       });
     }
   }
 
-  private navigateAfterAuth(): void {
-    const targetRoute = `/${this.currentRole}`;
-    this.router.navigate([targetRoute]).catch(() => {
-      this.router.navigate(['/']);
-    });
-  }
+  private navigateAfterAuth(role?: UserRole | null): void {
+    const effectiveRole = (role || this.authService.role || this.currentRole).toLowerCase();
+    console.log('[AUTH] navigateAfterAuth called. effectiveRole:', effectiveRole);
+    console.log('[AUTH] isAuthenticated:', this.authService.isAuthenticated(), 'storedRole:', this.authService.role);
 
-  copyTherapistCode(): void {
-    navigator.clipboard.writeText(this.therapistCode);
-    alert('Therapist code copied to clipboard!');
-  }
-
-  closeTherapistCodeModal(): void {
-    this.showTherapistCodeModal = false;
-    const email = this.authForm.get('email')?.value;
-    if (email) {
-      this.router.navigate(['/auth/confirm-email'], { queryParams: { email: email.trim() } });
-    } else {
-      this.switchIntent('login');
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl && returnUrl.startsWith(`/${effectiveRole}`)) {
+      console.log('[AUTH] Navigating to returnUrl:', returnUrl);
+      this.router.navigateByUrl(returnUrl);
+      return;
     }
+
+    let targetRoute: string;
+    if (effectiveRole === 'patient') {
+      targetRoute = '/patient/patient-dashboard';
+    } else if (effectiveRole === 'therapist') {
+      targetRoute = '/therapist/therapist-dashboard';
+    } else {
+      targetRoute = '/';
+    }
+
+    console.log('[AUTH] Navigating to:', targetRoute);
+    this.router.navigate([targetRoute]).then(
+      (success) => console.log('[AUTH] Navigation result:', success),
+      (err) => console.error('[AUTH] Navigation error:', err)
+    );
   }
 
-  // --- Google OAuth  ---
+  // --- Google OAuth ---
   private initGoogleAuth(): void {
     if (typeof window === 'undefined') return;
 
@@ -429,7 +431,6 @@ export class AuthComponent implements OnInit, AfterViewInit {
           this.googleLoading = false;
           if (notification.isNotDisplayed()) {
             this.error = 'Google Sign-In popup was blocked. Please use the Google button directly or allow popups for this site.';
-          } else if (notification.isSkippedMoment()) {
           }
         });
       });
@@ -452,13 +453,11 @@ export class AuthComponent implements OnInit, AfterViewInit {
         next: (authRes: AuthResponse) => {
           this.googleLoading = false;
           if (authRes.data?.accessToken) {
-            localStorage.setItem('token', authRes.data.accessToken);
-            const role = authRes.data.user?.role || this.currentRole;
-            localStorage.setItem('role', role);
-            if (authRes.data.user) {
-              localStorage.setItem('user', JSON.stringify(authRes.data.user));
-            }
-            this.navigateAfterAuth();
+            const userRole = this.authService.role;
+            this.successMessage = 'Google authentication successful! Redirecting...';
+            setTimeout(() => {
+              this.navigateAfterAuth(userRole);
+            }, 600);
           } else {
             this.error = 'Google login succeeded, but no session token was received.';
           }

@@ -40,11 +40,6 @@ import { AuthService, AuthResponse } from '../../services/auth.service';
                 <span>{{ error }}</span>
               </div>
 
-              <div class="success-banner" *ngIf="successMessage">
-                <span class="material-symbols-outlined">check_circle</span>
-                <span>{{ successMessage }}</span>
-              </div>
-
               <!-- Form -->
               <form [formGroup]="confirmationForm" (ngSubmit)="onSubmit()" class="confirmation-form" novalidate>
                 <div class="form-field">
@@ -396,8 +391,8 @@ export class EmailConfirmationComponent implements OnInit {
   confirmationForm!: FormGroup;
   loading = false;
   error: string | null = null;
-  successMessage: string | null = null;
   email: string = '';
+  role: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -408,6 +403,7 @@ export class EmailConfirmationComponent implements OnInit {
 
   ngOnInit(): void {
     this.email = this.route.snapshot.queryParamMap.get('email') || '';
+    this.role = this.route.snapshot.queryParamMap.get('role') || '';
     this.initializeForm();
   }
 
@@ -424,7 +420,6 @@ export class EmailConfirmationComponent implements OnInit {
 
   onSubmit(): void {
     this.error = null;
-    this.successMessage = null;
 
     if (this.confirmationForm.invalid) {
       this.confirmationForm.markAllAsTouched();
@@ -443,10 +438,18 @@ export class EmailConfirmationComponent implements OnInit {
     this.authService.confirmEmail(this.email, otp).subscribe({
       next: (response: AuthResponse) => {
         this.loading = false;
-        this.successMessage = response.message || 'Email verified successfully! Redirecting to sign in...';
-        setTimeout(() => {
-          this.router.navigate(['/auth'], { queryParams: { mode: 'login' } });
-        }, 1500);
+        const effectiveRole = this.authService.role?.toLowerCase() || 'patient';
+
+        // Redirect immediately to dashboard - no delay
+        if (effectiveRole === 'therapist') {
+          this.router.navigate(['/therapist/therapist-dashboard']).catch(() => {
+            this.router.navigate(['/therapist']);
+          });
+        } else {
+          this.router.navigate(['/patient/patient-dashboard']).catch(() => {
+            this.router.navigate(['/patient']);
+          });
+        }
       },
       error: (err: any) => {
         this.loading = false;
@@ -461,15 +464,14 @@ export class EmailConfirmationComponent implements OnInit {
       return;
     }
     this.error = null;
-    this.successMessage = 'Requesting a new verification code...';
 
-    //  resend OTP
+    // resend OTP
     this.authService.resendOTP(this.email).subscribe({
       next: () => {
-        this.successMessage = 'A new OTP code has been sent to your email. Check your inbox.';
+        this.error = null;
+        // Could add a temporary success message here if needed
       },
       error: (err: any) => {
-        this.successMessage = null;
         this.error = err.error?.message || 'Could not resend OTP. Please try again.';
       }
     });
@@ -479,3 +481,4 @@ export class EmailConfirmationComponent implements OnInit {
     this.router.navigate(['/auth'], { queryParams: { mode: 'login' } });
   }
 }
+

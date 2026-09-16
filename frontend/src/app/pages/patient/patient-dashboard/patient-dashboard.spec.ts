@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { PatientDashboard } from './patient-dashboard';
 
 describe('PatientDashboard', () => {
@@ -8,11 +11,16 @@ describe('PatientDashboard', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PatientDashboard],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([])
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PatientDashboard);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {

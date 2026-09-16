@@ -2,17 +2,16 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-page-section',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-page-section',
+    imports: [CommonModule],
+    template: `
     <section [id]="sectionId" [class]="'page-section ' + customClass">
       <div class="page-section-container" [class.fluid]="fluid">
         <ng-content></ng-content>
       </div>
     </section>
   `,
-  styles: [`
+    styles: [`
     :host {
       display: block;
       width: 100%;

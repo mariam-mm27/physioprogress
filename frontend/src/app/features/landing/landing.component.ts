@@ -8,18 +8,17 @@ import { CalloutComponent } from './sections/callout/callout.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
-  selector: 'app-landing',
-  standalone: true,
-  imports: [
-    CommonModule,
-    NavbarComponent,
-    HeroSectionComponent,
-    FeaturesComponent,
-    AboutComponent,
-    CalloutComponent,
-    FooterComponent
-  ],
-  template: `
+    selector: 'app-landing',
+    imports: [
+        CommonModule,
+        NavbarComponent,
+        HeroSectionComponent,
+        FeaturesComponent,
+        AboutComponent,
+        CalloutComponent,
+        FooterComponent
+    ],
+    template: `
     <div class="bg-dark-primary min-vh-100">
       <app-navbar></app-navbar>
       <main style="margin-top: 0; padding: 0;">
@@ -31,7 +30,7 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
       <app-footer id="contact"></app-footer>
     </div>
   `,
-  styles: [`
+    styles: [`
     :host {
       display: block;
       background-color: #09090b;

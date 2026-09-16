@@ -1,1 +1,61 @@
-<p>profile-settings works!</p>
+<div class="profile-settings-page">
+  <header class="page-header">
+    <h1 class="page-title">Clinician Profile &amp; Practice Settings</h1>
+    <p class="page-subtitle">Manage your account information, clinical credentials, and patient referral credentials.</p>
+  </header>
+
+  <div class="settings-grid">
+    <!-- Referral Code Card -->
+    <div class="settings-card highlight-card">
+      <div class="card-header-group">
+        <div class="card-icon-badge">
+          <span class="material-symbols-outlined">badge</span>
+        </div>
+        <div>
+          <h3 class="card-heading">Practice Referral Code</h3>
+          <p class="card-sub">Your patients must enter this code upon registration to link their rehabilitation profile with your clinic.</p>
+        </div>
+      </div>
+
+      <div class="code-box-wrapper">
+        <div class="code-pill">
+          <span class="material-symbols-outlined code-icon">vpn_key</span>
+          <span class="code-string">{{ therapistCode }}</span>
+        </div>
+        <button type="button" class="btn-copy" (click)="copyCode()" [class.copied]="copied">
+          <span class="material-symbols-outlined">{{ copied ? 'check' : 'content_copy' }}</span>
+          <span>{{ copied ? 'Copied!' : 'Copy Code' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Account Details -->
+    <div class="settings-card">
+      <h3 class="card-heading">Account Information</h3>
+      <div class="info-list">
+        <div class="info-row">
+          <span class="info-label">Full Name</span>
+          <span class="info-val">{{ user?.fullName || 'Clinician' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email Address</span>
+          <span class="info-val">{{ user?.email || 'clinician@hospital.org' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Account Role</span>
+          <span class="info-val badge-role">Physical Therapist / Clinician</span>
+        </div>
+        <div class="info-row" *ngIf="user?.specialization?.length">
+          <span class="info-label">Specializations</span>
+          <div class="chips-container">
+            <span class="chip" *ngFor="let s of user.specialization">{{ s }}</span>
+          </div>
+        </div>
+        <div class="info-row" *ngIf="user?.bio">
+          <span class="info-label">Clinical Bio</span>
+          <span class="info-val">{{ user.bio }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

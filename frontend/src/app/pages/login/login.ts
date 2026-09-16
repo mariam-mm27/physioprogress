@@ -5,10 +5,10 @@ import { switchMap } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
-  imports: [ReactiveFormsModule],
-  selector: 'app-login-page',
-  styleUrl: './login.css',
-  templateUrl: './login.html',
+    imports: [ReactiveFormsModule],
+    selector: 'app-login-page',
+    styleUrl: './login.css',
+    templateUrl: './login.html'
 })
 export class LoginPage implements OnInit {
   form: FormGroup;
@@ -28,7 +28,7 @@ export class LoginPage implements OnInit {
 
   ngOnInit(): void {
     if (this.auth.role) {
-      this.router.navigate(this.auth.role === 'patient' ? ['/patient'] : ['/therapist-dashboard']);
+      this.router.navigate(this.auth.role === 'patient' ? ['/patient'] : ['/therapist/therapist-dashboard']);
     }
   }
 
@@ -44,8 +44,8 @@ export class LoginPage implements OnInit {
       .subscribe({
         next: (res) => {
           this.loading = false;
-          const role = res.data.role;
-          this.router.navigate(role === 'patient' ? ['/patient'] : ['/therapist-dashboard']);
+          const role = res.data?.user?.role || this.auth.role;
+          this.router.navigate(role === 'patient' ? ['/patient/patient-dashboard'] : ['/therapist/therapist-dashboard']);
         },
         error: (err) => {
           this.loading = false;

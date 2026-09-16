@@ -12,10 +12,10 @@ const HIGH_PAIN_THRESHOLD = 6;
 type LogTab = 'all' | 'highPain';
 
 @Component({
-  imports: [CommonModule, FormsModule],
-  selector: 'app-patient-hub-logging',
-  styleUrl: './patient-hub-logging.css',
-  templateUrl: './patient-hub-logging.html',
+    imports: [CommonModule, FormsModule],
+    selector: 'app-patient-hub-logging',
+    styleUrl: './patient-hub-logging.css',
+    templateUrl: './patient-hub-logging.html'
 })
 export class PatientHubLogging implements OnInit {
   private sessionLogService = inject(SessionLogService);

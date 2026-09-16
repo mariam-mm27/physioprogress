@@ -140,8 +140,8 @@
                 placeholder="••••••••••••"
                 [autocomplete]="currentIntent === 'login' ? 'current-password' : 'new-password'">
             </div>
-            <p class="form-hint" *ngIf="currentIntent === 'register'">
-              Minimum 6 characters with at least one special character (!&#64;#$%^&*)
+<p class="form-hint" *ngIf="currentIntent === 'register'">
+              Minimum 6 characters with an uppercase, a lowercase, and a number or symbol
             </p>
             <span class="form-error-text" *ngIf="isFieldInvalid('password')">
               {{ getFieldError('password') }}

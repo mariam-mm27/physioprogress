@@ -13,15 +13,13 @@ import { AuthService } from '../../services/auth.service';
 export class PatientTopbar implements OnInit {
 
   patientData: any = null;
-
   patientId = '';
-
   showNotifications = false;
 
   constructor(
     private patientService: PatientService,
     private authService: AuthService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     const user: any = this.authService.getUser();
@@ -45,15 +43,20 @@ export class PatientTopbar implements OnInit {
       (this.authService as any).fetchMe().subscribe({
         next: (res: any) => {
           const userData = res.data?.user || res.data;
+
           if (userData) {
             this.handleUserLoaded(userData);
           }
         }
       });
-    } else if (token && typeof (this.authService as any).getMe === 'function') {
+    } else if (
+      token &&
+      typeof (this.authService as any).getMe === 'function'
+    ) {
       (this.authService as any).getMe(token).subscribe({
         next: (res: any) => {
           const userData = res.data?.user || res.data;
+
           if (userData) {
             this.handleUserLoaded(userData);
           }
@@ -65,7 +68,9 @@ export class PatientTopbar implements OnInit {
   private handleUserLoaded(userData: any): void {
     this.patientData = userData;
     this.patientId = userData._id || userData.id || '';
+
     localStorage.setItem('user', JSON.stringify(userData));
+
     if (this.patientId) {
       this.loadPatientProfile();
     }
@@ -90,5 +95,14 @@ export class PatientTopbar implements OnInit {
   toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
   }
-}
 
+  get userName(): string {
+    return this.patientData?.fullName || 'Patient Account';
+  }
+
+  get userId(): string {
+    return this.patientData?.patientCode ||
+           this.patientData?._id ||
+           'ID #-';
+  }
+}

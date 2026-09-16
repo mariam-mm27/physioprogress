@@ -26,8 +26,10 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "css",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
@@ -104,10 +106,14 @@
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "css",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "src/styles.css"
             ],
             "scripts": []

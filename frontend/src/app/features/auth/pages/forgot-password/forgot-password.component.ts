@@ -49,7 +49,6 @@ import { AuthService, AuthResponse } from '../../../../services/auth.service';
                 <span>{{ successMessage }}</span>
               </div>
 
-              <!-- Dev Quick Reset Link (if generated) -->
               <div class="quick-link-box" *ngIf="generatedResetLink">
                 <div class="d-flex align-items-center gap-2 mb-2">
                   <span class="material-symbols-outlined link-box-icon">vpn_key</span>

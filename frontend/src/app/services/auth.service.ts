@@ -45,7 +45,7 @@ export interface RegisterPayload {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api/auth';
+ private apiUrl = '/api/auth';
   private readonly tokenKey = 'token';
   private readonly roleKey = 'role';
   private readonly userKey = 'user';

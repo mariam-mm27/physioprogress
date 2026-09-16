@@ -1,43 +1,25 @@
-import { Injectable } from '@angular/core';
-import {
-  CanActivate,
-  CanActivateChild,
-  Router,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot
-} from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthGuard implements CanActivate, CanActivateChild {
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+export const authGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  const requiredRole = route.data?.['role'] as 'therapist' | 'patient' | undefined;
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean {
-    return this.checkAuth(state.url);
-  }
-
-  canActivateChild(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean {
-    return this.checkAuth(state.url);
-  }
-
-  private checkAuth(url: string): boolean {
-    if (this.authService.isAuthenticated()) {
-      return true;
-    }
-
-    // Store the attempted URL for redirecting after login
-    this.router.navigate(['/auth/login'], { queryParams: { returnUrl: url } });
+  if (!authService.isAuthenticated()) {
+    authService.logout();
+    router.navigate(['/auth/login'], {
+      queryParams: { returnUrl: state.url }
+    });
     return false;
   }
-}
+
+  const role = authService.role;
+  if (requiredRole && role !== requiredRole) {
+    router.navigate(role === 'patient' ? ['/patient'] : ['/therapist-dashboard']);
+    return false;
+  }
+
+  return true;
+};

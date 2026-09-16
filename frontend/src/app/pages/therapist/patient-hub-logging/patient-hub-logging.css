@@ -1,0 +1,192 @@
+:host {
+    display: block;
+    min-height: 100vh;
+    background-image:
+        radial-gradient(1000px 560px at 80% -8%, rgba(124, 58, 237, 0.55), transparent 62%),
+        radial-gradient(760px 420px at -4% 12%, rgba(76, 215, 246, 0.30), transparent 60%),
+        radial-gradient(900px 480px at 108% 108%, rgba(78, 222, 163, 0.18), transparent 60%);
+    background-attachment: fixed;
+}
+
+.page-header {
+  margin-left: 1rem; 
+}
+
+.filter-station {
+    background: rgba(19, 27, 46, 0.9);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-xl);
+    padding: 1rem;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(12px);
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--outline);
+    margin-bottom: 0.375rem;
+}
+
+.field-wrap {
+    position: relative;
+}
+
+.filter-field {
+    width: 100%;
+    background: var(--surface-container-lowest);
+    color: var(--bs-body-color);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    appearance: none;
+}
+
+.filter-field:focus {
+    outline: none;
+    border-color: var(--accent-hover);
+    box-shadow: 0 0 0 1px var(--accent-hover);
+}
+
+.field-chevron {
+    position: absolute;
+    right: 0.625rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--outline);
+    font-size: 0.875rem;
+    pointer-events: none;
+}
+
+.filter-sep {
+    color: var(--outline);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.preset-group {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.preset-btn {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    border: none;
+    border-radius: var(--bs-border-radius-lg);
+    background: var(--surface-container-high);
+    color: var(--bs-body-color);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    transition: 0.2s;
+}
+
+.preset-btn:hover {
+    background: var(--surface-container-highest);
+}
+
+.preset-btn--active {
+    background: var(--accent);
+    color: #e9ddff;
+}
+
+.preset-btn--active:hover {
+    background: var(--accent-hover);
+    color: #fff;
+}
+
+.seg-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+.seg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border: none;
+    border-radius: var(--bs-border-radius-lg);
+    background: var(--surface-container);
+    color: var(--on-surface-variant);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    transition: 0.2s;
+}
+
+.seg-btn--active {
+    background: var(--accent);
+    color: #e9ddff;
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.3);
+}
+
+.seg-btn--active:hover {
+    background: var(--accent-hover);
+    color: #fff;
+}
+
+.seg-btn--alert.seg-btn--active {
+    background: var(--error-container);
+    color: var(--bs-body-color);
+    box-shadow: 0 0 12px rgba(255, 180, 171, 0.2);
+}
+
+.seg-btn--alert {
+    color: var(--error);
+}
+
+.seg-btn--alert.seg-btn--active {
+    background: var(--error-container);
+    color: var(--bs-body-color);
+    box-shadow: 0 0 12px rgba(255, 180, 171, 0.2);
+}
+
+.seg-count {
+    background: rgba(6, 14, 32, 0.4);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+}
+
+.dot-danger {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--error);
+}
+
+.seg-stream {
+    margin-left: auto;
+    color: var(--outline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+}
+
+.btn-apply {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--bs-border-radius-lg);
+    font-weight: 600;
+    box-shadow: 0 0 16px rgba(124, 58, 237, 0.4);
+    transition: 0.2s;
+}
+
+.btn-apply:hover:not(:disabled) {
+    background: var(--accent-hover);
+}
+
+.btn-apply:disabled {
+    opacity: 0.5;
+}

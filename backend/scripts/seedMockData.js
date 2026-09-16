@@ -1,35 +1,3 @@
-/**
- * seedMockData.js
- *
- * Generates mock ExercisePlan + SessionLog data for one therapist/patient
- * pair, using the app's own Mongoose models — so it goes through the same
- * validation as the real API (painLevel 1-10, videoSource enum, required
- * fields, etc.).
- *
- * WHERE TO PUT THIS FILE:
- *   backend/scripts/seedMockData.js
- *   (it requires "../models/..." and "../.env" relative to that location —
- *   see the require/dotenv lines below)
- *
- * HOW TO RUN (from the backend/ folder, or repo root — either works since
- * app.js already loads backend/.env and root .env the same way):
- *   node backend/scripts/seedMockData.js
- *
- * It reads MONGODB_URI from your existing .env, exactly like backend/config/db.js.
- *
- * WHAT IT DOES:
- *   1. Deletes any ExercisePlan/SessionLog documents already linked to this
- *      therapistId + patientId pair (so the script is safe to re-run without
- *      piling up duplicates). Comment out `cleanExisting()` below if you'd
- *      rather keep old data and just append more.
- *   2. Inserts 5 ExercisePlan documents (a realistic post-op knee rehab set).
- *   3. Inserts ~60 SessionLog documents spread across the last 60 days,
- *      referencing those plans, with painLevel trending down over time
- *      (recovering patient) and ~90% completed=true.
- *   4. Prints a summary so you can sanity-check the numbers against what
- *      AnalyticsController will compute.
- */
-
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
@@ -38,16 +6,12 @@ const mongoose = require('mongoose');
 const ExercisePlan = require('../models/ExercisePlan');
 const SessionLog = require('../models/SessionLog');
 
-// ---- EDIT THESE TWO IDS IF YOU NEED A DIFFERENT PAIR ----
 const THERAPIST_ID = '6aaae26527b39b152f00e823';
 const PATIENT_ID = '6aaae36ab061f43acb3535a2';
 
 const NUM_DAYS = 60;
 const TARGET_LOG_COUNT = 60;
 
-// ---------- plan templates ----------
-// videoUrl values are placeholders — the real ExerciseDB base URL lives in
-// process.env.EXERCISE_DB_BASE_URL and isn't something this script knows.
 const PLAN_TEMPLATES = [
   {
     title: 'Post-Op Knee Rehab — Phase 1',
@@ -97,7 +61,6 @@ const PLAN_TEMPLATES = [
   },
 ];
 
-// Notes pooled by rough pain band, so text stays consistent with the number.
 const NOTES_BY_BAND = {
   low: [
     'No discomfort noted. Movement felt controlled and stable.',
@@ -176,22 +139,18 @@ async function seedLogs(plans) {
   const logs = [];
 
   for (let i = 0; i < TARGET_LOG_COUNT; i++) {
-    // Spread logs across the window, oldest first, with slight jitter so
-    // timestamps aren't perfectly evenly spaced.
     const dayOffset = Math.floor((i / TARGET_LOG_COUNT) * NUM_DAYS) + randomInt(0, 1);
     const loggedAt = new Date(now);
     loggedAt.setDate(loggedAt.getDate() - (NUM_DAYS - dayOffset));
     loggedAt.setHours(randomInt(7, 19), randomInt(0, 59), 0, 0);
 
-    // Pain trends down over the window (recovering patient) with noise,
-    // clamped to the schema's 1-10 range.
-    const progress = dayOffset / NUM_DAYS; // 0 (start) -> 1 (today)
-    const baseline = 7 - progress * 5; // ~7 down to ~2
+    const progress = dayOffset / NUM_DAYS;
+    const baseline = 7 - progress * 5;
     const noisy = baseline + (Math.random() * 2 - 1);
     const painLevel = Math.max(1, Math.min(10, Math.round(noisy)));
 
     const plan = plans[weightedPlanIndex(weights)];
-    const completed = Math.random() < 0.9; // ~90% completed
+    const completed = Math.random() < 0.9;
     const notes = pick(NOTES_BY_BAND[painBand(painLevel)]);
 
     logs.push({

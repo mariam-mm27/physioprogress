@@ -1,4 +1,3 @@
-// src/app/pages/patient/session-logs/session-logs.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -36,26 +35,21 @@ interface LogFormState {
 export class PatientSessionLogs implements OnInit {
   patientId: string | null = null;
 
-  // --- logs + loading state ---
   logs: SessionLog[] = [];
   loadingLogs = false;
   logsError: string | null = null;
 
-  // --- date range ---
   activePreset: RangePreset = 7;
   fromDate = '';
   toDate = '';
 
-  // --- analytics (real backend numbers) ---
   analyticsPeriod: AnalyticsPeriod = 'weekly';
   analytics: PatientAnalytics | null = null;
   loadingAnalytics = false;
 
-  // --- client-side pagination (backend returns the full array) ---
   page = 1;
   pageSize = 5;
 
-  // --- modal (edit only) ---
   showModal = false;
   saving = false;
   modalError: string | null = null;
@@ -69,7 +63,6 @@ export class PatientSessionLogs implements OnInit {
     loggedAt: '',
   };
 
-  // --- toast ---
   toastVisible = false;
   toastTitle = '';
   toastMsg = '';
@@ -81,8 +74,6 @@ export class PatientSessionLogs implements OnInit {
     //this.setRange(7);
   }
 
-  // ---------- date range handling ----------
-
   setRange(days: RangePreset): void {
     this.activePreset = days;
     const end = new Date();
@@ -92,9 +83,6 @@ export class PatientSessionLogs implements OnInit {
     this.toDate = this.toIsoDate(end);
     this.fromDate = this.toIsoDate(start);
 
-    // The analytics endpoint only offers fixed 7-day or 30-day windows,
-    // so "60 days" is shown with the monthly (30-day) figure — the closest
-    // real number the backend can give us — and that's called out in the UI.
     this.analyticsPeriod = days === 7 ? 'weekly' : 'monthly';
 
     this.loadLogs();
@@ -112,14 +100,12 @@ export class PatientSessionLogs implements OnInit {
   }
   this.activePreset = 0 as unknown as RangePreset;
   this.loadLogs();
-  this.loadAnalytics();        // ← chart updates too
+  this.loadAnalytics();
   this.showToast('Filter applied', `${this.fromDate} → ${this.toDate}`);
 }
   private toIsoDate(d: Date): string {
     return d.toISOString().slice(0, 10);
   }
-
-  // ---------- data loading ----------
 
   loadLogs(): void {
     if (!this.patientId) return;
@@ -157,8 +143,6 @@ export class PatientSessionLogs implements OnInit {
     });
   }
 
-  // ---------- derived stats (computed client-side from real fetched logs) ----------
-
   get totalLogsInRange(): number {
     return this.logs.length;
   }
@@ -169,11 +153,6 @@ export class PatientSessionLogs implements OnInit {
     return Math.round((sum / this.logs.length) * 10) / 10;
   }
 
-  /**
-   * Simple least-squares slope of painLevel vs. day, using only the logs
-   * actually loaded. Positive = pain rising, negative = pain falling.
-   * This is computed here, not returned by the backend.
-   */
   get painTrendPerDay(): number | null {
     if (this.logs.length < 2) return null;
 
@@ -194,8 +173,6 @@ export class PatientSessionLogs implements OnInit {
     return Math.round(slope * 100) / 100;
   }
 
-  // ---------- chart ----------
-
   get chartPoints(): ChartPoint[] {
     const sorted = [...this.logs].sort(
       (a, b) => new Date(a.loggedAt).getTime() - new Date(b.loggedAt).getTime()
@@ -209,7 +186,6 @@ export class PatientSessionLogs implements OnInit {
 
     return sorted.map((log, i) => {
       const x = sorted.length === 1 ? width / 2 : padding + (i / (sorted.length - 1)) * usableWidth;
-      // painLevel is 1-10; map to a 20-200 pixel band (inverted, low pain = low y)
       const y = 200 - ((log.painLevel - 1) / 9) * 180;
       return { x, y, log };
     });
@@ -218,8 +194,6 @@ export class PatientSessionLogs implements OnInit {
   get chartPolylinePoints(): string {
     return this.chartPoints.map((p) => `${p.x},${p.y}`).join(' ');
   }
-
-  // ---------- pagination (client-side) ----------
 
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.logs.length / this.pageSize));
@@ -234,8 +208,6 @@ export class PatientSessionLogs implements OnInit {
     if (p < 1 || p > this.totalPages) return;
     this.page = p;
   }
-
-  // ---------- pain badge styling ----------
 
   painBadgeClass(level: number): string {
     if (level <= 3) return 'pain-badge pain-low';
@@ -257,8 +229,6 @@ export class PatientSessionLogs implements OnInit {
     meta: `${planId.reps} reps · ${planId.frequencyPerWeek}/week · ${planId.targetMuscle}`,
   };
 }
-
-  // ---------- modal / CRUD ----------
 
   openEditModal(log: SessionLog): void {
      const info = this.planInfo(log.planId);
@@ -325,8 +295,6 @@ export class PatientSessionLogs implements OnInit {
       },
     });
   }
-
-  // ---------- toast ----------
 
   showToast(title: string, msg: string): void {
     this.toastTitle = title;

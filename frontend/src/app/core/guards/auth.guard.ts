@@ -1,13 +1,13 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 import { AuthService, UserRole } from '../../services/auth.service';
 
 /**
  * Ensures that only authenticated users with the appropriate role can access protected routes.
  */
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const authService = inject(AuthService);
-  const router = inject(Router);
+  const router: Router = inject(Router);
   
   // For child routes, route.data might not contain role if it's on the parent.
   // We can traverse route to find data.role if needed, but in this setup 
@@ -41,13 +41,9 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   return true;
 };
-
-/**
- * Prevents logged-in users from accessing guest-only routes like /auth, /auth/forgot-password.
- */
-export const guestGuard: CanActivateFn = () => {
+export const guestGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const authService = inject(AuthService);
-  const router = inject(Router);
+  const router: Router = inject(Router);
 
   if (authService.isAuthenticated()) {
     const role = authService.role;

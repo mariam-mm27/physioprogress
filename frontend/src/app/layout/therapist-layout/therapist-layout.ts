@@ -4,10 +4,9 @@ import { TherapistSidebar } from '../../components/therapist-sidebar/therapist-s
 import { TherapistTopbar } from '../../components/therapist-topbar/therapist-topbar';
 
 @Component({
-  standalone: true,
-  imports: [TherapistSidebar, TherapistTopbar, RouterOutlet],
-  selector: 'app-therapist-layout',
-  styleUrl: './therapist-layout.css',
-  templateUrl: './therapist-layout.html',
+    imports: [TherapistSidebar, TherapistTopbar, RouterOutlet],
+    selector: 'app-therapist-layout',
+    styleUrl: './therapist-layout.css',
+    templateUrl: './therapist-layout.html'
 })
 export class TherapistLayout {}

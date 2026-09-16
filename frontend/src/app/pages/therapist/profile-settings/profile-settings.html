@@ -48,12 +48,12 @@
         <div class="info-row" *ngIf="user?.specialization?.length">
           <span class="info-label">Specializations</span>
           <div class="chips-container">
-            <span class="chip" *ngFor="let s of user?.specialization">{{ s }}</span>
+            <span class="chip" *ngFor="let s of user.specialization">{{ s }}</span>
           </div>
         </div>
         <div class="info-row" *ngIf="user?.bio">
           <span class="info-label">Clinical Bio</span>
-          <span class="info-val">{{ user?.bio }}</span>
+          <span class="info-val">{{ user.bio }}</span>
         </div>
       </div>
     </div>

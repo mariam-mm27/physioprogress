@@ -9,11 +9,10 @@ interface navItem {
 }
 
 @Component({
-  standalone: true,
-  imports: [RouterLink, RouterLinkActive],
-  selector: 'app-patient-sidebar',
-  styleUrl: './patient-sidebar.css',
-  templateUrl: './patient-sidebar.html',
+    imports: [RouterLink, RouterLinkActive],
+    selector: 'app-patient-sidebar',
+    styleUrl: './patient-sidebar.css',
+    templateUrl: './patient-sidebar.html'
 })
 export class PatientSidebar {
   constructor(private authService: AuthService, private router: Router) {}

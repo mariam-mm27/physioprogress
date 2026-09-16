@@ -5,11 +5,10 @@ import { switchMap } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
-  standalone: true,
-  imports: [ReactiveFormsModule],
-  selector: 'app-login-page',
-  styleUrl: './login.css',
-  templateUrl: './login.html',
+    imports: [ReactiveFormsModule],
+    selector: 'app-login-page',
+    styleUrl: './login.css',
+    templateUrl: './login.html'
 })
 export class LoginPage implements OnInit {
   form: FormGroup;

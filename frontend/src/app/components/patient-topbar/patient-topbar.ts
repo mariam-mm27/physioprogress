@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  standalone: true,
-  imports: [],
-  selector: 'app-patient-topbar',
-  styleUrl: './patient-topbar.css',
-  templateUrl: './patient-topbar.html',
+    imports: [],
+    selector: 'app-patient-topbar',
+    styleUrl: './patient-topbar.css',
+    templateUrl: './patient-topbar.html'
 })
 export class PatientTopbar {
   patientCode = 'PT-0831';

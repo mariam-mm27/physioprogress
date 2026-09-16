@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-  standalone: true,
-  imports: [],
-  selector: 'app-session-history-charts',
-  styleUrl: './session-history-charts.css',
-  templateUrl: './session-history-charts.html',
+    imports: [],
+    selector: 'app-session-history-charts',
+    styleUrl: './session-history-charts.css',
+    templateUrl: './session-history-charts.html'
 })
 export class SessionHistoryCharts {}

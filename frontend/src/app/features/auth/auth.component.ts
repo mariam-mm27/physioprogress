@@ -13,18 +13,17 @@ declare const google: any;
 type AuthIntent = 'login' | 'register';
 
 @Component({
-  selector: 'app-auth',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule,
-    NavbarComponent,
-    FooterComponent,
-    PageSectionComponent
-  ],
-  templateUrl: './auth.component.html',
-  styleUrl: './auth.component.css'
+    selector: 'app-auth',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        RouterModule,
+        NavbarComponent,
+        FooterComponent,
+        PageSectionComponent
+    ],
+    templateUrl: './auth.component.html',
+    styleUrl: './auth.component.css'
 })
 export class AuthComponent implements OnInit, AfterViewInit {
   @ViewChild('googleBtnHost') googleBtnHostRef!: ElementRef<HTMLDivElement>;
@@ -70,7 +69,6 @@ export class AuthComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    // If user is already authenticated, redirect them to their respective portal immediately
     if (this.authService.isAuthenticated()) {
       this.navigateAfterAuth(this.authService.role || 'patient');
       return;
@@ -85,7 +83,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
   }
 
   private handleQueryParams(): void {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params: Record<string, string>) => {
       const mode = params['mode'];
       if (mode === 'login') {
         this.currentIntent = 'login';
@@ -333,8 +331,8 @@ export class AuthComponent implements OnInit, AfterViewInit {
 
     console.log('[AUTH] Navigating to:', targetRoute);
     this.router.navigate([targetRoute]).then(
-      (success) => console.log('[AUTH] Navigation result:', success),
-      (err) => console.error('[AUTH] Navigation error:', err)
+      (success: boolean) => console.log('[AUTH] Navigation result:', success),
+      (err: unknown) => console.error('[AUTH] Navigation error:', err)
     );
   }
 

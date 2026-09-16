@@ -33,7 +33,7 @@
             Share this unique identification code with your patients during account creation. Entering this code automatically links their home recovery sessions, range of motion analytics, and telemetry directly into your clinical portal.
           </p>
           
-          <div class="specialization-tags" *ngIf="specializations?.length">
+          <div class="specialization-tags" *ngIf="specializations.length">
             <span class="spec-tag" *ngFor="let spec of specializations">
               <span class="material-symbols-outlined spec-icon">check_circle</span>
               {{ spec }}

@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { AuthService, AuthUser } from '../../../services/auth.service';
 
 @Component({
-  selector: 'app-patient-profile-settings',
-  standalone: true,
-  imports: [CommonModule],
-  styleUrl: './profile-settings.css',
-  templateUrl: './profile-settings.html',
+    selector: 'app-patient-profile-settings',
+    imports: [CommonModule],
+    styleUrl: './profile-settings.css',
+    templateUrl: './profile-settings.html'
 })
 export class PatientProfileSettings implements OnInit {
   user: AuthUser | null = null;

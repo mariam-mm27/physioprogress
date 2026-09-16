@@ -9,11 +9,10 @@ interface navItem {
 }
 
 @Component({
-  imports: [RouterLink, RouterLinkActive],
-  standalone: true,
-  selector: 'app-therapist-sidebar',
-  styleUrl: './therapist-sidebar.css',
-  templateUrl: './therapist-sidebar.html',
+    imports: [RouterLink, RouterLinkActive],
+    selector: 'app-therapist-sidebar',
+    styleUrl: './therapist-sidebar.css',
+    templateUrl: './therapist-sidebar.html'
 })
 export class TherapistSidebar {
   constructor(private authService: AuthService, private router: Router) {}

@@ -8,10 +8,9 @@ import { PageSectionComponent } from '../../shared/components/page-section/page-
 import { AuthService, AuthResponse } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-email-confirmation',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, FooterComponent, PageSectionComponent],
-  template: `
+    selector: 'app-email-confirmation',
+    imports: [CommonModule, ReactiveFormsModule, NavbarComponent, FooterComponent, PageSectionComponent],
+    template: `
     <div class="confirmation-root bg-dark-primary min-vh-100 d-flex flex-column justify-content-between">
       <app-navbar></app-navbar>
 
@@ -95,7 +94,7 @@ import { AuthService, AuthResponse } from '../../services/auth.service';
       <app-footer></app-footer>
     </div>
   `,
-  styles: [`
+    styles: [`
     :host {
       display: block;
       background-color: #09090b;

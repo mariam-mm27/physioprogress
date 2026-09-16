@@ -4,11 +4,10 @@ import { RouterModule } from '@angular/router';
 import { AuthService, AuthUser } from '../../../services/auth.service';
 
 @Component({
-  selector: 'app-patient-dashboard',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  styleUrl: './patient-dashboard.css',
-  templateUrl: './patient-dashboard.html',
+    selector: 'app-patient-dashboard',
+    imports: [CommonModule, RouterModule],
+    styleUrl: './patient-dashboard.css',
+    templateUrl: './patient-dashboard.html'
 })
 export class PatientDashboard implements OnInit {
   user: AuthUser | null = null;

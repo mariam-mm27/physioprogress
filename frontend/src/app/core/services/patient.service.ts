@@ -14,6 +14,23 @@ export interface ExercisePlansResponse {
   };
 }
 
+export interface SessionLog {
+  _id: string;
+  patientId: string;
+  planId: string;
+  completed: boolean;
+  painLevel: number;
+  notes?: string;
+  loggedAt: string;
+}
+
+export interface SessionLogsResponse {
+  success: boolean;
+  message: string;
+  results: number;
+  data: SessionLog[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -28,6 +45,18 @@ export class PatientService {
       `${this.baseUrl}/plans/${patientId}`
     );
   }
+
+  getPatientProfile(patientId: string): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/users/${patientId}`
+  );
+}
+
+  getPatientSessionLogs(patientId: string): Observable<SessionLogsResponse> {
+  return this.http.get<SessionLogsResponse>(
+    `${this.baseUrl}/logs/patient/${patientId}`
+  );
+}
 
   logSession(payload: SessionLogPayload): Observable<any> {
     return this.http.post(`${this.baseUrl}/logs`, payload);

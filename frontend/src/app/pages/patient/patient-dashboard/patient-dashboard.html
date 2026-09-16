@@ -1,0 +1,512 @@
+<div class="dashboard-container">
+
+  <div class="top-row">
+
+    <div class="welcome-card">
+      <div class="badge-group">
+        <span class="badge badge-purple">REHABILITATION PROGRAM</span>
+        <span class="badge badge-dark">PATIENT PORTAL</span>
+      </div>
+
+      <h1 class="welcome-title">
+        Welcome back, {{ (patientData?.fullName || patientData?.name)?.split(' ')[0] || 'Patient' }}!
+      </h1>
+
+      <p class="sub-text">
+        Track your rehabilitation progress, complete assigned exercise plans, and submit real-time recovery information to your care team.
+      </p>
+
+      <div class="clinical-box">
+        <div class="diag-icon">
+          <i class="bi bi-journal-medical"></i>
+        </div>
+
+        <div class="diag-details">
+          <span class="diag-label">REHABILITATION PROGRAM</span>
+          <h4>{{ exercisePlans.length }} Active Exercise Plans</h4>
+
+          <div class="diag-meta">
+            <span>
+              SCHEDULED SESSIONS: <strong>{{ scheduledSessions }}</strong>
+            </span>
+
+            <span>
+              COMPLETED: <strong>{{ completedSessions }}</strong>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="therapist-card">
+      <div class="therapist-top">
+        <span class="card-lbl">ATTENDING CLINICIAN</span>
+
+        <span class="status-online">
+          <span class="green-dot"></span>
+          Active Link
+        </span>
+      </div>
+
+      <div class="therapist-profile">
+        <div class="doc-img therapist-placeholder">
+          <i class="bi bi-person-badge"></i>
+        </div>
+
+        <div class="doc-info">
+          <h4>
+            {{ patientData?.assignedTherapist?.fullName || 'Not assigned' }}
+          </h4>
+
+          <p>
+            {{ patientData?.assignedTherapist?.email || 'No therapist assigned' }}
+          </p>
+
+          <small>Assigned Therapist</small>
+        </div>
+      </div>
+
+      <div class="review-schedule">
+        <i class="bi bi-activity"></i>
+
+        <div>
+          <span class="lbl">CURRENT STATUS</span>
+
+          <strong>
+            {{
+              patientData?.assignedTherapist
+                ? 'Active Care Link'
+                : 'Awaiting Assignment'
+            }}
+          </strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="kpi-row">
+
+    <div class="kpi-card">
+      <div class="kpi-head">
+        <span>PROTOCOL ADHERENCE</span>
+        <i class="bi bi-speedometer2"></i>
+      </div>
+
+      <div class="kpi-body">
+        <span class="val">{{ adherence }}%</span>
+        <span class="trend positive">Recovery Progress</span>
+      </div>
+
+      <div class="kpi-progress">
+        <div
+          class="progress-fill"
+          [style.width.%]="adherence">
+        </div>
+      </div>
+
+      <div class="kpi-foot">
+        <span>Completed sessions</span>
+        <strong>{{ completedSessions }}</strong>
+      </div>
+    </div>
+
+
+    <div class="kpi-card">
+      <div class="kpi-head">
+        <span>PAIN TREND</span>
+        <i class="bi bi-heart-pulse"></i>
+      </div>
+
+      <div class="kpi-body">
+        <span class="val">
+          {{ averagePain }}
+          <small>/ 10</small>
+        </span>
+
+        <span class="trend">Current Average</span>
+      </div>
+
+      <div class="pain-progress">
+        <div
+          class="pain-fill"
+          [style.width.%]="averagePain * 10">
+        </div>
+      </div>
+
+      <div class="kpi-foot">
+        <span>Average reported pain</span>
+        <strong>{{ averagePain }}/10</strong>
+      </div>
+    </div>
+
+
+    <div class="kpi-card">
+      <div class="kpi-head">
+        <span>ACTIVE PRESCRIPTIONS</span>
+        <i class="bi bi-capsule"></i>
+      </div>
+
+      <div class="kpi-body">
+        <span class="val">
+          {{ exercisePlans.length }}
+          <small>Active Plans</small>
+        </span>
+      </div>
+
+      <div class="kpi-foot">
+        <span>Assigned exercise plans</span>
+        <strong>{{ scheduledSessions }}</strong>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="main-grid">
+
+
+    <div class="plans-column">
+
+      <div class="section-title-bar">
+        <div>
+          <h2>Assigned Exercise Plans</h2>
+          <p>Exercise plans assigned by your therapist</p>
+        </div>
+
+        <div class="badges-right">
+          <span class="badge badge-purple-sm">ACTIVE</span>
+
+          <span class="sync-tag">
+            <i class="bi bi-arrow-repeat"></i>
+            SYNCED
+          </span>
+        </div>
+      </div>
+
+
+      <div *ngIf="isLoading" class="loading-card">
+        <div class="spinner-border" role="status"></div>
+        <span>Loading exercise plans...</span>
+      </div>
+
+
+      <div
+        *ngIf="!isLoading && errorMessage"
+        class="alert alert-danger">
+
+        {{ errorMessage }}
+
+      </div>
+
+
+      <div
+        *ngIf="!isLoading && !errorMessage && exercisePlans.length === 0"
+        class="empty-card">
+
+        <i class="bi bi-clipboard-x"></i>
+
+        <h4>No Exercise Plans</h4>
+
+        <p>
+          Your therapist has not assigned any exercise plans yet.
+        </p>
+
+      </div>
+
+
+      <div
+        class="exercise-cards-list"
+        *ngIf="!isLoading && !errorMessage">
+
+        <div
+          class="exercise-card"
+          *ngFor="let plan of exercisePlans">
+
+          <div
+            class="video-thumb"
+            [class.no-video]="!plan.videoUrl"
+            (click)="plan.videoUrl && openVideoModal(plan.videoUrl)">
+
+            <div class="play-circle">
+              <i class="bi bi-play-fill"></i>
+            </div>
+
+            <span class="dur-tag">VIDEO</span>
+
+          </div>
+
+
+          <div class="plan-details">
+
+            <div class="plan-head">
+
+              <span class="muscle-tag">
+                {{ plan.targetMuscle || plan.customMuscle || 'General' }}
+              </span>
+
+              <span class="est-tag">
+                {{ plan.frequencyPerWeek }}x / week
+              </span>
+
+            </div>
+
+
+            <h3>{{ plan.exerciseName }}</h3>
+
+            <p>{{ plan.title }}</p>
+
+
+            <div class="specs-row">
+
+              <div class="spec">
+                <strong>{{ plan.reps }}</strong>
+                <small>Reps</small>
+              </div>
+
+              <div class="spec">
+                <strong>{{ plan.frequencyPerWeek }}</strong>
+                <small>Sessions / Week</small>
+              </div>
+
+              <button
+                *ngIf="plan.videoUrl"
+                type="button"
+                class="btn-preview"
+                (click)="openVideoModal(plan.videoUrl)">
+
+                Preview Video
+                <i class="bi bi-box-arrow-up-right"></i>
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Log Column -->
+    <div class="log-column">
+
+      <div class="log-box">
+
+        <div class="log-box-head">
+
+          <div>
+            <h3>
+              <i class="bi bi-check-square"></i>
+              Log Completed Session
+            </h3>
+
+            <p>
+              Submit your completed exercise session
+            </p>
+          </div>
+
+          <span class="api-badge">
+            POST /api/logs
+          </span>
+
+        </div>
+
+
+        <form (ngSubmit)="submitLog()">
+
+          <div class="form-group">
+
+            <label>
+              SELECT ASSIGNED PLAN
+              <span class="req">REQUIRED</span>
+            </label>
+
+            <select
+              [(ngModel)]="selectedPlanId"
+              name="plan"
+              class="custom-select"
+              required>
+
+              <option value="" disabled>
+                Select Plan
+              </option>
+
+              <option
+                *ngFor="let plan of exercisePlans"
+                [value]="plan._id">
+
+                {{ plan.exerciseName }}
+
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <div class="flex-between">
+
+              <label>
+                POST-SESSION PAIN LEVEL
+              </label>
+
+              <span class="pain-num">
+                {{ painLevel }} / 10
+              </span>
+
+            </div>
+
+
+            <input
+              type="range"
+              min="1"
+              max="10"
+              step="1"
+              [(ngModel)]="painLevel"
+              name="painLevel"
+              class="custom-range">
+
+
+            <div
+              class="pain-status"
+              [ngClass]="painStatus.class">
+
+              <i
+                class="bi"
+                [ngClass]="painStatus.icon">
+              </i>
+
+              <span>
+                {{ painStatus.text }}
+              </span>
+
+            </div>
+
+
+            <div class="range-labels">
+
+              <span>1-3 Mild</span>
+
+              <span>4-6 Moderate</span>
+
+              <span>7-10 Severe</span>
+
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <div class="flex-between">
+
+              <label>
+                SESSION NOTES
+              </label>
+
+              <span class="tele-tag">
+                OPTIONAL
+              </span>
+
+            </div>
+
+            <textarea
+              [(ngModel)]="sessionNotes"
+              name="notes"
+              rows="3"
+              class="custom-textarea"
+              placeholder="Describe any sensations, tightness, or feedback...">
+            </textarea>
+
+          </div>
+
+
+          <button
+            type="submit"
+            class="btn-submit"
+            [disabled]="isSubmitting || !selectedPlanId">
+
+            <i
+              class="bi"
+              [class.bi-play-fill]="!isSubmitting"
+              [class.bi-arrow-repeat]="isSubmitting">
+            </i>
+
+            {{
+              isSubmitting
+                ? 'Submitting Session...'
+                : 'Submit Completed Session'
+            }}
+
+          </button>
+
+
+          <div
+            *ngIf="submitSuccess"
+            class="success-message">
+
+            <i class="bi bi-check-circle"></i>
+
+            <span>
+              Session submitted successfully.
+            </span>
+
+          </div>
+
+
+
+          <div
+            *ngIf="submitError"
+            class="error-message">
+
+            <i class="bi bi-exclamation-circle"></i>
+
+            <span>
+              {{ submitError }}
+            </span>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div
+  class="video-modal"
+  *ngIf="activeVideoUrl"
+  (click)="closeVideoModal()">
+
+  <div
+    class="video-container"
+    (click)="$event.stopPropagation()">
+
+    <button
+      type="button"
+      class="close-video"
+      (click)="closeVideoModal()">
+
+      <i class="bi bi-x-lg"></i>
+
+    </button>
+
+    <iframe
+      [src]="activeVideoUrl"
+      class="video-frame"
+      allowfullscreen>
+    </iframe>
+
+  </div>
+
+</div>

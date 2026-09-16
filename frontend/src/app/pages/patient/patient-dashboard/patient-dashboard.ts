@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { PatientService } from '../../../core/services/patient.service';
+import { AuthService } from '../../../services/auth.service';
 import {
   ExercisePlan,
   SessionLogPayload
@@ -63,22 +65,52 @@ export class PatientDashboard implements OnInit {
   submitSuccess = false;
   submitError = '';
 
-  activeVideoUrl: string | null = null;
+  activeVideoUrl: SafeResourceUrl | null = null;
 
-  patientId = '6aa5e5b0b6e2faca60e9b8b6';
+  patientId = '';
 
-  constructor(private patientService: PatientService) {}
+  constructor(
+    private patientService: PatientService,
+    private sanitizer: DomSanitizer,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.loadPatientProfile();
-    this.loadExercisePlans();
-    this.loadSessionLogs();
+    const user = this.authService.getUser();
+    if (user) {
+      this.patientData = user;
+      this.patientId = user._id || user.id || '';
+    }
+
+    if (this.patientId) {
+      this.loadPatientProfile();
+      this.loadExercisePlans();
+      this.loadSessionLogs();
+    } else {
+      const token = this.authService.getToken();
+      if (token) {
+        this.authService.getMe(token).subscribe({
+          next: (res) => {
+            const userData: any = res.data?.user || res.data;
+            if (userData) {
+              this.patientData = userData;
+              this.patientId = userData._id || userData.id || '';
+              localStorage.setItem('user', JSON.stringify(userData));
+              this.loadPatientProfile();
+              this.loadExercisePlans();
+              this.loadSessionLogs();
+            }
+          }
+        });
+      }
+    }
   }
 
   loadPatientProfile(): void {
+    if (!this.patientId) return;
     this.patientService.getPatientProfile(this.patientId).subscribe({
       next: (response) => {
-        this.patientData = response.data;
+        this.patientData = { ...this.patientData, ...response.data };
       },
       error: (error) => {
         console.error('Error loading patient profile:', error);
@@ -87,6 +119,7 @@ export class PatientDashboard implements OnInit {
   }
 
   loadExercisePlans(): void {
+    if (!this.patientId) return;
     this.patientService.getPatientPlans(this.patientId).subscribe({
       next: (response) => {
         this.exercisePlans = response.exercisePlans;
@@ -108,6 +141,7 @@ export class PatientDashboard implements OnInit {
   }
 
   loadSessionLogs(): void {
+    if (!this.patientId) return;
     this.patientService.getPatientSessionLogs(this.patientId).subscribe({
       next: (response) => {
         this.sessionLogs = response.data;
@@ -189,9 +223,31 @@ export class PatientDashboard implements OnInit {
   }
 
   openVideoModal(url: string): void {
-    this.activeVideoUrl = url;
+  this.activeVideoUrl =
+    this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+  
+  // getVideoThumbnail(videoUrl: string): string {
+  // return videoUrl.replace(
+  //   '/video/upload/',
+  //   '/video/upload/so_0/'
+  // ).replace(/\.(mp4|mov|avi|mkv)$/i, '.jpg');
+  // }
+
+
+  getVideoThumbnail(videoUrl: string): string {
+  if (!videoUrl) {
+    return 'assets/images/default-thumbnail.jpg';
   }
 
+  if (videoUrl.includes('cloudinary.com')) {
+    return videoUrl
+      .replace('/video/upload/', '/video/upload/so_0/')
+      .replace(/\.(mp4|mov|avi|mkv)$/i, '.jpg');
+  }
+
+  return 'assets/images/default-thumbnail.jpg';
+  }
   closeVideoModal(): void {
     this.activeVideoUrl = null;
   }

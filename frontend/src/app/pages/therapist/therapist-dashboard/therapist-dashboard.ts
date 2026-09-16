@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
+  standalone: true,
   imports: [],
   selector: 'app-therapist-dashboard',
   styleUrl: './therapist-dashboard.css',

@@ -50,11 +50,11 @@
       <div class="user-info">
 
         <span class="user-name">
-          {{ patientData?.fullName || 'Loading...' }}
+          {{ patientData?.fullName || patientData?.name || 'Patient' }}
         </span>
 
         <span class="user-id">
-          ID #{{ patientData?._id?.substring(0, 6) || '------' }}
+          ID #{{ patientData?.patientCode || (patientData?._id || patientData?.id)?.substring(0, 6) || '------' }}
         </span>
 
       </div>

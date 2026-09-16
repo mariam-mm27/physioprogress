@@ -1,4 +1,8 @@
-require("dotenv").config();
+const path = require("path");
+// Load environment variables from backend/.env or root .env
+require("dotenv").config({ path: path.resolve(__dirname, ".env") });
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+
 const connectDB = require("./config/db");
 const express = require("express");
 const morgan = require("morgan");
@@ -10,30 +14,42 @@ const analyticsRoutes = require("./routes/analyticsRoutes");
 const exerciseDBRoutes = require("./routes/exerciseDBRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 const AppError = require("./utils/AppError");
-const ExpressMongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const cors = require("cors");
 const expressLimit = require("express-rate-limit");
-// const hpp = require("express-hpp");
-// const hpp = require("hpp");
 
 const app = express();
 
 // Logging middleware
 app.use(morgan("dev"));
 
-// Body parser middleware (must be before sanitize)
+// Body parser middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Security middlewares
-app.use(helmet());
-// app.use(ExpressMongoSanitize());
-// app.use(hpp());
+app.use(helmet({
+  crossOriginResourcePolicy: false
+}));
 
-// CORS - configurable from env or default
+// CORS 
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || "http://localhost:8000",
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+
+    const allowed = [
+      process.env.CORS_ORIGIN,
+      "http://localhost:4200",
+      "http://localhost:8000",
+      "http://127.0.0.1:4200",
+      "http://127.0.0.1:8000"
+    ].filter(Boolean);
+
+    if (allowed.includes(origin) || origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 
@@ -55,6 +71,11 @@ app.use("/api", sessionLogRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api", analyticsRoutes);
 app.use("/api", exerciseDBRoutes);
+
+// for test server 
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
 
 // 404 Handler
 app.use((req, res, next) => {

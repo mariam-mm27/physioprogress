@@ -1,10 +1,10 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, ".env") });
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+
 const app = require("./app");
-const connectDB = require("./config/db");
 const chalk = require("chalk");
 const PORT = process.env.PORT || 5000;
-
-connectDB();
 
 app.listen(PORT, () => {
     console.log(chalk.bgGreen(`Server is running on port ${PORT}`));

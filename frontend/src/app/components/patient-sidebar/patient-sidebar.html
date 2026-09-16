@@ -32,13 +32,11 @@
       </span>
       <nav class="nav flex-column gap-1" role="navigation">
         @for (item of navItems; track item.path) {
-        @if(!$last){
         <a [routerLink]="['/', 'patient', item.path]" routerLinkActive="active"
           class="nav-link-custom d-flex align-items-center gap-2 px-2 py-2 rounded">
           <i class="bi" [class]="item.icon" aria-hidden="true"></i>
           <span>{{ item.label }}</span>
         </a>
-        }
         }
       </nav>
     </div>

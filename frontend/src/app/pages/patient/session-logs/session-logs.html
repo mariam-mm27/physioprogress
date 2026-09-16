@@ -1,8 +1,237 @@
+<!-- src/app/pages/patient/session-logs/session-logs.html -->
 <section class="page">
-  <header class="page-header d-flex align-items-center justify-content-between mb-4">
+  <header class="page-header d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
     <div>
-      <h1 class="h4 mb-1">Session Logs and Recovery Analytics</h1>
-      <p class="text-secondary mb-0">Review session history and recovery trends.</p>
+      <h1 class="h4 mb-1">Session Logs &amp; Recovery Analytics</h1>
+      <p class="text-secondary mb-0">
+        Review your logged sessions and pain trend, and manage your own entries.
+      </p>
     </div>
   </header>
+
+  <!-- Date range filter -->
+  <div class="card-dark p-3 mb-4 d-flex flex-wrap align-items-center gap-3">
+    <div class="d-flex align-items-center gap-2">
+      <span class="text-muted-light small">Range:</span>
+      <button type="button" class="btn btn-sm" [class.btn-purple]="activePreset === 7" (click)="setRange(7)">7
+        Days</button>
+      <button type="button" class="btn btn-sm" [class.btn-purple]="activePreset === 30" (click)="setRange(30)">30
+        Days</button>
+      <button type="button" class="btn btn-sm" [class.btn-purple]="activePreset === 60" (click)="setRange(60)">60
+        Days</button>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="text-muted-light small">From:</span>
+      <input type="date" class="form-control form-control-sm" style="width:9.5rem" [(ngModel)]="fromDate" />
+      <span class="text-muted-light">–</span>
+      <span class="text-muted-light small">To:</span>
+      <input type="date" class="form-control form-control-sm" style="width:9.5rem" [(ngModel)]="toDate" />
+      <button type="button" class="btn btn-sm btn-outline-light" (click)="applyCustomRange()">Apply</button>
+    </div>
+  </div>
+
+  <!-- Chart + derived stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="card-dark p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h6 mb-0">Pain Level Over Time</h2>
+          <span class="text-muted-light small">From your logged sessions in this range</span>
+        </div>
+
+        <div *ngIf="loadingLogs" class="text-muted-light py-5 text-center">Loading…</div>
+        <div *ngIf="logsError" class="alert alert-danger-dark">{{ logsError }}</div>
+
+        <ng-container *ngIf="!loadingLogs && !logsError">
+          <div *ngIf="chartPoints.length; else noData" class="chart-wrap">
+            <svg viewBox="0 0 800 220" preserveAspectRatio="none" class="w-100">
+              <line x1="0" y1="20" x2="800" y2="20" class="grid-line" />
+              <line x1="0" y1="110" x2="800" y2="110" class="grid-line" />
+              <line x1="0" y1="200" x2="800" y2="200" class="grid-line" />
+              <text x="4" y="16" class="axis-label">10</text>
+              <text x="4" y="106" class="axis-label">5</text>
+              <text x="4" y="196" class="axis-label">1</text>
+
+              <polyline [attr.points]="chartPolylinePoints" class="pain-line" fill="none" />
+
+              <ng-container *ngFor="let p of chartPoints">
+                <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4.5" class="pain-dot" />
+              </ng-container>
+            </svg>
+            <div class="d-flex justify-content-between text-muted-light small mt-1">
+              <span>{{ chartPoints[0].log.loggedAt | date:'d MMM' }}</span>
+              <span *ngIf="chartPoints.length > 1">
+                {{ chartPoints[chartPoints.length - 1].log.loggedAt | date:'d MMM' }} (latest)
+              </span>
+            </div>
+          </div>
+          <ng-template #noData>
+            <p class="text-muted-light py-5 text-center mb-0">No logs in this date range yet.</p>
+          </ng-template>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card-dark p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <span class="label-caps text-primary">Pain Trend</span>
+          <div class="mt-2" *ngIf="painTrendPerDay !== null; else needMore">
+            <div class="d-flex align-items-baseline gap-2">
+              <span class="fs-3 fw-bold" [class.text-tertiary]="painTrendPerDay <= 0"
+                [class.text-danger]="painTrendPerDay > 0">
+                {{ painTrendPerDay > 0 ? '+' : '' }}{{ painTrendPerDay }}
+              </span>
+              <span class="text-muted-light small">VAS pts / log</span>
+            </div>
+            <p class="text-muted-light small mt-2 mb-0">
+              Linear trend computed from the {{ logs.length }} logs currently loaded in this range.
+              Negative means pain is trending down.
+            </p>
+          </div>
+          <ng-template #needMore>
+            <p class="text-muted-light small mt-2 mb-0">Log at least 2 sessions to see a trend.</p>
+          </ng-template>
+        </div>
+
+        <div class="mt-4 pt-3 border-top border-purple" *ngIf="analytics as a">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted-light small">Completed sessions</span>
+            <span class="fw-semibold">{{ a.completedSessions }} / {{ a.expectedSessions | number:'1.0-1' }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted-light small">Avg pain ({{ analyticsPeriod }})</span>
+            <span class="fw-semibold">{{ a.averagePainLevel | number:'1.1-1' }} / 10</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted-light small">Total logs ({{ analyticsPeriod }})</span>
+            <span class="fw-semibold">{{ a.totalSessionLogs }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card-dark overflow-hidden">
+    <div class="p-3 d-flex justify-content-between align-items-center flex-wrap gap-2 table-header">
+      <h3 class="h6 mb-0">Session Execution History</h3>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-dark-custom mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Plan Name</th>
+            <th>Pain</th>
+            <th>Completed</th>
+            <th>Notes</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of pagedLogs">
+            <td class="text-nowrap">{{ log.loggedAt | date:'d MMM y, h:mm a' }}</td>
+            <td>
+              <ng-container *ngIf="planInfo(log.planId) as info">
+                <div class="fw-semibold">{{ info.name }}</div>
+                <small class="d-block text-muted-light" *ngIf="info.meta">{{ info.meta }}</small>
+              </ng-container>
+            </td>
+            <td>
+              <span class="badge" [class.bg-success]="log.painLevel <= 3"
+                [class.bg-warning]="log.painLevel > 3 && log.painLevel <= 6" [class.bg-danger]="log.painLevel > 6">
+                {{ log.painLevel }} / 10
+              </span>
+            </td>
+            <td>
+              <span class="badge" [class.bg-success]="log.completed" [class.bg-secondary]="!log.completed">
+                {{ log.completed ? 'Completed' : 'Incomplete' }}
+              </span>
+            </td>
+            <td class="notes-cell" [title]="log.notes || ''">{{ log.notes || '—' }}</td>
+            <td class="text-end text-nowrap">
+              <button class="icon-btn" type="button" title="Edit (PUT /api/logs/:id)" (click)="openEditModal(log)">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="icon-btn icon-btn-danger" type="button" title="Delete (DELETE /api/logs/:id)"
+                (click)="confirmDelete(log)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="!pagedLogs.length && !loadingLogs">
+            <td colspan="6" class="text-center text-muted-light py-4">No session logs in this range.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="p-3 d-flex justify-content-between align-items-center flex-wrap gap-2 table-header">
+      <span class="text-muted-light small">
+        Showing {{ pagedLogs.length ? (page - 1) * pageSize + 1 : 0 }}–{{ (page - 1) * pageSize + pagedLogs.length }}
+        of {{ logs.length }}
+      </span>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-light" [disabled]="page <= 1" (click)="goToPage(page - 1)">Prev</button>
+        <span class="text-muted-light small">Page {{ page }} / {{ totalPages }}</span>
+        <button class="btn btn-sm btn-outline-light" [disabled]="page >= totalPages"
+          (click)="goToPage(page + 1)">Next</button>
+      </div>
+    </div>
+  </div>
 </section>
+
+<!-- Modal -->
+<div class="custom-modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="custom-modal card-dark" (click)="$event.stopPropagation()">
+    <div class="p-4 border-bottom border-purple d-flex justify-content-between align-items-center">
+      <h3 class="h6 mb-0">Edit Session Log</h3>
+      <button class="icon-btn" type="button" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div class="p-4 d-flex flex-column gap-3">
+      <div *ngIf="modalError" class="alert alert-danger-dark mb-0">{{ modalError }}</div>
+
+      <div>
+        <label class="form-label">Plan Name</label>
+        <input type="text" class="form-control" [value]="form.planLabel" disabled readonly />
+      </div>
+
+      <div>
+        <div class="d-flex justify-content-between">
+          <label class="form-label mb-1">Pain Level (VAS)</label>
+          <span class="fw-bold">{{ form.painLevel }}/10</span>
+        </div>
+        <input type="range" min="1" max="10" step="1" class="form-range" [(ngModel)]="form.painLevel" />
+      </div>
+
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="completedCheck" [(ngModel)]="form.completed" />
+        <label class="form-check-label" for="completedCheck">Session completed</label>
+      </div>
+
+      <div>
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" rows="3" [(ngModel)]="form.notes" maxlength="1000"></textarea>
+      </div>
+    </div>
+
+    <div class="p-4 border-top border-purple d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-light" type="button" (click)="closeModal()">Cancel</button>
+      <button class="btn btn-purple" type="button" [disabled]="saving" (click)="submitModal()">
+        {{ saving ? 'Saving…' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="custom-toast" [class.show]="toastVisible">
+  <i class="bi bi-check-circle-fill text-tertiary me-2"></i>
+  <div>
+    <div class="fw-semibold small">{{ toastTitle }}</div>
+    <div class="text-muted-light small">{{ toastMsg }}</div>
+  </div>
+</div>

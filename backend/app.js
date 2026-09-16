@@ -56,7 +56,8 @@ app.use(cors({
 // Rate limiting
 const limiter = expressLimit.rateLimit({
   windowMs: 10 * 60 * 1000,
-  limit: 50,
+  limit: 300,                 // 50 is too tight for active UI testing
+  standardHeaders: true,
   message: "Too many requests from this IP, please try again later."
 });
 app.use(limiter);

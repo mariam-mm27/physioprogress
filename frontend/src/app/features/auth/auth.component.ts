@@ -127,8 +127,10 @@ export class AuthComponent implements OnInit, AfterViewInit {
   updateFormValidators(): void {
     const fullNameControl = this.authForm.get('fullName');
     const injuryTypeControl = this.authForm.get('injuryType');
+    const passwordControl = this.authForm.get('password');
 
     if (this.currentIntent === 'register') {
+      passwordControl?.setValidators([Validators.required, Validators.minLength(6), this.passwordValidator()]);
       fullNameControl?.setValidators([Validators.required, Validators.minLength(2)]);
       if (this.currentRole === 'patient') {
         injuryTypeControl?.setValidators([Validators.required]);
@@ -136,10 +138,12 @@ export class AuthComponent implements OnInit, AfterViewInit {
         injuryTypeControl?.clearValidators();
       }
     } else {
+      passwordControl?.setValidators([Validators.required, Validators.minLength(6)]);
       fullNameControl?.clearValidators();
       injuryTypeControl?.clearValidators();
     }
 
+    passwordControl?.updateValueAndValidity();
     fullNameControl?.updateValueAndValidity();
     injuryTypeControl?.updateValueAndValidity();
   }

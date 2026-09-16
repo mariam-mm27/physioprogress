@@ -5,76 +5,88 @@ const { ReturnDocument } = require("mongodb");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
 
-const createExercisePlan = async (req, res) => {
-    try{
-        const{title, exerciseName, reps, frequencyPerWeek, videoUrl} = req.body;
-        const therapistId = req.user.id; 
-        const patientId = req.params.patientId;
+const createExercisePlan = catchAsync(async (req, res, next) => {
+    const{
+        title,
+        exerciseName,
+        targetMuscle,
+        customMuscle,
+        reps,
+        frequencyPerWeek,
+        videoUrl,
+        videoSource
+    } = req.body;
+    const therapistId = req.user._id;
+    const patientId = req.params.patientId;
 
-        const newExercisePlan = await ExercisePlans.create({
-            therapistId,
-            patientId,
-            title,
-            exerciseName,
-            reps,
-            frequencyPerWeek,
-            videoUrl
-        });
-        res.status(201).json({
-            message: "Exercise Plan Created Successfully",
-            exercisePlan: newExercisePlan
-        });
+    const newExercisePlan = await ExercisePlans.create({
+        therapistId,
+        patientId,
+        title,
+        exerciseName,
+        targetMuscle,
+        customMuscle,
+        reps,
+        frequencyPerWeek,
+        videoUrl,
+        videoSource
+    });
+    res.status(201).json({
+        success: true,
+        data: newExercisePlan
+    });
+});
 
-    }catch (error) {
-        console.error(error);
-        res.status(500).json({ message: error.message });
+const getExercisePlans = catchAsync(async (req, res, next) => {
+    const therapistId = req.user._id;
+    const patientId = req.params.patientId;
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const sort = req.query.sort || "-createdAt";
+
+    const filter = {
+        patientId: patientId,
+        therapistId: therapistId
+    };
+
+    if (req.query.muscle) {
+        filter.targetMuscle = req.query.muscle;
     }
-}
 
-const getExercisePlans = async (req, res) => {
-    try{
-        const therapistId = req.user.id;
-        const patientId = req.params.patientId;
-
-        const page = Number(req.query.page) || 1;
-        const limit = Number(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
-        const sort = req.query.sort || "-createdAt";
-
-        const exercisePlans = await ExercisePlans.find(
-            {
-                 patientId:patientId,
-                  therapistId:therapistId 
-            }
-        )
+    const exercisePlans = await ExercisePlans.find(filter)
         .sort(sort)
         .skip(skip)
         .limit(limit);
 
-        const totalPlans = await ExercisePlans.countDocuments({
-            patientId: patientId,
-            therapistId: therapistId
-        });
+    const totalPlans = await ExercisePlans.countDocuments(filter);
 
-        res.status(200).json({
-            message: "Exercise Plans Retrieved Successfully",
-            exercisePlans: exercisePlans,
-            pagination: {
-            currentPage: page,
-            limit: limit,
-            totalPlans: totalPlans,
-            totalPages: Math.ceil(totalPlans / limit)
-        }
-        });
-
-    }catch(error){
-        console.error(error);
-        res.status(500).json({ message: error.message });
+    res.status(200).json({
+        success: true,
+        data: exercisePlans,
+        pagination: {
+        currentPage: page,
+        limit: limit,
+        totalPlans: totalPlans,
+        totalPages: Math.ceil(totalPlans / limit)
     }
-}
+    });
+});
 
 
 const UpdateExercisePlan= catchAsync(async (req,res,next)=> {
+        if (
+            Object.prototype.hasOwnProperty.call(req.body, "patientId") ||
+            Object.prototype.hasOwnProperty.call(req.body, "therapistId")
+        ) {
+            return next(
+                new AppError(
+                    400,
+                    "patientId and therapistId cannot be modified"
+                )
+            );
+        }
         const {
             title,
             exerciseName,
@@ -82,9 +94,10 @@ const UpdateExercisePlan= catchAsync(async (req,res,next)=> {
             frequencyPerWeek,
             videoUrl
         } = req.body;
+
         const exercisePlan = await ExercisePlans.findOneAndUpdate({_id:req.params.id, therapistId: req.user._id},
-                                                                  {title,exerciseName,reps,frequencyPerWeek,videoUrl,updatedAt: new Date()},
-                                                                  {returnDocument:"after",runValidators:true})
+                                                                    {title,exerciseName,reps,frequencyPerWeek,videoUrl,updatedAt: new Date()},
+                                                                    {returnDocument:"after",runValidators:true})
         if (!exercisePlan) {
         return next(
             new AppError(

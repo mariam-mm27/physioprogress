@@ -1,66 +1,33 @@
 <header class="top-header">
 
   <div class="header-left">
-
     <div class="logo-brand">
       <i class="bi bi-activity logo-icon"></i>
       <span class="brand-name">PhysioProgress</span>
     </div>
-
   </div>
 
   <div class="header-right">
-
-    <!-- Notification -->
-    <div class="notification-wrapper">
-
-      <button
-        class="notification-btn"
-        title="Notifications"
-        (click)="toggleNotifications()">
-
-        <i class="bi bi-bell"></i>
-
-      </button>
-
-      <!-- Notification Dropdown -->
-      <div
-        class="notification-dropdown"
-        *ngIf="showNotifications">
-
-        <div class="notification-header">
-          <span>Notifications</span>
-        </div>
-
-        <div class="no-notifications">
-
-          <i class="bi bi-bell-slash"></i>
-
-          <p>No notifications yet.</p>
-
-        </div>
-
-      </div>
-
-    </div>
 
     <!-- User Profile -->
     <div class="user-profile-badge">
 
       <div class="user-info">
-
         <span class="user-name">
-          {{ patientData?.fullName || patientData?.name || 'Patient' }}
+          {{ patientData?.fullName || 'Patient' }}
         </span>
 
         <span class="user-id">
-          ID #{{ patientData?.patientCode || (patientData?._id || patientData?.id)?.substring(0, 6) || '------' }}
+          ID #{{ patientData?.patientCode || patientData?._id?.substring(0, 6) || '------' }}
         </span>
-
       </div>
 
-      <div class="user-avatar">
-        <i class="bi bi-person-fill"></i>
+      <div class="user-avatar"
+           [style.background-image]="profileImageUrl && profileImageUrl !== '/assets/default-avatar.png' ? 'url(' + profileImageUrl + ')' : 'none'"
+           [style.background-size]="'cover'"
+           [style.background-position]="'center'"
+           [ngClass]="{'has-image': profileImageUrl && profileImageUrl !== '/assets/default-avatar.png'}">
+        <i class="bi bi-person-fill" *ngIf="!profileImageUrl || profileImageUrl === '/assets/default-avatar.png'"></i>
       </div>
 
     </div>
@@ -68,4 +35,3 @@
   </div>
 
 </header>
-

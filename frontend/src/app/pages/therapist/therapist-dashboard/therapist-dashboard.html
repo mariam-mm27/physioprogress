@@ -1,155 +1,686 @@
-<div class="dashboard-page">
-  <header class="dashboard-header">
-    <div class="header-left">
-      <div class="badge-pill">
-        <span class="material-symbols-outlined badge-icon">medical_services</span>
-        <span class="badge-text">Clinical Command Center</span>
-      </div>
-      <h1 class="header-title">Welcome back, <span class="text-gradient">{{ therapistName }}</span></h1>
-      <p class="header-subtitle">Monitor patient progress, assign tailored rehabilitation protocols, and review real-time kinematic metrics.</p>
-    </div>
+<div class="container-fluid py-4">
 
-    <div class="header-right">
-      <button class="btn-refresh" (click)="refreshUserData()" [disabled]="loadingUser" title="Refresh profile">
-        <span class="material-symbols-outlined" [class.spin]="loadingUser">sync</span>
-        <span>Sync Data</span>
-      </button>
+  <header class="mb-4">
+    <div class="row align-items-center g-3">
+
+      <div class="col-12 col-lg-8">
+
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-dark-elevated mb-3">
+          <span class="material-symbols-outlined text-primary">
+            medical_services
+          </span>
+
+          <span class="small fw-semibold">
+            Clinical Command Center
+          </span>
+        </div>
+
+        <h1 class="h2 fw-bold mb-2">
+          Welcome back,
+          <span class="text-primary">{{ therapistName }}</span>
+        </h1>
+
+        <p class="text-muted-light mb-0">
+          Monitor patient progress, assign tailored rehabilitation protocols,
+          and review real-time kinematic metrics.
+        </p>
+
+      </div>
+
+      <div class="col-12 col-lg-4 text-lg-end">
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="openAssignModal()"
+          [disabled]="assigningPatient"
+          title="Assign new patient">
+
+          <span
+            class="material-symbols-outlined align-middle me-2">
+            person_add
+          </span>
+
+          Assign New Patient
+
+        </button>
+
+      </div>
+
     </div>
   </header>
 
-  <section class="code-showcase-section">
-    <div class="code-card">
-      <div class="code-card-glow"></div>
-      <div class="code-card-content">
-        <div class="code-info">
-          <div class="code-badge">
-            <span class="material-symbols-outlined">key</span>
-            <span>Your Clinical Practice Code</span>
-          </div>
-          <h2 class="code-title">Patient Onboarding Referral Code</h2>
-          <p class="code-description">
-            Share this unique identification code with your patients during account creation. Entering this code automatically links their home recovery sessions, range of motion analytics, and telemetry directly into your clinical portal.
-          </p>
-          
-          <div class="specialization-tags" *ngIf="specializations.length">
-            <span class="spec-tag" *ngFor="let spec of specializations">
-              <span class="material-symbols-outlined spec-icon">check_circle</span>
-              {{ spec }}
+  <section class="mb-4">
+
+    <div class="card-dark p-4">
+
+      <div class="row align-items-center g-4">
+
+        <div class="col-12 col-lg-7">
+
+          <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-dark-elevated mb-3">
+
+            <span class="material-symbols-outlined text-primary">
+              key
             </span>
+
+            <span class="small fw-semibold">
+              Your Clinical Practice Code
+            </span>
+
           </div>
+
+          <h2 class="h4 fw-bold mb-3">
+            Patient Onboarding Referral Code
+          </h2>
+
+          <p class="text-muted-light mb-3">
+            Share this unique identification code with your patients during
+            account creation. Entering this code automatically links their
+            home recovery sessions, range of motion analytics, and telemetry
+            directly into your clinical portal.
+          </p>
+
+          <div
+            class="d-flex flex-wrap gap-2"
+            *ngIf="specializations.length">
+
+            <span
+              class="badge rounded-pill bg-dark-elevated border border-secondary px-3 py-2"
+              *ngFor="let spec of specializations">
+
+              <span class="material-symbols-outlined align-middle me-1 fs-6">
+                check_circle
+              </span>
+
+              {{ spec }}
+
+            </span>
+
+          </div>
+
         </div>
 
-        <div class="code-action-box">
-          <span class="code-label">Active Therapist Code</span>
-          <div class="code-display-wrap">
-            <span class="code-value">{{ therapistCode }}</span>
+
+        <div class="col-12 col-lg-5">
+
+          <div class="card-dark p-4 border">
+
+            <span class="small text-muted-light d-block mb-2">
+              Active Therapist Code
+            </span>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+              <span class="h4 fw-bold text-primary mb-0">
+                {{ therapistCode }}
+              </span>
+
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                [class.copied]="copied"
+                (click)="copyCode()"
+                aria-label="Copy therapist code">
+
+                <span class="material-symbols-outlined align-middle me-1">
+                  {{ copied ? 'check' : 'content_copy' }}
+                </span>
+
+                {{ copied ? 'Copied!' : 'Copy Code' }}
+
+              </button>
+
+            </div>
+
+            <div class="d-flex align-items-center gap-2 mt-3">
+
+              <span class="status-indicator"></span>
+
+              <span class="small text-muted-light">
+                Active &amp; Ready for Patient Enrollment
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="mb-4">
+
+    <div class="row g-3">
+
+      <div class="col-12 col-sm-6 col-xl-3">
+
+        <div class="card-dark p-4 h-100">
+
+          <div class="d-flex align-items-center gap-3">
+
+            <div class="icon-badge flex-shrink-0">
+              <span class="material-symbols-outlined">
+                group
+              </span>
+            </div>
+
+            <div>
+              <span class="display-6 fw-bold d-block">
+                {{ stats.enrolledPatients }}
+              </span>
+
+              <span class="text-muted-light small">
+                Enrolled Patients
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-xl-3">
+
+        <div class="card-dark p-4 h-100">
+
+          <div class="d-flex align-items-center gap-3">
+
+            <div class="icon-badge flex-shrink-0">
+              <span class="material-symbols-outlined">
+                assignment
+              </span>
+            </div>
+
+            <div>
+              <span class="display-6 fw-bold d-block">
+                {{ stats.activePlans }}
+              </span>
+
+              <span class="text-muted-light small">
+                Active Exercise Plans
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-xl-3">
+
+        <div class="card-dark p-4 h-100">
+
+          <div class="d-flex align-items-center gap-3">
+
+            <div class="icon-badge flex-shrink-0">
+              <span class="material-symbols-outlined">
+                insights
+              </span>
+            </div>
+
+            <div>
+              <span class="display-6 fw-bold d-block">
+                {{ stats.clinicalAdherence }}%
+              </span>
+
+              <span class="text-muted-light small">
+                Protocol Adherence
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-xl-3">
+
+        <div class="card-dark p-4 h-100">
+
+          <div class="d-flex align-items-center gap-3">
+
+            <div class="icon-badge flex-shrink-0">
+              <span class="material-symbols-outlined">
+                speed
+              </span>
+            </div>
+
+            <div>
+              <span class="display-6 fw-bold d-block">
+                {{ stats.telemetrySessions }}
+              </span>
+
+              <span class="text-muted-light small">
+                Telemetry Sessions Logged
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="mb-4">
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+
+      <h3 class="h4 fw-bold mb-0">
+        Active Patients ({{ filteredPatients.length }} Enrolled)
+      </h3>
+
+      <div class="flex-grow-1 ms-3">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Filter patient or injury..."
+          [(ngModel)]="patientFilter"
+          (input)="onPatientFilter()"
+          aria-label="Filter patients">
+      </div>
+
+    </div>
+
+    <div class="row g-3">
+
+      <ng-container *ngFor="let patient of filteredPatients">
+        <div class="col-12 col-md-6">
+
+          <div class="patient-card">
+
+            <div class="patient-header">
+
+              <div class="patient-info">
+
+                <div class="avatar-circle">
+                  <img
+                    *ngIf="patient.profilePicture?.url"
+                    [src]="patient.profilePicture.url"
+                    [alt]="patient.fullName"
+                    class="rounded-circle w-100 h-100 object-fit-cover">
+                  <span
+                    *ngIf="!patient.profilePicture?.url"
+                    class="material-symbols-outlined">
+                    person
+                  </span>
+                </div>
+
+                <div class="patient-details">
+
+                  <h4 class="patient-name">
+                    {{ patient.fullName }}
+                  </h4>
+
+                  <p class="patient-code">
+                    {{ patient.patientCode }} • Wk 6 POST-OP
+                  </p>
+
+                  <p class="patient-injury">
+                    {{ patient.injuryType }}
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="patient-metrics">
+
+              <div class="pain-section">
+                <span class="pain-badge" [ngClass]="'pain-' + getPainLevelColor(patient.painLevel)">
+                  PAIN: {{ patient.painLevel }}/10
+                </span>
+              </div>
+
+              <div class="adherence-section">
+
+                <div class="adherence-header">
+                  <span class="adherence-label">PROGRAM ADHERENCE</span>
+                  <span class="adherence-value" [ngClass]="getAdherenceColor(patient.programAdherence)">
+                    {{ patient.programAdherence }}%
+                  </span>
+                </div>
+
+                <div class="progress-bar-container">
+                  <div
+                    class="progress-bar-fill"
+                    [ngClass]="'adherence-' + getAdherenceColor(patient.programAdherence)"
+                    [style.width.%]="patient.programAdherence">
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="patient-actions">
+
+              <button
+                type="button"
+                class="action-btn analytics-btn"
+                (click)="viewPatientAnalytics(patient._id)"
+                title="View patient analytics">
+                <span class="material-symbols-outlined">
+                  analytics
+                </span>
+                ANALYTICS
+              </button>
+
+              <button
+                type="button"
+                class="action-btn edit-btn"
+                (click)="editPatientPlan(patient._id)"
+                title="Edit exercise plan">
+                <span class="material-symbols-outlined">
+                  edit
+                </span>
+                EDIT PLAN
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      </ng-container>
+
+      <div class="col-12" *ngIf="filteredPatients.length === 0 && initialDataLoaded">
+
+        <div class="card-dark p-5 text-center">
+
+          <span class="material-symbols-outlined display-4 text-muted-light mb-3">
+            person_add
+          </span>
+
+          <h4 class="text-muted-light">
+            No patients found
+          </h4>
+
+          <p class="text-muted-light small mb-0">
+            Start by assigning patients or creating new ones
+          </p>
+
+        </div>
+
+      </div>
+
+      <div class="col-12" *ngIf="loadingDashboard && !initialDataLoaded">
+
+        <div class="card-dark p-5 text-center">
+
+          <div class="spinner-container">
+            <div class="spinner-large"></div>
+          </div>
+
+          <p class="text-muted-light">Loading patient data...</p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+<div class="modal-overlay" *ngIf="showAssignModal" (click)="closeAssignModal()">
+
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+
+      <h3 class="modal-title">Assign New Patient</h3>
+
+      <button
+        type="button"
+        class="modal-close"
+        (click)="closeAssignModal()"
+        aria-label="Close modal">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="mode-selector">
+
+        <button
+          type="button"
+          class="mode-btn"
+          [class.active]="assignmentMode === 'select'"
+          (click)="assignmentMode = 'select'">
+          <span class="mode-icon">👥</span>
+          <span class="mode-text">Select Unassigned Patient</span>
+        </button>
+
+        <button
+          type="button"
+          class="mode-btn"
+          [class.active]="assignmentMode === 'manual'"
+          (click)="assignmentMode = 'manual'">
+          <span class="mode-icon">✏️</span>
+          <span class="mode-text">Enter Patient Code</span>
+        </button>
+
+      </div>
+
+      <div class="mode-content">
+
+        <div *ngIf="assignmentMode === 'select'" class="select-mode">
+
+          <label class="select-label">Choose a patient to assign:</label>
+
+          <div *ngIf="loadingUnassignedPatients" class="loading-patients">
+            <div class="spinner-small"></div>
+            <p class="text-muted-light">Loading patients...</p>
+          </div>
+
+          <div *ngIf="!loadingUnassignedPatients && unassignedPatients.length === 0" class="no-patients">
+            <p class="text-muted-light">No unassigned patients available</p>
+          </div>
+
+          <div *ngIf="!loadingUnassignedPatients && unassignedPatients.length > 0" class="patient-list">
+
             <button
+              *ngFor="let patient of unassignedPatients"
               type="button"
-              class="btn-copy-code"
-              [class.copied]="copied"
-              (click)="copyCode()"
-              aria-label="Copy therapist code">
-              <span class="material-symbols-outlined">{{ copied ? 'check' : 'content_copy' }}</span>
-              <span>{{ copied ? 'Copied!' : 'Copy Code' }}</span>
+              class="patient-option"
+              [class.selected]="selectedPatient?._id === patient._id"
+              (click)="selectPatient(patient)">
+
+              <div class="patient-checkbox">
+                <span *ngIf="selectedPatient?._id === patient._id" class="material-symbols-outlined">check</span>
+              </div>
+
+              <div class="patient-option-info">
+                <span class="patient-option-name">{{ patient.fullName }}</span>
+                <span class="patient-option-code">{{ patient.patientCode }}</span>
+                <span class="patient-option-injury">{{ patient.injuryType }}</span>
+              </div>
+
             </button>
+
           </div>
-          <div class="code-status-row">
-            <span class="status-indicator"></span>
-            <span class="status-text">Active &amp; Ready for Patient Enrollment</span>
+
+        </div>
+
+        <div *ngIf="assignmentMode === 'manual'" class="manual-mode">
+
+          <label class="manual-label">Enter Patient Code:</label>
+
+          <input
+            type="text"
+            class="manual-input"
+            [(ngModel)]="manualCode"
+            placeholder="e.g., PAT-1234"
+            aria-label="Patient code input">
+
+          <p class="manual-hint">Enter the patient code provided by the patient during registration.</p>
+
+        </div>
+
+      </div>
+
+      <div *ngIf="assignmentMessage" class="assignment-message" [class.success]="assignmentSuccess">
+        {{ assignmentMessage }}
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="closeAssignModal()">
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="assigningPatient"
+        (click)="submitAssignment()">
+
+        <span *ngIf="!assigningPatient" class="material-symbols-outlined align-middle me-1">
+          check
+        </span>
+
+        <span *ngIf="assigningPatient" class="spinner-small"></span>
+
+        {{ assigningPatient ? 'Assigning...' : 'Assign Patient' }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="showAnalyticsModal" (click)="closeAnalyticsModal()">
+
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+
+      <h3 class="modal-title">Patient Analytics</h3>
+
+      <button
+        type="button"
+        class="modal-close"
+        (click)="closeAnalyticsModal()"
+        aria-label="Close modal">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div *ngIf="loadingAnalytics" class="loading-analytics">
+        <div class="spinner-small"></div>
+        <p class="text-muted-light">Loading analytics...</p>
+      </div>
+
+      <div *ngIf="!loadingAnalytics && selectedPatientAnalytics" class="analytics-content">
+
+        <div class="analytics-header mb-4">
+          <h4 class="h5 mb-1">{{ selectedPatientAnalytics.patientName }}</h4>
+          <p class="text-muted-light small mb-0">Kinematic Metrics & Session Progress</p>
+        </div>
+
+        <div class="analytics-grid">
+
+          <div class="analytics-card">
+            <span class="analytics-label">PAIN LEVEL</span>
+            <div class="analytics-value" [ngClass]="'pain-' + getPainLevelColor(selectedPatientAnalytics.painLevel)">
+              {{ selectedPatientAnalytics.painLevel }}/10
+            </div>
           </div>
+
+          <div class="analytics-card">
+            <span class="analytics-label">ADHERENCE RATE</span>
+            <div class="analytics-value" [ngClass]="'adherence-' + getAdherenceColor(selectedPatientAnalytics.programAdherence)">
+              {{ selectedPatientAnalytics.programAdherence }}%
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <span class="analytics-label">TOTAL SESSIONS</span>
+            <div class="analytics-value text-primary">
+              {{ selectedPatientAnalytics.totalSessions }}
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <span class="analytics-label">AVG DURATION</span>
+            <div class="analytics-value text-primary">
+              {{ selectedPatientAnalytics.complianceMetrics.averageDuration }}m
+            </div>
+          </div>
+
         </div>
+
+        <div class="compliance-section mt-4">
+
+          <h5 class="h6 mb-3">Compliance Breakdown</h5>
+
+          <div class="compliance-row mb-3">
+            <div class="compliance-label">
+              <span>Sessions Completed</span>
+              <strong class="text-success">{{ selectedPatientAnalytics.complianceMetrics.sessionsCompleted }}</strong>
+            </div>
+            <div class="compliance-bar">
+              <div class="compliance-bar-fill completed" [style.width.%]="(selectedPatientAnalytics.complianceMetrics.sessionsCompleted / selectedPatientAnalytics.totalSessions * 100)"></div>
+            </div>
+          </div>
+
+          <div class="compliance-row">
+            <div class="compliance-label">
+              <span>Sessions Skipped</span>
+              <strong class="text-danger">{{ selectedPatientAnalytics.complianceMetrics.sessionsSkipped }}</strong>
+            </div>
+            <div class="compliance-bar">
+              <div class="compliance-bar-fill skipped" [style.width.%]="(selectedPatientAnalytics.complianceMetrics.sessionsSkipped / selectedPatientAnalytics.totalSessions * 100)"></div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
+
     </div>
-  </section>
 
-  <section class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon-wrap purple">
-        <span class="material-symbols-outlined">group</span>
-      </div>
-      <div class="stat-details">
-        <span class="stat-num">18</span>
-        <span class="stat-label">Enrolled Patients</span>
-      </div>
+    <div class="modal-footer">
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="closeAnalyticsModal()">
+        Close
+      </button>
+
     </div>
 
-    <div class="stat-card">
-      <div class="stat-icon-wrap blue">
-        <span class="material-symbols-outlined">assignment</span>
-      </div>
-      <div class="stat-details">
-        <span class="stat-num">34</span>
-        <span class="stat-label">Active Exercise Plans</span>
-      </div>
-    </div>
+  </div>
 
-    <div class="stat-card">
-      <div class="stat-icon-wrap green">
-        <span class="material-symbols-outlined">insights</span>
-      </div>
-      <div class="stat-details">
-        <span class="stat-num">94.2%</span>
-        <span class="stat-label">Protocol Adherence</span>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon-wrap amber">
-        <span class="material-symbols-outlined">speed</span>
-      </div>
-      <div class="stat-details">
-        <span class="stat-num">142</span>
-        <span class="stat-label">Telemetry Sessions Logged</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="shortcuts-section">
-    <h3 class="section-heading">Clinical Modules</h3>
-    <div class="shortcuts-grid">
-      <a routerLink="/therapist/patient-plan-builder" class="shortcut-card">
-        <div class="shortcut-icon">
-          <span class="material-symbols-outlined">note_add</span>
-        </div>
-        <div class="shortcut-content">
-          <h4>Plan Builder</h4>
-          <p>Design personalized exercise regimens with targeted rep/set counts and angle thresholds.</p>
-        </div>
-        <span class="material-symbols-outlined arrow">arrow_forward</span>
-      </a>
-
-      <a routerLink="/therapist/patient-hub-logging" class="shortcut-card">
-        <div class="shortcut-icon">
-          <span class="material-symbols-outlined">clinical_notes</span>
-        </div>
-        <div class="shortcut-content">
-          <h4>Patient Hub &amp; Logging</h4>
-          <p>Review comprehensive session summaries, clinician notes, and compliance logs.</p>
-        </div>
-        <span class="material-symbols-outlined arrow">arrow_forward</span>
-      </a>
-
-      <a routerLink="/therapist/session-history-charts" class="shortcut-card">
-        <div class="shortcut-icon">
-          <span class="material-symbols-outlined">monitoring</span>
-        </div>
-        <div class="shortcut-content">
-          <h4>Session History &amp; Charts</h4>
-          <p>Visualize longitudinal kinematic telemetry, range of motion trends, and recovery velocity.</p>
-        </div>
-        <span class="material-symbols-outlined arrow">arrow_forward</span>
-      </a>
-
-      <a routerLink="/therapist/profile-settings" class="shortcut-card">
-        <div class="shortcut-icon">
-          <span class="material-symbols-outlined">settings_account_box</span>
-        </div>
-        <div class="shortcut-content">
-          <h4>Profile &amp; Settings</h4>
-          <p>Manage clinical bio, specializations, credentials, and practice information.</p>
-        </div>
-        <span class="material-symbols-outlined arrow">arrow_forward</span>
-      </a>
-    </div>
-  </section>
 </div>

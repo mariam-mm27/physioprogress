@@ -272,15 +272,31 @@
 
   font-size: 1.1rem;
 
+  border: 2px solid rgba(255, 255, 255, 0.1);
+
+  object-fit: cover;
+
+  background-size: cover;
+  background-position: center;
+
   transition:
     background-color 0.2s ease,
     transform 0.2s ease;
 }
 
+.user-avatar.has-image {
+  background-color: transparent !important;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
 .user-profile-badge:hover .user-avatar {
-  background: var(--accent-hover);
+  background-color: var(--accent-hover);
 
   transform: scale(1.04);
+}
+
+.user-avatar i {
+  line-height: 1;
 }
 
 

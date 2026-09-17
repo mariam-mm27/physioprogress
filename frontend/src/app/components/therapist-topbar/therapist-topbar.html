@@ -1,11 +1,15 @@
 <header class="topbar d-flex align-items-center justify-content-end">
-  <div class="d-flex align-items-center gap-2">
-    <div class="text-end">
+  <div class="profile-card d-flex align-items-center gap-3 px-3 py-2">
+    <div class="profile-info text-end">
       <span class="d-block fw-semibold lh-1">{{ userName }}</span>
       <small class="text-secondary font-mono">{{ userId }}</small>
     </div>
-    <div class="avatar d-flex align-items-center justify-content-center rounded-circle bg-primary text-white">
-      <i class="bi bi-person"></i>
+    <div class="avatar d-flex align-items-center justify-content-center rounded-circle bg-primary text-white flex-shrink-0"
+         [style.background-image]="profileImageUrl && profileImageUrl !== '/assets/default-avatar.png' ? 'url(' + profileImageUrl + ')' : 'none'"
+         [style.background-size]="'cover'"
+         [style.background-position]="'center'"
+         [ngClass]="{'has-image': profileImageUrl && profileImageUrl !== '/assets/default-avatar.png'}">
+      <i class="bi bi-person" *ngIf="!profileImageUrl || profileImageUrl === '/assets/default-avatar.png'"></i>
     </div>
   </div>
 </header>

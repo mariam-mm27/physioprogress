@@ -576,6 +576,9 @@ input:-webkit-autofill:active {
   display: flex;
   justify-content: center;
 }
+#googleBtnHost {
+  display: none !important;
+}
 
 .google-btn-host iframe {
   margin: 0 auto !important;

@@ -19,7 +19,7 @@ export class PatientSidebar {
 
   navItems: navItem[] = [
     { path: 'patient-dashboard', label: 'Patient Dashboard', icon: 'bi-grid-1x2' },
-    { path: 'session-logs', label: 'Session Logs & Recovery', icon: 'bi-bar-chart-line' },
+    { path: 'session-logs', label: 'Session Logs & Recovery Analytics', icon: 'bi-bar-chart-line' },
     { path: 'profile-settings', label: 'Profile Settings', icon: 'bi-sliders' },
   ];
 

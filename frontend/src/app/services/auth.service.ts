@@ -50,7 +50,7 @@ export class AuthService {
   private readonly roleKey = 'role';
   private readonly userKey = 'user';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   register(userData: RegisterPayload): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData);

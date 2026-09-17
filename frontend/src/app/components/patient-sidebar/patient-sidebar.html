@@ -1,55 +1,113 @@
-<aside class="sidebar d-flex flex-column" style="height: 100vh" aria-label="Patient navigation">
-  <div>
-    <div class="brand-row d-flex align-items-center gap-2 px-3" style="height: 4rem">
-      <div class="brand-icon d-flex align-items-center justify-content-center rounded">
-        <i class="bi bi-activity" aria-hidden="true"></i>
+<aside class="sidebar">
+
+  <div class="sidebar-header">
+
+    <div class="logo-box">
+
+      <div class="logo-icon">
+        <i class="bi bi-activity"></i>
       </div>
-      <div class="d-flex flex-column">
-        <span class="font-display fw-semibold lh-1">
-          Physio<span class="text-primary">Progress</span>
-        </span>
-        <span class="font-mono small text-uppercase" style="color: var(--accent-fixed-dim); letter-spacing: 0.05em">
-          Patient Portal
-        </span>
+
+      <div class="logo-text">
+        <h2>PhysioProgress</h2>
+        <span class="sub-status">● RECOVERY ENGINE</span>
       </div>
+
     </div>
 
-    <div class="px-3 py-2">
-      <div class="role-card rounded p-2 d-flex flex-column gap-1">
-        <span class="font-mono text-uppercase small text-muted" style="letter-spacing: 0.08em">
-          Account
-        </span>
-        <div class="d-flex align-items-center gap-2">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span class="font-mono small fw-semibold">Patient</span>
-        </div>
-      </div>
+    <div class="portal-badge">
+      <span>● PATIENT PORTAL</span>
     </div>
 
-    <div class="px-3 mt-2">
-      <span class="font-mono small text-uppercase text-muted d-block mb-2 px-2" style="letter-spacing: 0.08em">
-        My Care
-      </span>
-      <nav class="nav flex-column gap-1" role="navigation">
-        @for (item of navItems; track item.path) {
-        <a [routerLink]="['/', 'patient', item.path]" routerLinkActive="active"
-          class="nav-link-custom d-flex align-items-center gap-2 px-2 py-2 rounded">
-          <i class="bi" [class]="item.icon" aria-hidden="true"></i>
-          <span>{{ item.label }}</span>
-        </a>
-        }
-      </nav>
-    </div>
   </div>
+
+
+  <nav class="sidebar-nav">
+
+    <a
+      routerLink="/patient/patient-dashboard"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-link-custom"
+    >
+      <i class="bi bi-grid-fill"></i>
+      <span>Patient Dashboard</span>
+    </a>
+
+
+    <a
+      routerLink="/patient/session-logs"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-link-custom"
+    >
+      <i class="bi bi-graph-up"></i>
+      <span>Session Logs & Recovery Analytics</span>
+    </a>
+
+
+    <a
+      routerLink="/patient/profile-settings"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-link-custom"
+    >
+      <i class="bi bi-person-gear"></i>
+      <span>Profile Settings</span>
+    </a>
+
+  </nav>
+
+
+  <div class="sidebar-footer">
+
+    <div class="user-card">
+
+      <div class="avatar-container">
+
+        <div class="avatar">
+          R2
+        </div>
+
+        <span class="status-dot"></span>
+
+      </div>
+
+      <div class="user-details">
+
+        <span class="user-name">
+          Rahma 2 Updated
+        </span>
+
+        <span class="user-id">
+          #6aa5e5
+        </span>
+
+      </div>
+
+      <i class="bi bi-shield-check verified-icon"></i>
+
+    </div>
+
+  </div>
+
+
   <div class="mt-auto px-3 py-3">
+
     <nav class="nav flex-column gap-1" role="navigation">
-      <button (click)="logout()"
+
+      <button
+        (click)="logout()"
         type="button"
         style="background: transparent; border: none; text-align: left; width: 100%; cursor: pointer;"
-        class="nav-link-custom d-flex align-items-center gap-2 px-2 py-2 rounded text-danger">
+        class="nav-link-custom d-flex align-items-center gap-2 px-2 py-2 rounded text-danger"
+      >
         <i class="bi bi-box-arrow-left" aria-hidden="true"></i>
         <span>Logout</span>
       </button>
+
     </nav>
+
   </div>
+
 </aside>

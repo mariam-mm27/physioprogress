@@ -1,3 +1,5 @@
+
+
 import {
   Component,
   OnInit,
@@ -9,6 +11,7 @@ import {
 } from '@angular/core';
 
 import { CommonModule, DOCUMENT } from '@angular/common';
+
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -40,6 +43,7 @@ type AuthIntent = 'login' | 'register';
 
 @Component({
   selector: 'app-auth',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -132,7 +136,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
           params['role'] === 'therapist' ||
           params['role'] === 'patient'
         ) {
-          this.currentRole = params['role'];
+          this.currentRole = params['role'] as UserRole;
         }
 
         this.updateFormValidators();
@@ -146,6 +150,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
 
   initializeForm(): void {
     this.authForm = this.fb.group({
+
       email: [
         '',
         [
@@ -234,7 +239,6 @@ export class AuthComponent implements OnInit, AfterViewInit {
       } else {
 
         injuryTypeControl?.clearValidators();
-
       }
 
     } else {
@@ -245,7 +249,6 @@ export class AuthComponent implements OnInit, AfterViewInit {
       ]);
 
       fullNameControl?.clearValidators();
-
       injuryTypeControl?.clearValidators();
     }
 
@@ -256,8 +259,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
 
   isFieldInvalid(fieldName: string): boolean {
 
-    const control =
-      this.authForm.get(fieldName);
+    const control = this.authForm.get(fieldName);
 
     return !!(
       control &&
@@ -268,8 +270,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
 
   getFieldError(fieldName: string): string {
 
-    const control =
-      this.authForm.get(fieldName);
+    const control = this.authForm.get(fieldName);
 
     if (!control || !control.errors) {
       return '';
@@ -337,8 +338,11 @@ export class AuthComponent implements OnInit, AfterViewInit {
   toggleSpecialization(spec: string): void {
 
     if (this.selectedSpecializations.has(spec)) {
+
       this.selectedSpecializations.delete(spec);
+
     } else {
+
       this.selectedSpecializations.add(spec);
     }
   }
@@ -377,8 +381,11 @@ export class AuthComponent implements OnInit, AfterViewInit {
     this.loading = true;
 
     if (this.currentIntent === 'login') {
+
       this.handleLogin();
+
     } else {
+
       this.handleRegister();
     }
   }
@@ -436,18 +443,9 @@ export class AuthComponent implements OnInit, AfterViewInit {
 
               localStorage.setItem(
                 'user',
-                JSON.stringify(
-                  response.data.user
-                )
+                JSON.stringify(response.data.user)
               );
             }
-
-            console.log(
-              '[AUTH] Session set by service. Token in localStorage:',
-              !!localStorage.getItem('token'),
-              'Role:',
-              localStorage.getItem('role')
-            );
 
             this.successMessage =
               'Login successful! Redirecting to your dashboard...';
@@ -455,11 +453,6 @@ export class AuthComponent implements OnInit, AfterViewInit {
             setTimeout(() => {
 
               this.ngZone.run(() => {
-
-                console.log(
-                  '[AUTH] About to navigateAfterAuth with role:',
-                  userRole
-                );
 
                 this.navigateAfterAuth(
                   userRole
@@ -523,16 +516,13 @@ export class AuthComponent implements OnInit, AfterViewInit {
 
     const payload: any = {
 
-      fullName:
-        fullName?.trim(),
+      fullName: fullName?.trim(),
 
-      email:
-        cleanEmail,
+      email: cleanEmail,
 
       password,
 
-      role:
-        this.currentRole
+      role: this.currentRole
     };
 
     if (this.currentRole === 'patient') {
@@ -550,6 +540,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
         );
 
       if (bio?.trim()) {
+
         payload.bio =
           bio.trim();
       }
@@ -608,11 +599,8 @@ export class AuthComponent implements OnInit, AfterViewInit {
         ['/auth/confirm-email'],
         {
           queryParams: {
-            email:
-              this.unconfirmedEmail,
-
-            role:
-              this.currentRole
+            email: this.unconfirmedEmail,
+            role: this.currentRole
           }
         }
       );
@@ -629,18 +617,6 @@ export class AuthComponent implements OnInit, AfterViewInit {
       this.currentRole
     ).toLowerCase();
 
-    console.log(
-      '[AUTH] navigateAfterAuth called. effectiveRole:',
-      effectiveRole
-    );
-
-    console.log(
-      '[AUTH] isAuthenticated:',
-      this.authService.isAuthenticated(),
-      'storedRole:',
-      this.authService.role
-    );
-
     const returnUrl =
       this.route.snapshot.queryParams[
         'returnUrl'
@@ -652,11 +628,6 @@ export class AuthComponent implements OnInit, AfterViewInit {
         `/${effectiveRole}`
       )
     ) {
-
-      console.log(
-        '[AUTH] Navigating to returnUrl:',
-        returnUrl
-      );
 
       this.router.navigateByUrl(
         returnUrl
@@ -684,11 +655,6 @@ export class AuthComponent implements OnInit, AfterViewInit {
       targetRoute = '/';
     }
 
-    console.log(
-      '[AUTH] Navigating to:',
-      targetRoute
-    );
-
     this.router
       .navigate([targetRoute])
       .then(
@@ -706,7 +672,9 @@ export class AuthComponent implements OnInit, AfterViewInit {
       );
   }
 
-  // --- Google OAuth ---
+  // =============================
+  // Google OAuth
+  // =============================
 
   private initGoogleAuth(): void {
 
@@ -752,6 +720,8 @@ export class AuthComponent implements OnInit, AfterViewInit {
           console.warn(
             'Google Identity Services script failed to load'
           );
+
+          this.googleLoaded = false;
         };
 
         this.document.head.appendChild(
@@ -788,6 +758,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
       typeof google === 'undefined' ||
       !google.accounts?.id
     ) {
+
       return;
     }
 
@@ -861,6 +832,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
   triggerGoogleAuth(): void {
 
     this.error = null;
+
     this.googleLoading = true;
 
     if (
@@ -1003,3 +975,4 @@ export class AuthComponent implements OnInit, AfterViewInit {
     });
   }
 }
+

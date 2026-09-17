@@ -1,3 +1,4 @@
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PatientService } from '../../core/services/patient.service';
@@ -10,27 +11,28 @@ import { takeUntil } from 'rxjs/operators';
   standalone: true,
   imports: [CommonModule],
   styleUrl: './patient-topbar.css',
-  templateUrl: './patient-topbar.html',
+  templateUrl: './patient-topbar.html'
 })
 export class PatientTopbar implements OnInit, OnDestroy {
 
   patientData: AuthUser | null = null;
   patientId = '';
   showNotifications = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
-    private patientService: PatientService,
-    private authService: AuthService
+    private authService: AuthService,
+    private patientService: PatientService
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to shared user observable for real-time updates
     this.authService.user$
       .pipe(takeUntil(this.destroy$))
       .subscribe((user) => {
         if (user) {
           this.patientData = user;
+          this.patientId = (user as any)._id || (user as any).id || '';
         }
       });
 
@@ -39,10 +41,6 @@ export class PatientTopbar implements OnInit, OnDestroy {
     if (user) {
       this.patientData = user;
       this.patientId = user._id || user.id || '';
-    }
-
-    if (this.patientId) {
-      this.loadPatientProfile();
     } else {
       this.fetchUserData();
     }
@@ -53,7 +51,7 @@ export class PatientTopbar implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  fetchUserData(): void {
+  private fetchUserData(): void {
     const token = this.authService.getToken();
 
     if (typeof (this.authService as any).fetchMe === 'function') {
@@ -66,6 +64,9 @@ export class PatientTopbar implements OnInit, OnDestroy {
             if (userData) {
               this.handleUserLoaded(userData);
             }
+          },
+          error: (error: any) => {
+            console.error('Error loading patient data:', error);
           }
         });
     } else if (
@@ -81,6 +82,9 @@ export class PatientTopbar implements OnInit, OnDestroy {
             if (userData) {
               this.handleUserLoaded(userData);
             }
+          },
+          error: (error: any) => {
+            console.error('Error loading patient data:', error);
           }
         });
     }
@@ -90,7 +94,10 @@ export class PatientTopbar implements OnInit, OnDestroy {
     this.patientData = userData;
     this.patientId = userData._id || userData.id || '';
 
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem(
+      'user',
+      JSON.stringify(userData)
+    );
 
     if (this.patientId) {
       this.loadPatientProfile();
@@ -100,17 +107,26 @@ export class PatientTopbar implements OnInit, OnDestroy {
   loadPatientProfile(): void {
     if (!this.patientId) return;
 
-    this.patientService.getPatientProfile(this.patientId)
+    this.patientService
+      .getPatientProfile(this.patientId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           this.patientData = {
             ...this.patientData,
             ...response.data
           };
+
+          localStorage.setItem(
+            'user',
+            JSON.stringify(this.patientData)
+          );
         },
-        error: (error) => {
-          console.error('Error loading patient profile:', error);
+        error: (error: any) => {
+          console.error(
+            'Error loading patient profile:',
+            error
+          );
         }
       });
   }
@@ -120,16 +136,23 @@ export class PatientTopbar implements OnInit, OnDestroy {
   }
 
   get userName(): string {
-    return this.patientData?.fullName || 'Patient Account';
+    return this.patientData?.fullName ||'Patient Account'
+      // this.patientData?.name ||
+      
   }
 
   get userId(): string {
-    return this.patientData?.patientCode ||
-           this.patientData?._id ||
-           'ID #-';
+    return (
+      this.patientData?.patientCode ||
+      this.patientData?._id ||
+      'ID #-'
+    );
   }
 
   get profileImageUrl(): string {
-    return this.patientData?.profilePicture?.url || '/assets/default-avatar.png';
+    return (
+      this.patientData?.profilePicture?.url ||
+      '/assets/default-avatar.png'
+    );
   }
 }

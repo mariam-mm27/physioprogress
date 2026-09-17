@@ -1,3 +1,10 @@
+
+const path = require("path");
+
+require("dotenv").config({
+    path: path.join(__dirname, "../.env")
+});
+
 const chalk = require("chalk");
 
 const connectDB = require("./config/db");
@@ -10,7 +17,9 @@ async function startServer() {
         await connectDB();
 
         app.listen(PORT, () => {
-            console.log(chalk.bgGreen(`Server is running on port ${PORT}`));
+            console.log(
+                chalk.bgGreen(`Server is running on port ${PORT}`)
+            );
         });
     } catch (error) {
         console.error("Failed to start server:", error);
@@ -21,3 +30,4 @@ async function startServer() {
 startServer();
 
 module.exports = app;
+

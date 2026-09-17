@@ -37,7 +37,7 @@ exports.getDeletedUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.getOneUser = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ isDeleted: false, _id: req.params.id }).populate('assignedTherapist', 'fullName email');
+  const user = await User.findOne({ isDeleted: false, _id: req.params.id }).populate('assignedTherapist', 'fullName email profilePicture  specialization bio');
   if (!user) return next(new AppError(404, `No User found with this id ${req.params.id}`));
 
   res.status(200).json({

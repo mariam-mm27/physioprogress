@@ -1,27 +1,67 @@
+
 const SessionLogs = require("../models/SessionLog");
 const ExercisePlan = require("../models/ExercisePlan");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 
+
 const createSessionLog = catchAsync(async (req, res, next) => {
-    const { planId, completed, painLevel, notes, loggedAt } = req.body;
+    const {
+        planId,
+        completed,
+        painLevel,
+        notes,
+        loggedAt
+    } = req.body;
+
     const patientId = req.user._id;
     const numericPainLevel = Number(painLevel);
 
     if (!planId || painLevel === undefined) {
-        return next(new AppError(400, "Please provide planId and painLevel."));
+        return next(
+            new AppError(
+                400,
+                "Please provide planId and painLevel."
+            )
+        );
     }
 
-    if (!Number.isFinite(numericPainLevel) || numericPainLevel < 1 || numericPainLevel > 10) {
-        return next(new AppError(400, "Pain level must be between 1 and 10."));
+    if (
+        !Number.isFinite(numericPainLevel) ||
+        numericPainLevel < 1 ||
+        numericPainLevel > 10
+    ) {
+        return next(
+            new AppError(
+                400,
+                "Pain level must be between 1 and 10."
+            )
+        );
     }
+
     const existingPlan = await ExercisePlan.findById(planId);
+
     if (!existingPlan) {
-        return next(new AppError(404, "Exercise plan not found."));
+        return next(
+            new AppError(
+                404,
+                "Exercise plan not found."
+            )
+        );
     }
-    if (!existingPlan.patientId || existingPlan.patientId.toString() !== patientId.toString()) {
-        return next(new AppError(403, "You can only log sessions for your own exercise plans."));
+
+    if (
+        !existingPlan.patientId ||
+        existingPlan.patientId.toString() !== patientId.toString()
+    ) {
+        return next(
+            new AppError(
+                403,
+                "You can only log sessions for your own exercise plans."
+            )
+        );
     }
+
     const newSessionLog = await SessionLogs.create({
         patientId,
         planId,
@@ -38,44 +78,71 @@ const createSessionLog = catchAsync(async (req, res, next) => {
     });
 });
 
+
 const getSessionLogs = catchAsync(async (req, res, next) => {
     const { patientId } = req.params;
     const { startDate, endDate } = req.query;
     const currentUser = req.user;
 
-    if (currentUser.role !== 'therapist' && currentUser._id.toString() !== patientId) {
-        return next(new AppError(403, "You do not have permission to access these session logs."));
+    if (
+        currentUser.role !== "therapist" &&
+        currentUser._id.toString() !== patientId
+    ) {
+        return next(
+            new AppError(
+                403,
+                "You do not have permission to access these session logs."
+            )
+        );
     }
 
-    const filter = { patientId };
-    const datafilter = {};
+    const filter = {
+        patientId
+    };
+
+    const dateFilter = {};
 
     if (startDate) {
-        const start = new Date(`${startDate}T00:00:00.000Z`);
+        const start = new Date(
+            `${startDate}T00:00:00.000Z`
+        );
+
         if (isNaN(start.getTime())) {
-            return next(new AppError(400, "Invalid startDate format. Use YYYY-MM-DD"));
+            return next(
+                new AppError(
+                    400,
+                    "Invalid startDate format. Use YYYY-MM-DD"
+                )
+            );
         }
-        datafilter.$gte = start;
-    }
-    if (endDate) {
-        const end = new Date(`${endDate}T23:59:59.999Z`);
-        if (isNaN(end.getTime())) {
-            return next(new AppError(400, "Invalid endDate format. Use YYYY-MM-DD"));
-        }
-        datafilter.$lte = end;
-    }
-    if (Object.keys(datafilter).length > 0) {
-        filter.loggedAt = datafilter;
+
+        dateFilter.$gte = start;
     }
 
-    let sessionLogs;
-    try {
-        sessionLogs = await SessionLogs.find(filter)
-            .populate('planId', 'title exerciseName reps frequencyPerWeek targetMuscle videoUrl')
-            .sort({ loggedAt: -1 });
-    } catch (populateErr) {
-        return next(new AppError(500, "Failed to load session logs with plan details."));
+    if (endDate) {
+        const end = new Date(
+            `${endDate}T23:59:59.999Z`
+        );
+
+        if (isNaN(end.getTime())) {
+            return next(
+                new AppError(
+                    400,
+                    "Invalid endDate format. Use YYYY-MM-DD"
+                )
+            );
+        }
+
+        dateFilter.$lte = end;
     }
+
+    if (Object.keys(dateFilter).length > 0) {
+        filter.loggedAt = dateFilter;
+    }
+
+    const sessionLogs = await SessionLogs.find(filter)
+        .sort({ loggedAt: -1 })
+        .lean();
 
     res.status(200).json({
         success: true,
@@ -85,26 +152,55 @@ const getSessionLogs = catchAsync(async (req, res, next) => {
     });
 });
 
+
 const updateSessionLog = catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    const { painLevel, notes, completed } = req.body;
+    const {
+        painLevel,
+        notes,
+        completed
+    } = req.body;
+
     const patientId = req.user._id;
 
     const sessionLog = await SessionLogs.findById(id);
 
     if (!sessionLog) {
-        return next(new AppError(404, "Session log not found."));
+        return next(
+            new AppError(
+                404,
+                "Session log not found."
+            )
+        );
     }
 
-    if (sessionLog.patientId.toString() !== patientId.toString()) {
-        return next(new AppError(403, "You can only update your own session logs."));
+    if (
+        sessionLog.patientId.toString() !== patientId.toString()
+    ) {
+        return next(
+            new AppError(
+                403,
+                "You can only update your own session logs."
+            )
+        );
     }
 
     if (painLevel !== undefined) {
         const numericPainLevel = Number(painLevel);
-        if (!Number.isFinite(numericPainLevel) || numericPainLevel < 1 || numericPainLevel > 10) {
-            return next(new AppError(400, "Pain level must be between 1 and 10."));
+
+        if (
+            !Number.isFinite(numericPainLevel) ||
+            numericPainLevel < 1 ||
+            numericPainLevel > 10
+        ) {
+            return next(
+                new AppError(
+                    400,
+                    "Pain level must be between 1 and 10."
+                )
+            );
         }
+
         sessionLog.painLevel = numericPainLevel;
     }
 
@@ -125,6 +221,7 @@ const updateSessionLog = catchAsync(async (req, res, next) => {
     });
 });
 
+
 const deleteSessionLog = catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const patientId = req.user._id;
@@ -132,11 +229,23 @@ const deleteSessionLog = catchAsync(async (req, res, next) => {
     const sessionLog = await SessionLogs.findById(id);
 
     if (!sessionLog) {
-        return next(new AppError(404, "Session log not found."));
+        return next(
+            new AppError(
+                404,
+                "Session log not found."
+            )
+        );
     }
 
-    if (sessionLog.patientId.toString() !== patientId.toString()) {
-        return next(new AppError(403, "You can only delete your own session logs."));
+    if (
+        sessionLog.patientId.toString() !== patientId.toString()
+    ) {
+        return next(
+            new AppError(
+                403,
+                "You can only delete your own session logs."
+            )
+        );
     }
 
     await SessionLogs.findByIdAndDelete(id);
@@ -146,7 +255,6 @@ const deleteSessionLog = catchAsync(async (req, res, next) => {
         message: "Session log deleted successfully"
     });
 });
-
 
 
 module.exports = {

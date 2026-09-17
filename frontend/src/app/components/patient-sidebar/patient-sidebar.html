@@ -1,4 +1,5 @@
-<aside class="sidebar">
+
+<aside class="sidebar d-flex flex-column" style="height: 100vh;">
 
   <div class="sidebar-header">
 
@@ -19,91 +20,113 @@
       <span>● PATIENT PORTAL</span>
     </div>
 
-  </div>
+    <div class="px-3 mt-2">
 
+      <span
+        class="font-mono small text-uppercase text-muted d-block mb-2 px-2"
+        style="letter-spacing: 0.08em"
+      >
+        My Care
+      </span>
 
-  <nav class="sidebar-nav">
+      <nav class="nav flex-column gap-1" role="navigation">
 
-    <a
-      routerLink="/patient/patient-dashboard"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      class="nav-link-custom"
-    >
-      <i class="bi bi-grid-fill"></i>
-      <span>Patient Dashboard</span>
-    </a>
+        @for (item of navItems; track item.path) {
 
+          <a
+            [routerLink]="['/', 'patient', item.path]"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link-custom d-flex align-items-center gap-2 px-2 py-2 rounded"
+          >
 
-    <a
-      routerLink="/patient/session-logs"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      class="nav-link-custom"
-    >
-      <i class="bi bi-graph-up"></i>
-      <span>Session Logs & Recovery Analytics</span>
-    </a>
+            <i
+              class="bi"
+              [class]="item.icon"
+              aria-hidden="true"
+            ></i>
 
+            <span>{{ item.label }}</span>
 
-    <a
-      routerLink="/patient/profile-settings"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      class="nav-link-custom"
-    >
-      <i class="bi bi-person-gear"></i>
-      <span>Profile Settings</span>
-    </a>
+          </a>
 
-  </nav>
+        }
 
-
-  <div class="sidebar-footer">
-
-    <div class="user-card">
-
-      <div class="avatar-container">
-
-        <div class="avatar">
-          R2
-        </div>
-
-        <span class="status-dot"></span>
-
-      </div>
-
-      <div class="user-details">
-
-        <span class="user-name">
-          Rahma 2 Updated
-        </span>
-
-        <span class="user-id">
-          #6aa5e5
-        </span>
-
-      </div>
-
-      <i class="bi bi-shield-check verified-icon"></i>
+      </nav>
 
     </div>
 
   </div>
 
 
-  <div class="mt-auto px-3 py-3">
+  <!-- Bottom Section: Patient Information + Logout -->
+  <div class="mt-auto px-3 py-3 d-flex flex-column gap-3">
 
-    <nav class="nav flex-column gap-1" role="navigation">
+
+    <!-- Patient Information -->
+    <div class="sidebar-footer p-0">
+
+      <div class="user-card">
+
+        <div class="avatar-container">
+
+          <div class="avatar">
+            {{ patientInitials }}
+          </div>
+
+          <span class="status-dot"></span>
+
+        </div>
+
+
+        <div class="user-details">
+
+          <span class="user-name">
+            {{ patientName }}
+          </span>
+
+          <span class="user-id">
+            #{{ patientId }}
+          </span>
+
+        </div>
+
+
+        <i
+          class="bi bi-shield-check verified-icon"
+          aria-hidden="true"
+        ></i>
+
+      </div>
+
+    </div>
+
+
+    <!-- Logout Button -->
+    <nav class="nav flex-column" role="navigation">
 
       <button
         (click)="logout()"
         type="button"
-        style="background: transparent; border: none; text-align: left; width: 100%; cursor: pointer;"
+        style="
+          background: transparent;
+          border: none;
+          text-align: left;
+          width: 100%;
+          cursor: pointer;
+        "
         class="nav-link-custom d-flex align-items-center gap-2 px-2 py-2 rounded text-danger"
       >
-        <i class="bi bi-box-arrow-left" aria-hidden="true"></i>
-        <span>Logout</span>
+
+        <i
+          class="bi bi-box-arrow-left"
+          aria-hidden="true"
+        ></i>
+
+        <span>
+          Logout
+        </span>
+
       </button>
 
     </nav>

@@ -10,6 +10,10 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
+    tls: {
+    // Accept self-signed certificates
+    rejectUnauthorized: false
+  }
   });
 }
 

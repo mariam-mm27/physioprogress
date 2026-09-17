@@ -1,7 +1,5 @@
 const path = require("path");
-// Load environment variables from backend/.env or root .env
-require("dotenv").config({ path: path.resolve(__dirname, ".env") });
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+require("dotenv").config();
 
 const connectDB = require("./config/db");
 const express = require("express");
@@ -56,7 +54,8 @@ app.use(cors({
 // Rate limiting
 const limiter = expressLimit.rateLimit({
   windowMs: 10 * 60 * 1000,
-  limit: 50,
+  limit: 300,                 // 50 is too tight for active UI testing
+  standardHeaders: true,
   message: "Too many requests from this IP, please try again later."
 });
 app.use(limiter);

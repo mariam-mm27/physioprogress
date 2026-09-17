@@ -72,7 +72,6 @@ import { AuthService, AuthResponse } from '../../services/auth.service';
                 </button>
               </form>
 
-              <!-- Footer Resend & Switch -->
               <div class="confirmation-footer">
                 <p class="footer-text">
                   Didn't receive the OTP?

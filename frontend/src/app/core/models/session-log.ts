@@ -1,12 +1,12 @@
 export interface ExercisePlan {
   _id: string;
-  title: string;
-  exerciseName: string;
-  reps: number;
-  frequencyPerWeek: number;
-  videoUrl: string;
-  targetMuscle: string;
-  videoSource: 'custom' | 'api';
+  title?: string;
+  exerciseName?: string;
+  reps?: number;
+  frequencyPerWeek?: number;
+  videoUrl?: string;
+  targetMuscle?: string;
+  videoSource?: 'custom' | 'api';
 }
 
 export interface SessionLog {

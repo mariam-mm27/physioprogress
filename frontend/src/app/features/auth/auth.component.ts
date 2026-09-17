@@ -1,4 +1,3 @@
-```typescript
 import {
   Component,
   OnInit,
@@ -1004,4 +1003,3 @@ export class AuthComponent implements OnInit, AfterViewInit {
     });
   }
 }
-```

@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -13,7 +12,7 @@ import { AuthService } from '../../services/auth.service';
 export class PatientTopbar implements OnInit {
 
   patientData: any = null;
-
+  patientId = '';
   showNotifications = false;
 
   constructor(
@@ -25,38 +24,47 @@ export class PatientTopbar implements OnInit {
 
     if (user) {
       this.patientData = user;
+      this.patientId = user._id || user.id || '';
     } else {
       this.fetchUserData();
     }
   }
 
   private fetchUserData(): void {
-    this.authService.fetchMe().subscribe({
-      next: (res: any) => {
-        const userData =
-          res.data?.user || res.data;
+    if (typeof (this.authService as any).fetchMe === 'function') {
+      (this.authService as any).fetchMe().subscribe({
+        next: (res: any) => {
+          const userData = res.data?.user || res.data;
 
-        if (userData) {
-          this.patientData = userData;
-
-          localStorage.setItem(
-            'user',
-            JSON.stringify(userData)
-          );
+          if (userData) {
+            this.handleUserLoaded(userData);
+          }
+        },
+        error:(error : any) => {
+          console.error('Error loading patient data:', error);
         }
-      },
+      });
+    }
+  }
 
-      error: (error) => {
-        console.error(
-          'Error loading patient data:',
-          error
-        );
-      }
-    });
+  private handleUserLoaded(userData: any): void {
+    this.patientData = userData;
+    this.patientId = userData._id || userData.id || '';
+
+    localStorage.setItem('user', JSON.stringify(userData));
   }
 
   toggleNotifications(): void {
-    this.showNotifications =
-      !this.showNotifications;
+    this.showNotifications = !this.showNotifications;
+  }
+
+  get userName(): string {
+    return this.patientData?.fullName || this.patientData?.name || 'Patient Account';
+  }
+
+  get userId(): string {
+    return this.patientData?.patientCode ||
+           this.patientData?._id ||
+           'ID #-';
   }
 }

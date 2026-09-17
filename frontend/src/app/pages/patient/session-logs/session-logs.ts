@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -120,7 +120,7 @@ export class PatientSessionLogs implements OnInit {
         this.page = 1;
         this.loadingLogs = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.logsError = err?.error?.message || 'Could not load session logs.';
         this.loadingLogs = false;
       },
@@ -221,21 +221,27 @@ export class PatientSessionLogs implements OnInit {
     return 'High';
   }
 
-  planInfo(planId: string | ExercisePlan | null): { name: string; meta: string } | null {
-  if (!planId) return null;
-  if (typeof planId === 'string') return { name: planId.slice(-6), meta: '' };
-  return {
-    name: planId.exerciseName || planId.title || 'Untitled plan',
-    meta: `${planId.reps} reps · ${planId.frequencyPerWeek}/week · ${planId.targetMuscle}`,
-  };
-}
+  planInfo(planId: string | ExercisePlan | null | undefined): { name: string; meta: string } | null {
+    if (!planId) return null;
+    if (typeof planId === 'string') return { name: planId.slice(-6), meta: '' };
+    const plan = planId as ExercisePlan;
+    return {
+      name: plan.exerciseName || plan.title || 'Untitled plan',
+      meta: `${plan.reps ?? 0} reps · ${plan.frequencyPerWeek ?? 0}/week · ${plan.targetMuscle ?? ''}`,
+    };
+  }
 
   openEditModal(log: SessionLog): void {
-     const info = this.planInfo(log.planId);
+    const info = this.planInfo(log.planId);
+    const plan = log.planId;
+    const resolvedPlanId = typeof plan === 'string'
+      ? plan
+      : ((plan as ExercisePlan | null)?._id ?? '');
+
     this.form = {
       id: log._id,
-      planId: typeof log.planId === 'string' ? log.planId : log.planId?._id ?? '',
-      planLabel: info?.name?? '',
+      planId: resolvedPlanId,
+      planLabel: info?.name ?? '',
       painLevel: log.painLevel,
       completed: log.completed,
       notes: log.notes ?? '',
@@ -273,7 +279,7 @@ export class PatientSessionLogs implements OnInit {
         this.loadAnalytics();
         this.showToast('Log updated', 'Changes were saved (PUT /api/logs/:id).');
       },
-      error: (err) => {
+      error: (err: any) => {
         this.saving = false;
         this.modalError = err?.error?.message || 'Could not update session log.';
       },
@@ -290,7 +296,7 @@ export class PatientSessionLogs implements OnInit {
         this.loadAnalytics();
         this.showToast('Log deleted', 'The session record was removed (DELETE /api/logs/:id).');
       },
-      error: (err) => {
+      error: (err: any) => {
         this.showToast('Delete failed', err?.error?.message || 'Could not delete this log.');
       },
     });

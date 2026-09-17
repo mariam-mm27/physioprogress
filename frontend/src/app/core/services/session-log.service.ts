@@ -36,10 +36,12 @@ export class SessionLogService {
     return this.http.post<SessionLogsResponse>(`${this.baseUrl}/logs`, payload);
   }
 
+  /** PUT /api/logs/:id — Update existing session log */
   updateLog(id: string, payload: UpdateSessionLogPayload): Observable<SessionLogsResponse> {
     return this.http.put<SessionLogsResponse>(`${this.baseUrl}/logs/${id}`, payload);
   }
 
+  /** DELETE /api/logs/:id — Delete existing session log */
   deleteLog(id: string): Observable<DeleteSessionLogResponse> {
     return this.http.delete<DeleteSessionLogResponse>(`${this.baseUrl}/logs/${id}`);
   }

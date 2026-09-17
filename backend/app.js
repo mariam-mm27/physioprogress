@@ -1,7 +1,6 @@
 const path = require("path");
-require("dotenv").config();
+//require("dotenv").config();
 
-const connectDB = require("./config/db");
 const express = require("express");
 const morgan = require("morgan");
 const authRoutes = require("./routes/authRoutes");
@@ -83,8 +82,5 @@ app.use((req, res, next) => {
 
 // Error Handling Middleware
 app.use(errorHandler);
-
-// Connect to Database
-connectDB();
 
 module.exports = app;

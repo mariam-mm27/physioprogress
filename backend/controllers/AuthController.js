@@ -8,7 +8,7 @@ const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { customAlphabet } = require("nanoid");
-const sendEmail = require("../utils/sendEmail");
+const sendEmail = require("../utils/SendEmail");
 const template = require("../utils/emailTemplate");
 
 const jwtSign = promisify(jwt.sign);

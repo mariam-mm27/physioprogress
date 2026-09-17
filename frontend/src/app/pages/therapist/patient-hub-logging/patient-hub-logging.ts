@@ -51,14 +51,12 @@ export class PatientHubLogging implements OnInit {
     return this.filteredLogs().slice(start, start + PAGE_SIZE);
   });
 
-  /** Days covered by the selected startDate→endDate window. */
   selectedRangeInDays = computed(() => {
     const start = new Date(`${this.startDate()}T00:00:00`);
     const end = new Date(`${this.endDate()}T00:00:00`);
     return Math.max(Math.round((end.getTime() - start.getTime()) / 86_400_000), 0);
   });
 
-  /** Which preset matches the current window: 0→Today, 1–7→7 Days, >7→30 Days. */
   activePreset = computed<'today' | '7days' | '30days'>(() => {
     const days = this.selectedRangeInDays();
     if (days <= 0) return 'today';
@@ -136,8 +134,6 @@ export class PatientHubLogging implements OnInit {
     });
   }
 
-  /** Local YYYY-MM-DD — backend reads the query as `T00:00:00.000Z`, so send
-   *  local calendar dates, not `toISOString()` (which shifts to UTC). */
   private localToday(): string {
     const d = new Date();
     const y = d.getFullYear();

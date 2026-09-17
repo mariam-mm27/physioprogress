@@ -8,7 +8,7 @@ const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { customAlphabet } = require("nanoid");
-const sendEmail = require("../utils/sendEmail");
+const sendEmail = require("../utils/SendEmail");
 const template = require("../utils/emailTemplate");
 
 const jwtSign = promisify(jwt.sign);
@@ -60,7 +60,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     console.log(`\n========================================\n[AUTH OTP CODE] Verification OTP for ${normalizedEmail}: ${otp}\n========================================\n`);
 
     // Send OTP to email 
-    sendEmail(normalizedEmail, "Confirm Email", template(otp, fullName, "Confirm Email"));
+    await sendEmail(normalizedEmail, "Confirm Email", template(otp, fullName, "Confirm Email"));
 
     return res.status(200).json({
       success: true,
@@ -120,7 +120,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   console.log(`\n========================================\n[AUTH OTP CODE] Verification OTP for ${normalizedEmail}: ${otp}\n========================================\n`);
 
   // Send OTP to email 
-  sendEmail(normalizedEmail, "Confirm Email", template(otp, fullName, "Confirm Email"));
+  await sendEmail(normalizedEmail, "Confirm Email", template(otp, fullName, "Confirm Email"));
 
   // Hide sensitive response data
   user.isDeleted = undefined;
@@ -210,7 +210,7 @@ exports.resendOTP = catchAsync(async (req, res, next) => {
 
   console.log(`\n========================================\n[RESEND OTP] New OTP for ${normalizedEmail}: ${otp}\n========================================\n`);
 
-  sendEmail(normalizedEmail, "Verify Your Email", template(otp, findUser.fullName, "Email Verification"));
+  await sendEmail(normalizedEmail, "Verify Your Email", template(otp, findUser.fullName, "Email Verification"));
 
   res.status(200).json({
     success: true,
@@ -273,7 +273,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   const link = `${frontendUrl}/auth/reset-password/${resetToken}`;
   console.log(`\n========================================\n[RESET PASSWORD LINK] For ${findUser.email}:\n${link}\n========================================\n`);
 
-  sendEmail(findUser.email, "Reset Password", template(link, findUser.fullName, "Reset Password"));
+  await sendEmail(findUser.email, "Reset Password", template(link, findUser.fullName, "Reset Password"));
 
   res.status(200).json({
     success: true,

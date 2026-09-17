@@ -1,0 +1,47 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#1a1128"/>
+      <stop offset="55%" stop-color="#120c1c"/>
+      <stop offset="100%" stop-color="#08070a"/>
+    </radialGradient>
+    <linearGradient id="strokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5b3a8f"/>
+      <stop offset="100%" stop-color="#3a2a5c"/>
+    </linearGradient>
+    <linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9d5cf0"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect x="16" y="16" width="992" height="992" rx="224" fill="url(#bgGrad)"/>
+
+  <!-- Inner border -->
+  <rect x="118" y="118" width="788" height="788" rx="168" fill="none" stroke="url(#strokeGrad)" stroke-width="6" opacity="0.85"/>
+
+  <!-- Pulse / heartbeat line -->
+  <g filter="url(#glow)">
+    <path d="M 232 512
+             L 372 512
+             L 428 372
+             L 512 652
+             L 588 442
+             L 636 512
+             L 792 512"
+          fill="none"
+          stroke="url(#pulseGrad)"
+          stroke-width="42"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+  </g>
+</svg>

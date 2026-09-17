@@ -41,7 +41,7 @@ const exercisePlanSchema = new mongoose.Schema({
     },
     videoSource:{
         type: String,
-        enum: ['custom','api'],
+        enum: ['custom','api', 'external'],
         required: true
     }
 },

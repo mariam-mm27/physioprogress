@@ -24,10 +24,18 @@ const UserSchema = new mongoose.Schema(
         return !this.googleId;
       },
       minlength: [6, 'Password must be at least 6 characters long'],
-      match: [
-        /^(?=.*[!@#$%^&*(),.?":{}|<>])/,
-        'Password must contain at least one special character'
-      ]
+      validate: {
+        validator: function(value) {
+          // Skip validation if password is already hashed (bcrypt format)
+          if (!value) return true;
+          if (value.startsWith('$2a$') || value.startsWith('$2b$') || value.startsWith('$2y$')) {
+            return true; // This is a hashed password, skip regex validation
+          }
+          // Validate original password for special character
+          return /^(?=.*[!@#$%^&*(),.?":{}|<>])/.test(value);
+        },
+        message: 'Password must contain at least one special character'
+      }
     },
     googleId: {
       type: String,

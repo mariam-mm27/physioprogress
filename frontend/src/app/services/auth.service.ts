@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, BehaviorSubject } from 'rxjs';
 
 export type UserRole = 'patient' | 'therapist';
 
@@ -16,6 +16,10 @@ export interface AuthUser {
   specialization?: string[];
   bio?: string;
   assignedTherapist?: string;
+  profilePicture?: {
+    url: string;
+    publicId?: string;
+  };
   [key: string]: unknown;
 }
 
@@ -49,6 +53,10 @@ export class AuthService {
   private readonly tokenKey = 'token';
   private readonly roleKey = 'role';
   private readonly userKey = 'user';
+
+  // BehaviorSubject to track user state changes across the application
+  private userSubject = new BehaviorSubject<AuthUser | null>(this.getUserFromStorage());
+  public user$ = this.userSubject.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -125,6 +133,7 @@ export class AuthService {
       tap((res) => {
         if (res.data?.user) {
           localStorage.setItem(this.userKey, JSON.stringify(res.data.user));
+          this.userSubject.next(res.data.user);
           if (res.data.user.role) {
             localStorage.setItem(this.roleKey, res.data.user.role);
           }
@@ -142,6 +151,7 @@ export class AuthService {
     localStorage.setItem(this.roleKey, role.toLowerCase());
     if (user) {
       localStorage.setItem(this.userKey, JSON.stringify(user));
+      this.userSubject.next(user);
     }
   }
 
@@ -193,5 +203,20 @@ export class AuthService {
 
   get patientCode(): string | null {
     return this.user?.patientCode ?? null;
+  }
+
+  updateUser(user: AuthUser): void {
+    localStorage.setItem(this.userKey, JSON.stringify(user));
+    this.userSubject.next(user);
+  }
+
+  private getUserFromStorage(): AuthUser | null {
+    const raw = localStorage.getItem(this.userKey);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as AuthUser;
+    } catch {
+      return null;
+    }
   }
 }

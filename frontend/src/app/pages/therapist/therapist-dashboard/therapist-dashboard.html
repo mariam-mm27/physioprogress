@@ -1,6 +1,5 @@
 <div class="container-fluid py-4">
 
-  <!-- Top Welcome Header -->
   <header class="mb-4">
     <div class="row align-items-center g-3">
 
@@ -33,17 +32,17 @@
         <button
           type="button"
           class="btn btn-primary"
-          (click)="refreshUserData()"
-          [disabled]="loadingUser"
-          title="Refresh profile">
+          (click)="openAssignModal()"
+          [disabled]="assigningPatient"
+          title="Assign new patient">
 
           <span
-            class="material-symbols-outlined align-middle me-2"
-            [class.spin]="loadingUser">
-            sync
+            class="material-symbols-outlined align-middle me-2">
+            person_add
           </span>
 
-          Sync Data
+          Assign New Patient
+
         </button>
 
       </div>
@@ -51,14 +50,12 @@
     </div>
   </header>
 
-  <!-- Therapist Referral Code Showcase Card -->
   <section class="mb-4">
 
     <div class="card-dark p-4">
 
       <div class="row align-items-center g-4">
 
-        <!-- Code Information -->
         <div class="col-12 col-lg-7">
 
           <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-dark-elevated mb-3">
@@ -84,7 +81,6 @@
             directly into your clinical portal.
           </p>
 
-          <!-- Specializations -->
           <div
             class="d-flex flex-wrap gap-2"
             *ngIf="specializations.length">
@@ -106,7 +102,6 @@
         </div>
 
 
-        <!-- Therapist Code -->
         <div class="col-12 col-lg-5">
 
           <div class="card-dark p-4 border">
@@ -158,12 +153,10 @@
 
   </section>
 
-  <!-- Quick Stats -->
   <section class="mb-4">
 
     <div class="row g-3">
 
-      <!-- Enrolled Patients -->
       <div class="col-12 col-sm-6 col-xl-3">
 
         <div class="card-dark p-4 h-100">
@@ -178,7 +171,7 @@
 
             <div>
               <span class="display-6 fw-bold d-block">
-                18
+                {{ stats.enrolledPatients }}
               </span>
 
               <span class="text-muted-light small">
@@ -193,7 +186,6 @@
       </div>
 
 
-      <!-- Active Exercise Plans -->
       <div class="col-12 col-sm-6 col-xl-3">
 
         <div class="card-dark p-4 h-100">
@@ -208,7 +200,7 @@
 
             <div>
               <span class="display-6 fw-bold d-block">
-                34
+                {{ stats.activePlans }}
               </span>
 
               <span class="text-muted-light small">
@@ -223,7 +215,6 @@
       </div>
 
 
-      <!-- Protocol Adherence -->
       <div class="col-12 col-sm-6 col-xl-3">
 
         <div class="card-dark p-4 h-100">
@@ -238,7 +229,7 @@
 
             <div>
               <span class="display-6 fw-bold d-block">
-                94.2%
+                {{ stats.clinicalAdherence }}%
               </span>
 
               <span class="text-muted-light small">
@@ -253,7 +244,6 @@
       </div>
 
 
-      <!-- Telemetry Sessions -->
       <div class="col-12 col-sm-6 col-xl-3">
 
         <div class="card-dark p-4 h-100">
@@ -268,7 +258,7 @@
 
             <div>
               <span class="display-6 fw-bold d-block">
-                142
+                {{ stats.telemetrySessions }}
               </span>
 
               <span class="text-muted-light small">
@@ -286,169 +276,411 @@
 
   </section>
 
-  <!-- Clinical Modules -->
   <section class="mb-4">
 
     <div class="d-flex align-items-center justify-content-between mb-3">
 
       <h3 class="h4 fw-bold mb-0">
-        Clinical Modules
+        Active Patients ({{ filteredPatients.length }} Enrolled)
       </h3>
+
+      <div class="flex-grow-1 ms-3">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Filter patient or injury..."
+          [(ngModel)]="patientFilter"
+          (input)="onPatientFilter()"
+          aria-label="Filter patients">
+      </div>
 
     </div>
 
-
     <div class="row g-3">
 
-      <!-- Plan Builder -->
-      <div class="col-12 col-md-6">
+      <ng-container *ngFor="let patient of filteredPatients">
+        <div class="col-12 col-md-6">
 
-        <a
-          routerLink="/therapist/patient-plan-builder"
-          class="card-dark p-4 h-100 d-flex align-items-center gap-3 text-decoration-none">
+          <div class="patient-card">
 
-          <div class="icon-badge flex-shrink-0">
+            <div class="patient-header">
 
-            <span class="material-symbols-outlined">
-              note_add
-            </span>
+              <div class="patient-info">
+
+                <div class="avatar-circle">
+                  <img
+                    *ngIf="patient.profilePicture?.url"
+                    [src]="patient.profilePicture.url"
+                    [alt]="patient.fullName"
+                    class="rounded-circle w-100 h-100 object-fit-cover">
+                  <span
+                    *ngIf="!patient.profilePicture?.url"
+                    class="material-symbols-outlined">
+                    person
+                  </span>
+                </div>
+
+                <div class="patient-details">
+
+                  <h4 class="patient-name">
+                    {{ patient.fullName }}
+                  </h4>
+
+                  <p class="patient-code">
+                    {{ patient.patientCode }} • Wk 6 POST-OP
+                  </p>
+
+                  <p class="patient-injury">
+                    {{ patient.injuryType }}
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="patient-metrics">
+
+              <div class="pain-section">
+                <span class="pain-badge" [ngClass]="'pain-' + getPainLevelColor(patient.painLevel)">
+                  PAIN: {{ patient.painLevel }}/10
+                </span>
+              </div>
+
+              <div class="adherence-section">
+
+                <div class="adherence-header">
+                  <span class="adherence-label">PROGRAM ADHERENCE</span>
+                  <span class="adherence-value" [ngClass]="getAdherenceColor(patient.programAdherence)">
+                    {{ patient.programAdherence }}%
+                  </span>
+                </div>
+
+                <div class="progress-bar-container">
+                  <div
+                    class="progress-bar-fill"
+                    [ngClass]="'adherence-' + getAdherenceColor(patient.programAdherence)"
+                    [style.width.%]="patient.programAdherence">
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="patient-actions">
+
+              <button
+                type="button"
+                class="action-btn analytics-btn"
+                (click)="viewPatientAnalytics(patient._id)"
+                title="View patient analytics">
+                <span class="material-symbols-outlined">
+                  analytics
+                </span>
+                ANALYTICS
+              </button>
+
+              <button
+                type="button"
+                class="action-btn edit-btn"
+                (click)="editPatientPlan(patient._id)"
+                title="Edit exercise plan">
+                <span class="material-symbols-outlined">
+                  edit
+                </span>
+                EDIT PLAN
+              </button>
+
+            </div>
 
           </div>
 
-          <div class="flex-grow-1">
+        </div>
+      </ng-container>
 
-            <h4 class="h5 fw-bold mb-1">
-              Plan Builder
-            </h4>
+      <div class="col-12" *ngIf="filteredPatients.length === 0 && initialDataLoaded">
 
-            <p class="text-muted-light small mb-0">
-              Design personalized exercise regimens with targeted rep/set
-              counts and angle thresholds.
-            </p>
+        <div class="card-dark p-5 text-center">
 
-          </div>
-
-          <span class="material-symbols-outlined text-primary">
-            arrow_forward
+          <span class="material-symbols-outlined display-4 text-muted-light mb-3">
+            person_add
           </span>
 
-        </a>
+          <h4 class="text-muted-light">
+            No patients found
+          </h4>
+
+          <p class="text-muted-light small mb-0">
+            Start by assigning patients or creating new ones
+          </p>
+
+        </div>
 
       </div>
 
+      <div class="col-12" *ngIf="loadingDashboard && !initialDataLoaded">
 
-      <!-- Patient Hub -->
-      <div class="col-12 col-md-6">
+        <div class="card-dark p-5 text-center">
 
-        <a
-          routerLink="/therapist/patient-hub-logging"
-          class="card-dark p-4 h-100 d-flex align-items-center gap-3 text-decoration-none">
-
-          <div class="icon-badge flex-shrink-0">
-
-            <span class="material-symbols-outlined">
-              clinical_notes
-            </span>
-
+          <div class="spinner-container">
+            <div class="spinner-large"></div>
           </div>
 
-          <div class="flex-grow-1">
+          <p class="text-muted-light">Loading patient data...</p>
 
-            <h4 class="h5 fw-bold mb-1">
-              Patient Hub &amp; Logging
-            </h4>
-
-            <p class="text-muted-light small mb-0">
-              Review comprehensive session summaries, clinician notes,
-              and compliance logs.
-            </p>
-
-          </div>
-
-          <span class="material-symbols-outlined text-primary">
-            arrow_forward
-          </span>
-
-        </a>
-
-      </div>
-
-
-      <!-- Session History -->
-      <div class="col-12 col-md-6">
-
-        <a
-          routerLink="/therapist/session-history-charts"
-          class="card-dark p-4 h-100 d-flex align-items-center gap-3 text-decoration-none">
-
-          <div class="icon-badge flex-shrink-0">
-
-            <span class="material-symbols-outlined">
-              monitoring
-            </span>
-
-          </div>
-
-          <div class="flex-grow-1">
-
-            <h4 class="h5 fw-bold mb-1">
-              Session History &amp; Charts
-            </h4>
-
-            <p class="text-muted-light small mb-0">
-              Visualize longitudinal kinematic telemetry, range of motion
-              trends, and recovery velocity.
-            </p>
-
-          </div>
-
-          <span class="material-symbols-outlined text-primary">
-            arrow_forward
-          </span>
-
-        </a>
-
-      </div>
-
-
-      <!-- Profile Settings -->
-      <div class="col-12 col-md-6">
-
-        <a
-          routerLink="/therapist/profile-settings"
-          class="card-dark p-4 h-100 d-flex align-items-center gap-3 text-decoration-none">
-
-          <div class="icon-badge flex-shrink-0">
-
-            <span class="material-symbols-outlined">
-              settings_account_box
-            </span>
-
-          </div>
-
-          <div class="flex-grow-1">
-
-            <h4 class="h5 fw-bold mb-1">
-              Profile &amp; Settings
-            </h4>
-
-            <p class="text-muted-light small mb-0">
-              Manage clinical bio, specializations, credentials,
-              and practice information.
-            </p>
-
-          </div>
-
-          <span class="material-symbols-outlined text-primary">
-            arrow_forward
-          </span>
-
-        </a>
+        </div>
 
       </div>
 
     </div>
 
   </section>
+
+</div>
+
+<div class="modal-overlay" *ngIf="showAssignModal" (click)="closeAssignModal()">
+
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+
+      <h3 class="modal-title">Assign New Patient</h3>
+
+      <button
+        type="button"
+        class="modal-close"
+        (click)="closeAssignModal()"
+        aria-label="Close modal">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="mode-selector">
+
+        <button
+          type="button"
+          class="mode-btn"
+          [class.active]="assignmentMode === 'select'"
+          (click)="assignmentMode = 'select'">
+          <span class="mode-icon">👥</span>
+          <span class="mode-text">Select Unassigned Patient</span>
+        </button>
+
+        <button
+          type="button"
+          class="mode-btn"
+          [class.active]="assignmentMode === 'manual'"
+          (click)="assignmentMode = 'manual'">
+          <span class="mode-icon">✏️</span>
+          <span class="mode-text">Enter Patient Code</span>
+        </button>
+
+      </div>
+
+      <div class="mode-content">
+
+        <div *ngIf="assignmentMode === 'select'" class="select-mode">
+
+          <label class="select-label">Choose a patient to assign:</label>
+
+          <div *ngIf="loadingUnassignedPatients" class="loading-patients">
+            <div class="spinner-small"></div>
+            <p class="text-muted-light">Loading patients...</p>
+          </div>
+
+          <div *ngIf="!loadingUnassignedPatients && unassignedPatients.length === 0" class="no-patients">
+            <p class="text-muted-light">No unassigned patients available</p>
+          </div>
+
+          <div *ngIf="!loadingUnassignedPatients && unassignedPatients.length > 0" class="patient-list">
+
+            <button
+              *ngFor="let patient of unassignedPatients"
+              type="button"
+              class="patient-option"
+              [class.selected]="selectedPatient?._id === patient._id"
+              (click)="selectPatient(patient)">
+
+              <div class="patient-checkbox">
+                <span *ngIf="selectedPatient?._id === patient._id" class="material-symbols-outlined">check</span>
+              </div>
+
+              <div class="patient-option-info">
+                <span class="patient-option-name">{{ patient.fullName }}</span>
+                <span class="patient-option-code">{{ patient.patientCode }}</span>
+                <span class="patient-option-injury">{{ patient.injuryType }}</span>
+              </div>
+
+            </button>
+
+          </div>
+
+        </div>
+
+        <div *ngIf="assignmentMode === 'manual'" class="manual-mode">
+
+          <label class="manual-label">Enter Patient Code:</label>
+
+          <input
+            type="text"
+            class="manual-input"
+            [(ngModel)]="manualCode"
+            placeholder="e.g., PAT-1234"
+            aria-label="Patient code input">
+
+          <p class="manual-hint">Enter the patient code provided by the patient during registration.</p>
+
+        </div>
+
+      </div>
+
+      <div *ngIf="assignmentMessage" class="assignment-message" [class.success]="assignmentSuccess">
+        {{ assignmentMessage }}
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="closeAssignModal()">
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="assigningPatient"
+        (click)="submitAssignment()">
+
+        <span *ngIf="!assigningPatient" class="material-symbols-outlined align-middle me-1">
+          check
+        </span>
+
+        <span *ngIf="assigningPatient" class="spinner-small"></span>
+
+        {{ assigningPatient ? 'Assigning...' : 'Assign Patient' }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="showAnalyticsModal" (click)="closeAnalyticsModal()">
+
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+
+      <h3 class="modal-title">Patient Analytics</h3>
+
+      <button
+        type="button"
+        class="modal-close"
+        (click)="closeAnalyticsModal()"
+        aria-label="Close modal">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div *ngIf="loadingAnalytics" class="loading-analytics">
+        <div class="spinner-small"></div>
+        <p class="text-muted-light">Loading analytics...</p>
+      </div>
+
+      <div *ngIf="!loadingAnalytics && selectedPatientAnalytics" class="analytics-content">
+
+        <div class="analytics-header mb-4">
+          <h4 class="h5 mb-1">{{ selectedPatientAnalytics.patientName }}</h4>
+          <p class="text-muted-light small mb-0">Kinematic Metrics & Session Progress</p>
+        </div>
+
+        <div class="analytics-grid">
+
+          <div class="analytics-card">
+            <span class="analytics-label">PAIN LEVEL</span>
+            <div class="analytics-value" [ngClass]="'pain-' + getPainLevelColor(selectedPatientAnalytics.painLevel)">
+              {{ selectedPatientAnalytics.painLevel }}/10
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <span class="analytics-label">ADHERENCE RATE</span>
+            <div class="analytics-value" [ngClass]="'adherence-' + getAdherenceColor(selectedPatientAnalytics.programAdherence)">
+              {{ selectedPatientAnalytics.programAdherence }}%
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <span class="analytics-label">TOTAL SESSIONS</span>
+            <div class="analytics-value text-primary">
+              {{ selectedPatientAnalytics.totalSessions }}
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <span class="analytics-label">AVG DURATION</span>
+            <div class="analytics-value text-primary">
+              {{ selectedPatientAnalytics.complianceMetrics.averageDuration }}m
+            </div>
+          </div>
+
+        </div>
+
+        <div class="compliance-section mt-4">
+
+          <h5 class="h6 mb-3">Compliance Breakdown</h5>
+
+          <div class="compliance-row mb-3">
+            <div class="compliance-label">
+              <span>Sessions Completed</span>
+              <strong class="text-success">{{ selectedPatientAnalytics.complianceMetrics.sessionsCompleted }}</strong>
+            </div>
+            <div class="compliance-bar">
+              <div class="compliance-bar-fill completed" [style.width.%]="(selectedPatientAnalytics.complianceMetrics.sessionsCompleted / selectedPatientAnalytics.totalSessions * 100)"></div>
+            </div>
+          </div>
+
+          <div class="compliance-row">
+            <div class="compliance-label">
+              <span>Sessions Skipped</span>
+              <strong class="text-danger">{{ selectedPatientAnalytics.complianceMetrics.sessionsSkipped }}</strong>
+            </div>
+            <div class="compliance-bar">
+              <div class="compliance-bar-fill skipped" [style.width.%]="(selectedPatientAnalytics.complianceMetrics.sessionsSkipped / selectedPatientAnalytics.totalSessions * 100)"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="closeAnalyticsModal()">
+        Close
+      </button>
+
+    </div>
+
+  </div>
 
 </div>

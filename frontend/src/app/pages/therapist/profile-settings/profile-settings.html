@@ -4,7 +4,43 @@
     <p class="page-subtitle">Manage your account information, clinical credentials, and patient referral credentials.</p>
   </header>
 
+  <!-- CRITICAL ERROR -->
+  <div *ngIf="criticalError" class="alert alert-danger alert-dismissible fade show mb-4">
+    {{ criticalError }}
+    <button type="button" class="btn-close" (click)="clearMessages()"></button>
+  </div>
+
+  <!-- SUCCESS MESSAGE -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mb-4">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="clearMessages()"></button>
+  </div>
+
   <div class="settings-grid">
+    <!-- PROFILE PICTURE UPLOAD SECTION -->
+    <div class="settings-card profile-card">
+      <div class="profile-header">
+        <div class="profile-picture-section">
+          <div class="profile-avatar-wrapper">
+            <img [src]="profileImageUrl" alt="Profile Picture" class="profile-avatar" />
+            <div *ngIf="isUploadingPicture" class="upload-overlay">
+              <div class="spinner-border spinner-border-sm"></div>
+            </div>
+          </div>
+          <div class="upload-info">
+            <h3 class="upload-title">Profile Picture</h3>
+            <p class="upload-subtitle">JPG, PNG, GIF or WebP. Max 5MB.</p>
+            <label class="btn btn-primary upload-btn">
+              <span *ngIf="!isUploadingPicture">Choose Image</span>
+              <span *ngIf="isUploadingPicture">Uploading...</span>
+              <input type="file" accept="image/*" (change)="onProfilePictureSelected($event)" [disabled]="isUploadingPicture" style="display: none;" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRACTICE REFERRAL CODE -->
     <div class="settings-card highlight-card">
       <div class="card-header-group">
         <div class="card-icon-badge">
@@ -28,9 +64,16 @@
       </div>
     </div>
 
+    <!-- ACCOUNT INFORMATION (EDITABLE) -->
     <div class="settings-card">
-      <h3 class="card-heading">Account Information</h3>
-      <div class="info-list">
+      <div class="card-header-with-action">
+        <h3 class="card-heading">Account Information</h3>
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="toggleEdit()" [disabled]="isSaving">
+          {{ isEditing ? 'Cancel' : 'Edit Profile' }}
+        </button>
+      </div>
+
+      <div *ngIf="!isEditing" class="info-list">
         <div class="info-row">
           <span class="info-label">Full Name</span>
           <span class="info-val">{{ user?.fullName || 'Clinician' }}</span>
@@ -52,6 +95,36 @@
         <div class="info-row" *ngIf="user?.bio">
           <span class="info-label">Clinical Bio</span>
           <span class="info-val">{{ user.bio }}</span>
+        </div>
+      </div>
+
+      <!-- EDIT FORM -->
+      <div *ngIf="isEditing" class="edit-form">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.fullName" placeholder="Enter your full name" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address (Read-only)</label>
+          <input type="email" class="form-control" [value]="user?.email" disabled />
+          <small class="form-text">Email cannot be changed for security reasons</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Clinical Bio</label>
+          <textarea class="form-control" [(ngModel)]="formData.bio" placeholder="Brief bio or professional summary" rows="4"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelEdit()" [disabled]="isSaving">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-purple" (click)="saveProfile()" [disabled]="isSaving">
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+            <span *ngIf="isSaving">Saving...</span>
+            <span *ngIf="!isSaving">Save Changes</span>
+          </button>
         </div>
       </div>
     </div>

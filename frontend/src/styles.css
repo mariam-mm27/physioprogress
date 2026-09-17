@@ -1,3 +1,4 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
 /* PhysioProgress Global Styles */
 :root {
   --bs-body-bg: #09090b;

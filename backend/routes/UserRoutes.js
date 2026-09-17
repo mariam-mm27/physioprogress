@@ -13,6 +13,11 @@ router
   .post(userController.createUser);
 
 router.get('/deleted', userController.getDeletedUsers);
+
+router.get('/therapist/patients', protect, userController.getTherapistPatients);
+
+router.get('/unassigned-patients', protect, restrictTo("therapist"), userController.getUnassignedPatients);
+
 router.get('/patients', protect, restrictTo("therapist"), GetPatients);
 
 router.put(
@@ -31,24 +36,16 @@ router.post(
   userController.uploadProfilePicture
 );
 
+router.put(
+  '/assign-patient',
+  protect,
+  userController.assignPatient
+);
+
 router
   .route('/:id')
   .get(userController.getOneUser)
   .patch(userController.updateUser)
   .delete(userController.softDeleteUser);
-
-router.put(
-  '/assign-patient',
-  protect,
-  restrictTo("therapist"),
-  userController.assignPatient
-);
-
-router.get(
-  '/unassigned-patients',
-  protect,
-  restrictTo("therapist"),
-  userController.getUnassignedPatients
-);
 
 module.exports = router;

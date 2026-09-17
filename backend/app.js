@@ -17,6 +17,12 @@ const expressLimit = require("express-rate-limit");
 
 const app = express();
 
+// Global request logger
+app.use((req, res, next) => {
+  console.log(`📨 ${req.method} ${req.url}`);
+  next();
+});
+
 // Logging middleware
 app.use(morgan("dev"));
 

@@ -220,6 +220,10 @@ exports.uploadProfilePicture = catchAsync(async (req, res, next) => {
 });
 
 exports.assignPatient = catchAsync(async (req, res, next) => {
+  console.log('🔧 assignPatient endpoint hit');
+  console.log('Request body:', req.body);
+  console.log('User:', req.user);
+  
   const { patientCode } = req.body;
   if (!patientCode) {
     return next(new AppError(400, "Patient code is required"));
@@ -248,19 +252,46 @@ exports.assignPatient = catchAsync(async (req, res, next) => {
   });
 })
 
+exports.getTherapistPatients = catchAsync(async (req, res, next) => {
+  const therapistId = req.user._id;
+  
+  const [patients, totalResults] = await Promise.all([
+    User.find({
+      role: "patient",
+      isDeleted: false,
+      assignedTherapist: therapistId
+    }).select('_id fullName email patientCode injuryType profilePicture'),
+    User.countDocuments({
+      role: "patient",
+      isDeleted: false,
+      assignedTherapist: therapistId
+    })
+  ]);
+
+  res.status(200).json({
+    success: true,
+    results: patients.length,
+    totalResults,
+    data: patients
+  });
+});
+
 exports.getUnassignedPatients = catchAsync(async (req, res, next) => {
   const page = Math.max(Number(req.query.page) || 1, 1);
-  const limit = Math.max(Number(req.query.limit) || 10, 1);
+  const limit = Math.max(Number(req.query.limit) || 100, 1);
   const skip = (page - 1) * limit;
 
-  const filter = await User.find({
+  const filter = {
     role: "patient",
-    assignedTherapist: null,
-    isDeleted: false
-  })
+    isDeleted: false,
+    assignedTherapist: { $in: [null, undefined] }
+  };
+
+  const query = { role: "patient", isDeleted: false, $or: [{ assignedTherapist: null }, { assignedTherapist: { $exists: false } }] };
+  
   const [patients, totalResults] = await Promise.all([
-    User.find(filter).skip(skip).limit(limit),
-    User.countDocuments(filter)
+    User.find(query).skip(skip).limit(limit).select('_id fullName email patientCode injuryType profilePicture'),
+    User.countDocuments(query)
   ]);
 
   res.status(200).json({

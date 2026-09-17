@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const {
     getWeeklyAnalytics,
-    getMonthlyAnalytics
+    getMonthlyAnalytics,
+    getTherapistDashboard
 } = require("../controllers/AnalyticsController");
 
 const { protect } = require("../middlewares/authentication");
@@ -21,6 +22,16 @@ router.get(
     protect,
     restrictTo("patient", "therapist"),
     getMonthlyAnalytics
+);
+
+/**
+ * Get therapist dashboard with all patient data
+ */
+router.get(
+    "/therapist/dashboard",
+    protect,
+    restrictTo("therapist"),
+    getTherapistDashboard
 );
 
 module.exports = router;

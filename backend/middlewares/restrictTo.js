@@ -1,13 +1,18 @@
 const AppError = require("../utils/AppError");
 
-const restrictTo = (...roles) => (req, res, next) => {
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return next(new AppError(401, "User not authenticated"));
+    }
     const { role } = req.user;
     
     if (roles.includes(role)) {
-    return next();
+      return next();
     }
 
     return next(new AppError(403, "You are not allowed to access this route"));
+  };
 };
 
 const isTherapist = (req, res, next) => {

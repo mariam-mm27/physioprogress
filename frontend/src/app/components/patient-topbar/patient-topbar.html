@@ -50,17 +50,21 @@
       <div class="user-info">
 
         <span class="user-name">
-          {{ patientData?.fullName || patientData?.name || 'Patient' }}
+          {{ patientData?.fullName || 'Patient' }}
         </span>
 
         <span class="user-id">
-          ID #{{ patientData?.patientCode || (patientData?._id || patientData?.id)?.substring(0, 6) || '------' }}
+          ID #{{ patientData?.patientCode || patientData?._id?.substring(0, 6) || '------' }}
         </span>
 
       </div>
 
-      <div class="user-avatar">
-        <i class="bi bi-person-fill"></i>
+      <div class="user-avatar"
+           [style.background-image]="profileImageUrl && profileImageUrl !== '/assets/default-avatar.png' ? 'url(' + profileImageUrl + ')' : 'none'"
+           [style.background-size]="'cover'"
+           [style.background-position]="'center'"
+           [ngClass]="{'has-image': profileImageUrl && profileImageUrl !== '/assets/default-avatar.png'}">
+        <i class="bi bi-person-fill" *ngIf="!profileImageUrl || profileImageUrl === '/assets/default-avatar.png'"></i>
       </div>
 
     </div>

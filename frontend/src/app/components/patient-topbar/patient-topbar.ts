@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PatientService } from '../../core/services/patient.service';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, AuthUser } from '../../services/auth.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-patient-topbar',
@@ -10,11 +12,12 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './patient-topbar.css',
   templateUrl: './patient-topbar.html',
 })
-export class PatientTopbar implements OnInit {
+export class PatientTopbar implements OnInit, OnDestroy {
 
-  patientData: any = null;
+  patientData: AuthUser | null = null;
   patientId = '';
   showNotifications = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private patientService: PatientService,
@@ -22,6 +25,15 @@ export class PatientTopbar implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Subscribe to shared user observable for real-time updates
+    this.authService.user$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
+        if (user) {
+          this.patientData = user;
+        }
+      });
+
     const user: any = this.authService.getUser();
 
     if (user) {
@@ -36,32 +48,41 @@ export class PatientTopbar implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   fetchUserData(): void {
     const token = this.authService.getToken();
 
     if (typeof (this.authService as any).fetchMe === 'function') {
-      (this.authService as any).fetchMe().subscribe({
-        next: (res: any) => {
-          const userData = res.data?.user || res.data;
+      (this.authService as any).fetchMe()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res: any) => {
+            const userData = res.data?.user || res.data;
 
-          if (userData) {
-            this.handleUserLoaded(userData);
+            if (userData) {
+              this.handleUserLoaded(userData);
+            }
           }
-        }
-      });
+        });
     } else if (
       token &&
       typeof (this.authService as any).getMe === 'function'
     ) {
-      (this.authService as any).getMe(token).subscribe({
-        next: (res: any) => {
-          const userData = res.data?.user || res.data;
+      (this.authService as any).getMe(token)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res: any) => {
+            const userData = res.data?.user || res.data;
 
-          if (userData) {
-            this.handleUserLoaded(userData);
+            if (userData) {
+              this.handleUserLoaded(userData);
+            }
           }
-        }
-      });
+        });
     }
   }
 
@@ -79,17 +100,19 @@ export class PatientTopbar implements OnInit {
   loadPatientProfile(): void {
     if (!this.patientId) return;
 
-    this.patientService.getPatientProfile(this.patientId).subscribe({
-      next: (response) => {
-        this.patientData = {
-          ...this.patientData,
-          ...response.data
-        };
-      },
-      error: (error) => {
-        console.error('Error loading patient profile:', error);
-      }
-    });
+    this.patientService.getPatientProfile(this.patientId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.patientData = {
+            ...this.patientData,
+            ...response.data
+          };
+        },
+        error: (error) => {
+          console.error('Error loading patient profile:', error);
+        }
+      });
   }
 
   toggleNotifications(): void {
@@ -104,5 +127,9 @@ export class PatientTopbar implements OnInit {
     return this.patientData?.patientCode ||
            this.patientData?._id ||
            'ID #-';
+  }
+
+  get profileImageUrl(): string {
+    return this.patientData?.profilePicture?.url || '/assets/default-avatar.png';
   }
 }

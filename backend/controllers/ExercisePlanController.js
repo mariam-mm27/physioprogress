@@ -46,7 +46,9 @@ const createExercisePlan = catchAsync(async (req, res, next) => {
         reps,
         frequencyPerWeek,
         videoUrl: finalVideoUrl,
-        videoSource: req.file ? "custom" : (videoSource || "external")
+        videoSource: req.file
+            ? "custom"
+            : (videoSource || "external")
     });
 
     res.status(201).json({
@@ -56,7 +58,8 @@ const createExercisePlan = catchAsync(async (req, res, next) => {
     });
 });
 
-const getExercisePlans = catchAsync(async (req, res, next) => {
+
+const getExercisePlans = catchAsync(async (req, res) => {
     const patientId = req.params.patientId;
 
     const page = Number(req.query.page) || 1;
@@ -76,12 +79,15 @@ const getExercisePlans = catchAsync(async (req, res, next) => {
         filter.targetMuscle = req.query.muscle;
     }
 
-    const exercisePlans = await ExercisePlans.find(filter)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit);
+    const [exercisePlans, totalPlans] = await Promise.all([
+        ExercisePlans.find(filter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .lean(),
 
-    const totalPlans = await ExercisePlans.countDocuments(filter);
+        ExercisePlans.countDocuments(filter)
+    ]);
 
     res.status(200).json({
         success: true,
@@ -96,6 +102,7 @@ const getExercisePlans = catchAsync(async (req, res, next) => {
         }
     });
 });
+
 
 const UpdateExercisePlan = catchAsync(async (req, res, next) => {
     if (
@@ -158,6 +165,7 @@ const UpdateExercisePlan = catchAsync(async (req, res, next) => {
     });
 });
 
+
 const DeleteExercisePlan = catchAsync(async (req, res, next) => {
     const exercisePlan = await ExercisePlans.findOneAndDelete({
         _id: req.params.id,
@@ -179,27 +187,29 @@ const DeleteExercisePlan = catchAsync(async (req, res, next) => {
     });
 });
 
-const GetPatients = catchAsync(async (req, res, next) => {
+
+const GetPatients = catchAsync(async (req, res) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     const sort = req.query.sort || "-createdAt";
 
-    const patients = await User.find({
+    const filter = {
         role: "patient",
         assignedTherapist: req.user._id,
         isDeleted: false
-    })
-        .select("fullName email")
-        .sort(sort)
-        .skip(skip)
-        .limit(limit);
+    };
 
-    const totalPatients = await User.countDocuments({
-        role: "patient",
-        assignedTherapist: req.user._id,
-        isDeleted: false
-    });
+    const [patients, totalPatients] = await Promise.all([
+        User.find(filter)
+            .select("fullName email")
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+
+        User.countDocuments(filter)
+    ]);
 
     res.status(200).json({
         success: true,
@@ -212,6 +222,7 @@ const GetPatients = catchAsync(async (req, res, next) => {
         }
     });
 });
+
 
 module.exports = {
     createExercisePlan,

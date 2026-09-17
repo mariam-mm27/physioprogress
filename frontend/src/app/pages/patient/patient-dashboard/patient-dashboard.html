@@ -2,6 +2,7 @@
 
   <div class="top-row">
 
+    <!-- Welcome Card -->
     <div class="welcome-card">
       <div class="badge-group">
         <span class="badge badge-purple">REHABILITATION PROGRAM</span>
@@ -13,8 +14,7 @@
       </h1>
 
       <p class="sub-text">
-        Track your rehabilitation progress, complete assigned exercise plans, and submit real-time recovery information
-        to your care team.
+        Track your rehabilitation progress, complete assigned exercise plans, and submit real-time recovery information to your care team.
       </p>
 
       <div class="clinical-box">
@@ -39,54 +39,71 @@
       </div>
     </div>
 
+    <!-- Assigned Therapist Card (Attending Clinician) -->
     <div class="therapist-card">
-      <div class="therapist-top">
-        <span class="card-lbl">ATTENDING CLINICIAN</span>
 
-        <span class="status-online">
-          <span class="green-dot"></span>
-          Active Link
+      <div class="therapist-top">
+        <span class="card-lbl">
+          ATTENDING CLINICIAN
+        </span>
+
+        <span [class]="hasTherapist ? 'status-online' : 'status-offline'">
+          <span class="green-dot" *ngIf="hasTherapist"></span>
+          {{ hasTherapist ? 'Active Link Established' : 'No Clinician Assigned' }}
         </span>
       </div>
 
-      <div class="therapist-profile">
-        <div class="doc-img therapist-placeholder">
-          <i class="bi bi-person-badge"></i>
+      <!-- State 1: Therapist Assigned -->
+      <div class="therapist-profile" *ngIf="hasTherapist">
+        <div class="doc-img">
+          <img 
+            [src]="patientData?.assignedTherapist?.profilePicture?.url" 
+            alt="Therapist Photo" 
+            class="clinician-avatar"
+          />
+          <i class="bi bi-check-circle-fill verified-badge"></i>
         </div>
 
         <div class="doc-info">
           <h4>
-            {{ patientData?.assignedTherapist?.fullName || 'Not assigned' }}
+            Dr. {{ patientData?.assignedTherapist?.fullName || 'Therapist' }}
           </h4>
-
-          <p>
-            {{ patientData?.assignedTherapist?.email || 'No therapist assigned' }}
+          <p class="dept-text">
+            {{ patientData?.assignedTherapist?.department || 'Department of Physical Therapy' }}
           </p>
-
-          <small>Assigned Therapist</small>
+          <small class="spec-text">
+            {{ patientData?.assignedTherapist?.specialization || 'Sports Rehabilitation & Orthopedics' }}
+          </small>
         </div>
       </div>
 
+      <!-- State 2: No Therapist Assigned -->
+      <div class="therapist-profile empty-therapist" *ngIf="!hasTherapist">
+        <div class="doc-img therapist-placeholder">
+          <i class="bi bi-person-badge"></i>
+        </div>
+        <div class="doc-info">
+          <h4>No Therapist Linked</h4>
+          <p>Please enter therapist code in settings or ask your clinician to add you.</p>
+        </div>
+      </div>
+
+      <!-- Footer: Next Review -->
       <div class="review-schedule">
-        <i class="bi bi-activity"></i>
-
-        <div>
-          <span class="lbl">CURRENT STATUS</span>
-
+        <div class="review-details">
+          <span class="lbl">NEXT CLINICAL REVIEW</span>
           <strong>
-            {{
-            patientData?.assignedTherapist
-            ? 'Active Care Link'
-            : 'Awaiting Assignment'
-            }}
+            {{ patientData?.assignedTherapist?.nextReview || 'Thursday, 10:30 AM (In-Clinic)' }}
           </strong>
         </div>
+        <i class="bi bi-calendar-event cal-icon"></i>
       </div>
+
     </div>
 
   </div>
 
-
+  <!-- KPI Row -->
   <div class="kpi-row">
 
     <div class="kpi-card">
@@ -101,8 +118,7 @@
       </div>
 
       <div class="kpi-progress">
-        <div class="progress-fill" [style.width.%]="adherence">
-        </div>
+        <div class="progress-fill" [style.width.%]="adherence"></div>
       </div>
 
       <div class="kpi-foot">
@@ -110,7 +126,6 @@
         <strong>{{ completedSessions }}</strong>
       </div>
     </div>
-
 
     <div class="kpi-card">
       <div class="kpi-head">
@@ -123,13 +138,11 @@
           {{ averagePain }}
           <small>/ 10</small>
         </span>
-
         <span class="trend">Current Average</span>
       </div>
 
       <div class="pain-progress">
-        <div class="pain-fill" [style.width.%]="averagePain * 10">
-        </div>
+        <div class="pain-fill" [style.width.%]="averagePain * 10"></div>
       </div>
 
       <div class="kpi-foot">
@@ -137,7 +150,6 @@
         <strong>{{ averagePain }}/10</strong>
       </div>
     </div>
-
 
     <div class="kpi-card">
       <div class="kpi-head">
@@ -160,11 +172,10 @@
 
   </div>
 
-
+  <!-- Main Grid -->
   <div class="main-grid">
 
     <div class="plans-column">
-
       <div class="section-title-bar">
         <div>
           <h2>Assigned Exercise Plans</h2>
@@ -173,7 +184,6 @@
 
         <div class="badges-right">
           <span class="badge badge-purple-sm">ACTIVE</span>
-
           <span class="sync-tag">
             <i class="bi bi-arrow-repeat"></i>
             SYNCED
@@ -181,79 +191,49 @@
         </div>
       </div>
 
-
       <div *ngIf="isLoading" class="loading-card">
         <div class="spinner-border" role="status"></div>
         <span>Loading exercise plans...</span>
       </div>
 
-
       <div *ngIf="!isLoading && errorMessage" class="alert alert-danger">
-
         {{ errorMessage }}
-
       </div>
-
 
       <div *ngIf="!isLoading && !errorMessage && exercisePlans.length === 0" class="empty-card">
-
         <i class="bi bi-clipboard-x"></i>
-
         <h4>No Exercise Plans</h4>
-
-        <p>
-          Your therapist has not assigned any exercise plans yet.
-        </p>
-
+        <p>Your therapist has not assigned any exercise plans yet.</p>
       </div>
 
-
       <div class="exercise-cards-list" *ngIf="!isLoading && !errorMessage">
-
         <div class="exercise-card" *ngFor="let plan of exercisePlans">
-
-          <div class="video-thumb" [class.no-video]="!plan.videoUrl"
-            (click)="plan.videoUrl && openVideoModal(plan.videoUrl)">
-
+          <div 
+            class="video-thumb" 
+            [class.no-video]="!plan.videoUrl" 
+            (click)="plan.videoUrl && openVideoModal(plan.videoUrl)"
+          >
             <img *ngIf="plan.videoUrl" [src]="getVideoThumbnail(plan.videoUrl)" alt="Exercise video thumbnail">
-
             <div *ngIf="plan.videoUrl" class="play-circle">
-
               <i class="bi bi-play-fill"></i>
-
             </div>
-
-            <span *ngIf="plan.videoUrl" class="dur-tag">
-
-              VIDEO
-
-            </span>
-
+            <span *ngIf="plan.videoUrl" class="dur-tag">VIDEO</span>
           </div>
 
-
           <div class="plan-details">
-
             <div class="plan-head">
-
               <span class="muscle-tag">
                 {{ plan.targetMuscle || plan.customMuscle || 'General' }}
               </span>
-
               <span class="est-tag">
                 {{ plan.frequencyPerWeek }}x / week
               </span>
-
             </div>
 
-
             <h3>{{ plan.exerciseName }}</h3>
-
             <p>{{ plan.title }}</p>
 
-
             <div class="specs-row">
-
               <div class="spec">
                 <strong>{{ plan.reps }}</strong>
                 <small>Reps</small>
@@ -264,197 +244,128 @@
                 <small>Sessions / Week</small>
               </div>
 
-              <button *ngIf="plan.videoUrl" type="button" class="btn-preview" (click)="openVideoModal(plan.videoUrl)">
-
+              <button 
+                *ngIf="plan.videoUrl" 
+                type="button" 
+                class="btn-preview" 
+                (click)="openVideoModal(plan.videoUrl)"
+              >
                 Preview Video
-
                 <i class="bi bi-box-arrow-up-right"></i>
-
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
 
-
+    <!-- Log Session Column -->
     <div class="log-column">
-
       <div class="log-box">
-
         <div class="log-box-head">
-
           <div>
             <h3>
               <i class="bi bi-check-square"></i>
               Log Completed Session
             </h3>
-
-            <p>
-              Submit your completed exercise session
-            </p>
+            <p>Submit your completed exercise session</p>
           </div>
-
-          <span class="api-badge">
-            POST /api/logs
-          </span>
-
         </div>
 
-
         <form (ngSubmit)="submitLog()">
-
           <div class="form-group">
-
             <label>
               SELECT ASSIGNED PLAN
               <span class="req">REQUIRED</span>
             </label>
 
             <select [(ngModel)]="selectedPlanId" name="plan" class="custom-select" required>
-
-              <option value="" disabled>
-                Select Plan
-              </option>
-
+              <option value="" disabled>Select Plan</option>
               <option *ngFor="let plan of exercisePlans" [value]="plan._id">
-
                 {{ plan.exerciseName }}
-
               </option>
-
             </select>
-
           </div>
 
-
           <div class="form-group">
-
             <div class="flex-between">
-
-              <label>
-                POST-SESSION PAIN LEVEL
-              </label>
-
-              <span class="pain-num">
-                {{ painLevel }} / 10
-              </span>
-
+              <label>POST-SESSION PAIN LEVEL</label>
+              <span class="pain-num">{{ painLevel }} / 10</span>
             </div>
 
-
-            <input type="range" min="1" max="10" step="1" [(ngModel)]="painLevel" name="painLevel" class="custom-range">
-
+            <input 
+              type="range" 
+              min="1" 
+              max="10" 
+              step="1" 
+              [(ngModel)]="painLevel" 
+              name="painLevel" 
+              class="custom-range"
+            >
 
             <div class="pain-status" [ngClass]="painStatus.class">
-
-              <i class="bi" [ngClass]="painStatus.icon">
-              </i>
-
-              <span>
-                {{ painStatus.text }}
-              </span>
-
+              <i class="bi" [ngClass]="painStatus.icon"></i>
+              <span>{{ painStatus.text }}</span>
             </div>
-
 
             <div class="range-labels">
-
               <span>1-3 Mild</span>
-
               <span>4-6 Moderate</span>
-
               <span>7-10 Severe</span>
-
             </div>
-
           </div>
-
 
           <div class="form-group">
-
             <div class="flex-between">
-
-              <label>
-                SESSION NOTES
-              </label>
-
-              <span class="tele-tag">
-                OPTIONAL
-              </span>
-
+              <label>SESSION NOTES</label>
+              <span class="tele-tag">OPTIONAL</span>
             </div>
 
-            <textarea [(ngModel)]="sessionNotes" name="notes" rows="3" class="custom-textarea"
-              placeholder="Describe any sensations, tightness, or feedback...">
-            </textarea>
-
+            <textarea 
+              [(ngModel)]="sessionNotes" 
+              name="notes" 
+              rows="3" 
+              class="custom-textarea" 
+              placeholder="Describe any sensations, tightness, or feedback..."
+            ></textarea>
           </div>
 
-
-          <button type="submit" class="btn-submit" [disabled]="isSubmitting || !selectedPlanId">
-
-            <i class="bi" [class.bi-play-fill]="!isSubmitting" [class.bi-arrow-repeat]="isSubmitting">
-            </i>
-
-            {{
-            isSubmitting
-            ? 'Submitting Session...'
-            : 'Submit Completed Session'
-            }}
-
+          <button 
+            type="submit" 
+            class="btn-submit" 
+            [disabled]="isSubmitting || !selectedPlanId"
+          >
+            <i 
+              class="bi" 
+              [class.bi-play-fill]="!isSubmitting" 
+              [class.bi-arrow-repeat]="isSubmitting"
+            ></i>
+            {{ isSubmitting ? 'Submitting Session...' : 'Submit Completed Session' }}
           </button>
 
-
           <div *ngIf="submitSuccess" class="success-message">
-
             <i class="bi bi-check-circle"></i>
-
-            <span>
-              Session submitted successfully.
-            </span>
-
+            <span>Session submitted successfully.</span>
           </div>
 
           <div *ngIf="submitError" class="error-message">
-
             <i class="bi bi-exclamation-circle"></i>
-
-            <span>
-              {{ submitError }}
-            </span>
-
+            <span>{{ submitError }}</span>
           </div>
-
         </form>
-
       </div>
-
     </div>
 
   </div>
 
 </div>
 
-
+<!-- Video Modal -->
 <div class="video-modal" *ngIf="activeVideoUrl" (click)="closeVideoModal()">
-
   <div class="video-container" (click)="$event.stopPropagation()">
-
     <button type="button" class="close-video" (click)="closeVideoModal()">
-
       <i class="bi bi-x-lg"></i>
-
     </button>
-
-    <iframe [src]="activeVideoUrl" class="video-frame" allowfullscreen>
-    </iframe>
-
+    <iframe [src]="activeVideoUrl" class="video-frame" allowfullscreen></iframe>
   </div>
-
 </div>

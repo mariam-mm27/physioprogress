@@ -1,4 +1,5 @@
-<aside class="sidebar">
+
+<aside class="sidebar d-flex flex-column" style="height: 100vh;">
 
   <div class="sidebar-header">
 
@@ -58,47 +59,62 @@
   </div>
 
 
-  <div class="sidebar-footer">
+  <!-- Bottom Section: Patient Information + Logout -->
+  <div class="mt-auto px-3 py-3 d-flex flex-column gap-3">
 
-    <div class="user-card">
 
-      <div class="avatar-container">
+    <!-- Patient Information -->
+    <div class="sidebar-footer p-0">
 
-        <div class="avatar">
-          R2
+      <div class="user-card">
+
+        <div class="avatar-container">
+
+          <div class="avatar">
+            {{ patientInitials }}
+          </div>
+
+          <span class="status-dot"></span>
+
         </div>
 
-        <span class="status-dot"></span>
+
+        <div class="user-details">
+
+          <span class="user-name">
+            {{ patientName }}
+          </span>
+
+          <span class="user-id">
+            #{{ patientId }}
+          </span>
+
+        </div>
+
+
+        <i
+          class="bi bi-shield-check verified-icon"
+          aria-hidden="true"
+        ></i>
 
       </div>
-
-      <div class="user-details">
-
-        <span class="user-name">
-          Rahma 2 Updated
-        </span>
-
-        <span class="user-id">
-          #6aa5e5
-        </span>
-
-      </div>
-
-      <i class="bi bi-shield-check verified-icon"></i>
 
     </div>
 
-  </div>
 
-
-  <div class="mt-auto px-3 py-3">
-
-    <nav class="nav flex-column gap-1" role="navigation">
+    <!-- Logout Button -->
+    <nav class="nav flex-column" role="navigation">
 
       <button
         (click)="logout()"
         type="button"
-        style="background: transparent; border: none; text-align: left; width: 100%; cursor: pointer;"
+        style="
+          background: transparent;
+          border: none;
+          text-align: left;
+          width: 100%;
+          cursor: pointer;
+        "
         class="nav-link-custom d-flex align-items-center gap-2 px-2 py-2 rounded text-danger"
       >
 
@@ -107,7 +123,9 @@
           aria-hidden="true"
         ></i>
 
-        <span>Logout</span>
+        <span>
+          Logout
+        </span>
 
       </button>
 

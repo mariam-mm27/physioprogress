@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ExercisePlan, SessionLogPayload } from '../models/patient-dashboard';
+
+import {
+  ExercisePlan,
+  SessionLogPayload
+} from '../models/patient-dashboard';
 
 export interface ExercisePlansResponse {
   message: string;
@@ -40,25 +44,37 @@ export class PatientService {
 
   constructor(private http: HttpClient) {}
 
-  getPatientPlans(patientId: string): Observable<ExercisePlansResponse> {
+  getPatientPlans(
+    patientId: string
+  ): Observable<ExercisePlansResponse> {
     return this.http.get<ExercisePlansResponse>(
       `${this.baseUrl}/plans/${patientId}`
     );
   }
 
-  getPatientProfile(patientId: string): Observable<any> {
-  return this.http.get(
-    `${this.baseUrl}/users/${patientId}`
-  );
-}
-
-  getPatientSessionLogs(patientId: string): Observable<SessionLogsResponse> {
-  return this.http.get<SessionLogsResponse>(
-    `${this.baseUrl}/logs/patient/${patientId}`
-  );
-}
-
-  logSession(payload: SessionLogPayload): Observable<any> {
-    return this.http.post(`${this.baseUrl}/logs`, payload);
+  getPatientProfile(
+    patientId: string
+  ): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/users/${patientId}`
+    );
   }
+
+  getPatientSessionLogs(
+    patientId: string
+  ): Observable<SessionLogsResponse> {
+    return this.http.get<SessionLogsResponse>(
+      `${this.baseUrl}/logs/patient/${patientId}`
+    );
+  }
+
+  logSession(
+    payload: SessionLogPayload
+  ): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/logs`,
+      payload
+    );
+  }
+
 }

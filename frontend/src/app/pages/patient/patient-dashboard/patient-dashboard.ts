@@ -1,5 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {
+  DomSanitizer,
+  SafeResourceUrl
+} from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -54,8 +58,9 @@ export class PatientDashboard implements OnInit {
   constructor(
     private patientService: PatientService,
     private sanitizer: DomSanitizer,
-    private authService: AuthService
-  ) { }
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     const user = this.authService.getUser();
@@ -63,13 +68,20 @@ export class PatientDashboard implements OnInit {
     if (user) {
       this.patientData = user;
 
-      this.patientId = String(user._id || '');
+      this.patientId = String(
+        user._id ||
+        user['id'] ||
+        user['patientId'] ||
+        ''
+      );
 
       this.setPatientDisplayData(user);
     }
 
     if (this.patientId) {
+      // Get updated patient data including assigned therapist
       this.loadPatientProfile();
+
       this.loadExercisePlans();
       this.loadSessionLogs();
     } else {
@@ -86,7 +98,8 @@ export class PatientDashboard implements OnInit {
 
               this.patientId = String(
                 userData._id ||
-                userData.id ||
+                userData['id'] ||
+                userData['patientId'] ||
                 ''
               );
 
@@ -136,28 +149,9 @@ export class PatientDashboard implements OnInit {
       '';
   }
 
-  get painStatus() {
-    if (this.painLevel <= 3) {
-      return {
-        text: 'Mild Discomfort (Safe for progression)',
-        icon: 'bi-emoji-smile',
-        class: 'pain-mild'
-      };
-    }
-
-    if (this.painLevel <= 6) {
-      return {
-        text: 'Moderate Pain (Maintain steady control)',
-        icon: 'bi-emoji-neutral',
-        class: 'pain-moderate'
-      };
-    }
-
-    return {
-      text: 'Severe Threshold (Caution: notify Dr. Vance)',
-      icon: 'bi-emoji-frown',
-      class: 'pain-severe'
-    };
+  // Check if the patient already has a therapist
+  get hasTherapist(): boolean {
+    return !!this.patientData?.assignedTherapist;
   }
 
   loadPatientProfile(): void {
@@ -167,6 +161,7 @@ export class PatientDashboard implements OnInit {
       .getPatientProfile(this.patientId)
       .subscribe({
         next: (response) => {
+          console.log('ASSIGNED THERAPIST:', response.data?.assignedTherapist);
           this.patientData = {
             ...this.patientData,
             ...response.data
@@ -175,6 +170,14 @@ export class PatientDashboard implements OnInit {
           this.setPatientDisplayData(
             this.patientData
           );
+
+          localStorage.setItem(
+            'user',
+            JSON.stringify(this.patientData)
+          );
+
+          // Update therapist card immediately
+          this.cdr.detectChanges();
         },
 
         error: (error) => {
@@ -193,6 +196,13 @@ export class PatientDashboard implements OnInit {
       .getPatientPlans(this.patientId)
       .subscribe({
         next: (response) => {
+          console.log(
+            // 'PLANS ARRIVED:',
+            // response.exercisePlans
+             'VIDEO URL:',
+              response.exercisePlans[0]?.videoUrl
+          );
+
           this.exercisePlans =
             response.exercisePlans;
 
@@ -207,6 +217,9 @@ export class PatientDashboard implements OnInit {
           }
 
           this.calculateDashboardStats();
+
+          // Force Angular to update the UI
+          this.cdr.detectChanges();
         },
 
         error: (error) => {
@@ -216,6 +229,8 @@ export class PatientDashboard implements OnInit {
             'Failed to load exercise plans.';
 
           this.isLoading = false;
+
+          this.cdr.detectChanges();
         }
       });
   }
@@ -231,6 +246,9 @@ export class PatientDashboard implements OnInit {
             response.data;
 
           this.calculateDashboardStats();
+
+          // Force Angular to update the UI
+          this.cdr.detectChanges();
         },
 
         error: (error) => {
@@ -287,6 +305,34 @@ export class PatientDashboard implements OnInit {
     }
   }
 
+  get painStatus(): {
+    class: string;
+    icon: string;
+    text: string;
+  } {
+    if (this.painLevel <= 3) {
+      return {
+        class: 'pain-mild',
+        icon: 'bi bi-emoji-smile',
+        text: 'Mild pain level'
+      };
+    }
+
+    if (this.painLevel <= 6) {
+      return {
+        class: 'pain-moderate',
+        icon: 'bi bi-emoji-neutral',
+        text: 'Moderate pain level'
+      };
+    }
+
+    return {
+      class: 'pain-severe',
+      icon: 'bi bi-emoji-frown',
+      text: 'Severe pain level'
+    };
+  }
+
   submitLog(): void {
     if (!this.selectedPlanId) return;
 
@@ -337,24 +383,30 @@ export class PatientDashboard implements OnInit {
   }
 
   getVideoThumbnail(videoUrl: string): string {
-    if (!videoUrl) {
-      return 'assets/images/default-thumbnail.jpg';
-    }
-
-    if (videoUrl.includes('cloudinary.com')) {
-      return videoUrl
-        .replace(
-          '/video/upload/',
-          '/video/upload/so_0/'
-        )
-        .replace(
-          /\.(mp4|mov|avi|mkv)$/i,
-          '.jpg'
-        );
-    }
-
-    return 'assets/images/default-thumbnail.jpg';
+  if (!videoUrl) {
+    return '';
   }
+
+  // ExerciseDB GIF
+  if (videoUrl.endsWith('.gif')) {
+    return videoUrl;
+  }
+
+  // Cloudinary video
+  if (videoUrl.includes('cloudinary.com')) {
+    return videoUrl
+      .replace(
+        '/video/upload/',
+        '/video/upload/so_0/'
+      )
+      .replace(
+        /\.(mp4|mov|avi|mkv)$/i,
+        '.jpg'
+      );
+  }
+
+  return '';
+}
 
   closeVideoModal(): void {
     this.activeVideoUrl = null;
